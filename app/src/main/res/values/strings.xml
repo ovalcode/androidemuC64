@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="action_settings">Settings</string>
+    <string name="welcomestring">0100 AC DD DD  DD 11 11 BB 12 11 11 11 11 12 10 11 09 \n0110 AC DD DD  DD 11 11 BB 12</string>
+</resources>
