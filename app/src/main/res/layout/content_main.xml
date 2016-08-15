@@ -13,12 +13,25 @@
     android:background="#000000"
     tools:showIn="@layout/activity_main">
 
+    <EditText
+        android:id="@+id/inputSearchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="start"
+        android:gravity="center"
+        android:hint="Search text"
+        android:inputType="text"
+        android:background="@drawable/EditTextStyle"
+        android:layout_above="@+id/memoryDump"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/welcomestring"
-        android:id="@+id/textView"
+        android:id="@+id/memoryDump"
         android:background="@drawable/textview_border"
         android:layout_centerVertical="true"
         android:lines="3"
