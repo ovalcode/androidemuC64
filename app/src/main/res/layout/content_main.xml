@@ -15,16 +15,20 @@
 
     <EditText
         android:id="@+id/inputSearchEditText"
-        android:layout_width="match_parent"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:ellipsize="start"
         android:gravity="center"
         android:hint="Search text"
         android:inputType="text"
-        android:background="@drawable/EditTextStyle"
+        android:background="@drawable/edittextstyle"
+        android:layout_weight="0.5"
         android:layout_above="@+id/memoryDump"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+
+        android:layout_alignParentLeft="true"
+
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
