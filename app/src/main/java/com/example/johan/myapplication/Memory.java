@@ -14,4 +14,24 @@ public class Memory {
         mainMem[address] = (byte) (value & 0xff);
     }
 
+    public String getMemDump() {
+        String result = "";
+        byte[] temp = new byte[48];
+        for (int i=0; i < mainMem.length; i++) {
+            temp[i] = mainMem[i];
+        }
+
+        for (int i = 0; i < temp.length; i++) {
+            if ((i % 16) == 0) {
+                String numberStr = Integer.toHexString(i);
+                numberStr = "0000" + numberStr;
+                result = result + "\n" + numberStr.substring(numberStr.length() - 4);
+            }
+            String number = "0" + Integer.toHexString(temp[i] & 0xff);
+            number = number.substring(number.length() - 2);
+            result = result + " " + number;
+        }
+        return result;
+    }
+
 }

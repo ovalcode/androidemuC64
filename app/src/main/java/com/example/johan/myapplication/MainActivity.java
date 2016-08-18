@@ -20,7 +20,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        //TextView view = (TextView) findViewById(R.id.memoryDump);
+        //view.setText(mem.getMemDump());
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -31,11 +32,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void onClick(View v) {
+
+    private void refreshControls() {
         TextView view = (TextView) findViewById(R.id.memoryDump);
-        view.setText("Hello world!");
+        view.setText(mem.getMemDump());
+
     }
 
+    public void onClick(View v) {
+      refreshControls();
+    }
+
+    public void onStepClick(View v) {
+        myCpu.step();
+        refreshControls();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
