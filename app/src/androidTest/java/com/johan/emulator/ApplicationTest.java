@@ -1,4 +1,4 @@
-package com.example.johan.myapplication;
+package com.johan.emulator;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

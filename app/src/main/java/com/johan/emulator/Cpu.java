@@ -1,4 +1,4 @@
-package com.example.johan.myapplication;
+package com.johan.emulator;
 
 /**
  * Created by johan on 2016/08/18.
