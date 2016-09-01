@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Memory mem = new Memory();
-    private Cpu myCpu = new Cpu(mem);
+    //private Memory mem = new Memory();
+    //private Cpu myCpu = new Cpu(mem);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,19 +32,41 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public String getMemDumpAsString(char[] memContents) {
+        String result = "";
+        byte[] temp = new byte[48];
+        for (int i=0; i < memContents.length; i++) {
+            temp[i] = (byte) memContents[i];
+        }
+
+        for (int i = 0; i < temp.length; i++) {
+            if ((i % 16) == 0) {
+                String numberStr = Integer.toHexString(i);
+                numberStr = "0000" + numberStr;
+                result = result + "\n" + numberStr.substring(numberStr.length() - 4);
+            }
+            String number = "0" + Integer.toHexString(temp[i] & 0xff);
+            number = number.substring(number.length() - 2);
+            result = result + " " + number;
+        }
+        return result;
+    }
 
     private void refreshControls() {
         TextView view = (TextView) findViewById(R.id.memoryDump);
-        view.setText(mem.getMemDump());
-
+        view.setText(getMemDumpAsString(dump()));
     }
+
+    public native char[] dump();
+    public native void step();
+
 
     public void onClick(View v) {
       refreshControls();
     }
 
     public void onStepClick(View v) {
-        myCpu.step();
+        step();
         refreshControls();
     }
     @Override
@@ -68,4 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    static {
+        System.loadLibrary("native_emu");
+    }
+
 }
