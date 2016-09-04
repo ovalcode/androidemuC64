@@ -82,6 +82,11 @@
     negativeFlag = ((value & 0x80) != 0) ? 1 : 0;
   }
 
+  //TODO:
+  //Copy address mode test program to 64KB array
+  //do dump for random places in memory
+  //show status of registers and flags
+
 
   int calculateEffevtiveAdd(unsigned char mode, int argbyte1, int argbyte2) {
 
