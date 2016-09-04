@@ -22,7 +22,7 @@ void memory_write(int address, jchar value) {
 }
 
 void
-Java_com_johan_emulator_MainActivity_memory_init(JNIEnv* pEnv, jobject pObj)
+Java_com_johan_emulator_MainActivity_memoryInit(JNIEnv* pEnv, jobject pObj)
 {
   memcpy(mainMem, my_program, sizeof(my_program));
 }

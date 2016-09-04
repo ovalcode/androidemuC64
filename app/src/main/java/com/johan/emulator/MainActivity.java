@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     public native char[] dump();
     public native void step();
+    public static native void memoryInit();
 
 
     public void onClick(View v) {
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     static {
         System.loadLibrary("native_emu");
+        memoryInit();
     }
 
 }
