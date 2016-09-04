@@ -77,6 +77,11 @@
     int zeroFlag = 0;
     int negativeFlag = 0;
 
+  void updateFlags(jchar value) {
+    zeroFlag = (value == 0) ? 1 : 0;
+    negativeFlag = ((value & 0x80) != 0) ? 1 : 0;
+  }
+
 
   int calculateEffevtiveAdd(unsigned char mode, int argbyte1, int argbyte2) {
 
@@ -137,28 +142,160 @@
     }
   }
 
-
-
-
-
-
     void step() {
-        int opCode = memory_read(pc);
-        int address;
-        pc++;
-        switch (opCode) {
-            case 0xa9:
-                acc = memory_read(pc);
-                zeroFlag = (acc == 0) ? 1 : 0;
-                negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
-                pc++;
-            break;
-            case 0x85:
-                address = memory_read(pc);
-                memory_write(address, acc);
-                pc++;
-            break;
-        }
+      int opcode = memory_read(pc);
+      pc = pc + 1;
+      int iLen = instructionLengths[opcode];
+      jchar arg1 = 0;
+      jchar arg2 = 0;
+      int effectiveAdrress = 0;
+      if (iLen > 1) {
+        arg1 = memory_read(pc);
+        pc = pc + 1;
+      }    
+
+      if (iLen > 2) {
+        arg2 = memory_read(pc);
+        pc = pc + 1;
+      }    
+
+      effectiveAdrress = calculateEffevtiveAdd(addressModes[opcode], arg1, arg2);
+
+      switch (opcode)
+      {
+/*LDA  Load Accumulator with Memory
+     M -> A                           N Z C I D V
+                                      + + - - - -
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     LDA #oper     A9    2     2
+     zeropage      LDA oper      A5    2     3
+     zeropage,X    LDA oper,X    B5    2     4
+     absolute      LDA oper      AD    3     4
+     absolute,X    LDA oper,X    BD    3     4*
+     absolute,Y    LDA oper,Y    B9    3     4*
+     (indirect,X)  LDA (oper,X)  A1    2     6
+     (indirect),Y  LDA (oper),Y  B1    2     5* */
+
+        case 0xa9:
+          acc = arg1;
+          updateFlags(acc);
+        break;
+        case 0xA5:
+        case 0xB5:
+        case 0xAD:
+        case 0xBD:
+        case 0xB9:
+        case 0xA1:
+        case 0xB1:
+          acc = memory_read(effectiveAdrress);
+          updateFlags(acc);
+        break;
+
+/*LDX  Load Index X with Memory
+     M -> X                           N Z C I D V
+                                      + + - - - -
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     LDX #oper     A2    2     2
+     zeropage      LDX oper      A6    2     3
+     zeropage,Y    LDX oper,Y    B6    2     4
+     absolute      LDX oper      AE    3     4
+     absolute,Y    LDX oper,Y    BE    3     4**/
+
+        case 0xA2:
+          xReg = arg1;
+          updateFlags(xReg);
+        break;
+
+        case 0xA6:
+        case 0xB6:
+        case 0xAE:
+        case 0xBE:
+          xReg = memory_read(effectiveAdrress);
+          updateFlags(xReg);
+        break;
+
+
+
+/*LDY  Load Index Y with Memory
+     M -> Y                           N Z C I D V
+                                      + + - - - -
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     LDY #oper     A0    2     2
+     zeropage      LDY oper      A4    2     3
+     zeropage,X    LDY oper,X    B4    2     4
+     absolute      LDY oper      AC    3     4
+     absolute,X    LDY oper,X    BC    3     4*/
+
+
+        case 0xA0:
+          yReg = arg1;
+          updateFlags(yReg);
+        break;
+
+        case 0xA4:
+        case 0xB4:
+        case 0xAC:
+        case 0xBC:
+          yReg = memory_read(effectiveAdrress);
+          updateFlags(yReg);
+        break;
+ 
+/*STA  Store Accumulator in Memory
+     A -> M                           N Z C I D V
+                                      - - - - - -
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      STA oper      85    2     3
+     zeropage,X    STA oper,X    95    2     4
+     absolute      STA oper      8D    3     4
+     absolute,X    STA oper,X    9D    3     5
+     absolute,Y    STA oper,Y    99    3     5
+     (indirect,X)  STA (oper,X)  81    2     6
+     (indirect),Y  STA (oper),Y  91    2     6  */
+
+        case 0x85:
+        case 0x95:
+        case 0x8D:
+        case 0x9D:
+        case 0x99:
+        case 0x81:
+        case 0x91:
+          memory_write(effectiveAdrress, acc);
+        break;
+
+
+/*STX  Store Index X in Memory
+     X -> M                           N Z C I D V
+                                      - - - - - -
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      STX oper      86    2     3
+     zeropage,Y    STX oper,Y    96    2     4
+     absolute      STX oper      8E    3     4  */
+
+        case 0x86:
+        case 0x96:
+        case 0x8E:
+          memory_write(effectiveAdrress, xReg);
+        break;
+/*STY  Sore Index Y in Memory
+     Y -> M                           N Z C I D V
+                                      - - - - - -
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      STY oper      84    2     3
+     zeropage,X    STY oper,X    94    2     4
+     absolute      STY oper      8C    3     4  */
+
+        case 0x84:
+        case 0x94:
+        case 0x8C:
+          memory_write(effectiveAdrress, yReg);
+        break;
+      }
     }
 
 void
