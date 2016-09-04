@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public String getMemDumpAsString(char[] memContents) {
         String result = "";
         byte[] temp = new byte[48];
-        for (int i=0; i < memContents.length; i++) {
+        for (int i=0; i < temp.length; i++) {
             temp[i] = (byte) memContents[i];
         }
 
