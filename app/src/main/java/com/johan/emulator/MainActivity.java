@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,15 +34,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getMemDumpAsString(char[] memContents) {
+        EditText editText = (EditText) findViewById(R.id.inputSearchEditText);
+        String editAddress = "0"+editText.getText().toString();
+
+        int intaddress = Integer.parseInt(editAddress,16);
         String result = "";
         byte[] temp = new byte[48];
         for (int i=0; i < temp.length; i++) {
-            temp[i] = (byte) memContents[i];
+            temp[i] = (byte) memContents[i+intaddress];
         }
 
         for (int i = 0; i < temp.length; i++) {
             if ((i % 16) == 0) {
-                String numberStr = Integer.toHexString(i);
+                String numberStr = Integer.toHexString(i+intaddress);
                 numberStr = "0000" + numberStr;
                 result = result + "\n" + numberStr.substring(numberStr.length() - 4);
             }
