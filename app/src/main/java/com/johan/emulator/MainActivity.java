@@ -33,6 +33,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public String getFlagDump() {
+        String result ="";
+        result = result + ((getNegativeFlag() == 1) ? "N" : "-");
+        result = result + ((getZeroFlag() == 1) ? "Z" : "-");
+        result = result + ((getCarryFlag() == 1) ? "C" : "-");
+        result = result + ((getInterruptFlag() == 1) ? "I" : "-");
+        result = result + ((getDecimalFlag() == 1) ? "N" : "-");
+        result = result + ((getOverflowFlag() == 1) ? "V" : "-");
+
+        return result;
+    }
+
     public String getRegisterDump(char acc, char xReg, char yReg) {
         String accStr = "00"+Integer.toHexString(acc);
         accStr = accStr.substring(accStr.length() - 2);
@@ -78,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
         TextView viewReg = (TextView) findViewById(R.id.Registers);
         viewReg.setText(getRegisterDump(getAcc(), getXreg(), getYreg()));
 
+        TextView viewFlags = (TextView) findViewById(R.id.Flags);
+        viewFlags.setText(getFlagDump());
 
     }
 
@@ -88,6 +102,13 @@ public class MainActivity extends AppCompatActivity {
     public native char getAcc();
     public native char getXreg();
     public native char getYreg();
+
+    public native char getZeroFlag();
+    public native char getNegativeFlag();
+    public native char getCarryFlag();
+    public native char getInterruptFlag();
+    public native char getDecimalFlag();
+    public native char getOverflowFlag();
 
 
     public void onClick(View v) {

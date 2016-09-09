@@ -324,4 +324,32 @@ jchar Java_com_johan_emulator_MainActivity_getYreg(JNIEnv* pEnv, jobject pObj)
   return yReg;
 }
 
+jchar Java_com_johan_emulator_MainActivity_getZeroFlag(JNIEnv* pEnv, jobject pObj)
+{
+  return zeroFlag;
+}
 
+jchar Java_com_johan_emulator_MainActivity_getNegativeFlag(JNIEnv* pEnv, jobject pObj)
+{
+  return negativeFlag;
+}
+
+jchar Java_com_johan_emulator_MainActivity_getCarryFlag(JNIEnv* pEnv, jobject pObj)
+{
+  return 0;
+}
+
+jchar Java_com_johan_emulator_MainActivity_getInterruptFlag(JNIEnv* pEnv, jobject pObj)
+{
+  return 0;
+}
+
+jchar Java_com_johan_emulator_MainActivity_getDecimalFlag(JNIEnv* pEnv, jobject pObj)
+{
+  return 0;
+}
+
+jchar Java_com_johan_emulator_MainActivity_getOverflowFlag(JNIEnv* pEnv, jobject pObj)
+{
+  return 0;
+}
