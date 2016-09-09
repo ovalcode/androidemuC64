@@ -13,6 +13,76 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int ADDRESS_MODE_ACCUMULATOR = 0;
+    private static final int ADDRESS_MODE_ABSOLUTE = 1;
+    private static final int ADDRESS_MODE_ABSOLUTE_X_INDEXED = 2;
+    private static final int ADDRESS_MODE_ABSOLUTE_Y_INDEXED = 3;
+    private static final int ADDRESS_MODE_IMMEDIATE = 4;
+    private static final int ADDRESS_MODE_IMPLIED = 5;
+    private static final int ADDRESS_MODE_INDIRECT = 6;
+    private static final int ADDRESS_MODE_X_INDEXED_INDIRECT = 7;
+    private static final int ADDRESS_MODE_INDIRECT_Y_INDEXED = 8;
+    private static final int ADDRESS_MODE_RELATIVE = 9;
+    private static final int ADDRESS_MODE_ZERO_PAGE = 10;
+    private static final int ADDRESS_MODE_ZERO_PAGE_X_INDEXED = 11;
+    private static final int ADDRESS_MODE_ZERO_PAGE_Y_INDEXED = 12;
+
+    public static final int[] ADDRESS_MODES = {
+            5, 7, 0, 0, 0, 10, 10, 0, 5, 4, 0, 0, 0, 1, 1, 0,
+            9, 8, 0, 0, 0, 11, 11, 0, 5, 3, 0, 0, 0, 2, 2, 0,
+            1, 7, 0, 0, 10, 10, 10, 0, 5, 4, 0, 0, 1, 1, 1, 0,
+            9, 8, 0, 0, 0, 11, 11, 0, 5, 3, 0, 0, 0, 2, 2, 0,
+            5, 7, 0, 0, 0, 10, 10, 0, 5, 4, 0, 0, 1, 1, 1, 0,
+            9, 8, 0, 0, 0, 11, 11, 0, 5, 3, 0, 0, 0, 2, 2, 0,
+            5, 7, 0, 0, 0, 10, 10, 0, 5, 4, 0, 0, 6, 1, 1, 0,
+            9, 8, 0, 0, 0, 11, 11, 0, 5, 3, 0, 0, 0, 2, 2, 0,
+            0, 7, 0, 0, 10, 10, 10, 0, 5, 0, 5, 0, 1, 1, 1, 0,
+            9, 8, 0, 0, 11, 11, 12, 0, 5, 3, 5, 0, 0, 2, 0, 0,
+            4, 7, 4, 0, 10, 10, 10, 0, 5, 4, 5, 0, 1, 1, 1, 0,
+            9, 8, 0, 0, 11, 11, 12, 0, 5, 3, 5, 0, 2, 2, 3, 0,
+            4, 7, 0, 0, 10, 10, 10, 0, 5, 4, 5, 0, 1, 1, 1, 0,
+            9, 8, 0, 0, 0, 11, 11, 0, 5, 3, 0, 0, 0, 2, 2, 0,
+            4, 7, 0, 0, 10, 10, 10, 0, 5, 4, 5, 0, 1, 1, 1, 0,
+            9, 8, 0, 0, 0, 11, 11, 0, 5, 3, 0, 0, 0, 2, 2, 0
+    };
+
+    public static final int[] INSTRUCTION_LEN = {
+            1, 2, 0, 0, 0, 2, 2, 0, 1, 2, 1, 0, 0, 3, 3, 0,
+            2, 2, 0, 0, 0, 2, 2, 0, 1, 3, 0, 0, 0, 3, 3, 0,
+            3, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 0, 2, 2, 0, 1, 3, 0, 0, 0, 3, 3, 0,
+            1, 2, 0, 0, 0, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 0, 2, 2, 0, 1, 3, 0, 0, 0, 3, 3, 0,
+            1, 2, 0, 0, 0, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 0, 2, 2, 0, 1, 3, 0, 0, 0, 3, 3, 0,
+            0, 2, 0, 0, 2, 2, 2, 0, 1, 0, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 0, 3, 0, 0,
+            2, 2, 2, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 0, 2, 2, 0, 1, 3, 0, 0, 0, 3, 3, 0,
+            2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
+            2, 2, 0, 0, 0, 2, 2, 0, 1, 3, 0, 0, 0, 3, 3, 0
+    };
+
+    public static final String[] opCodeDesc =
+            {"BRK", "ORA", "", "", "", "ORA", "ASL", "", "PHP", "ORA", "ASL", "", "", "ORA", "ASL", "",
+            "BPL", "ORA", "", "", "", "ORA", "ASL", "", "CLC", "ORA", "", "", "", "ORA", "ASL", "",
+            "JSR", "AND", "", "", "BIT", "AND", "ROL", "", "PLP", "AND", "ROL", "", "BIT", "AND", "ROL", "",
+            "BMI", "AND", "", "", "", "AND", "ROL", "", "SEC", "AND", "", "", "", "AND", "ROL", "",
+            "RTI", "EOR", "", "", "", "EOR", "LSR", "", "PHA", "EOR", "LSR", "", "JMP", "EOR", "LSR", "",
+            "BVC", "EOR", "", "", "", "EOR", "LSR", "", "CLI", "EOR", "", "", "", "EOR", "LSR", "",
+            "RTS", "ADC", "", "", "", "ADC", "ROR", "", "PLA", "ADC", "ROR", "", "JMP", "ADC", "ROR", "",
+            "BVC", "ADC", "", "", "", "ADC", "ROR", "", "SEI", "ADC", "", "", "", "ADC", "ROR", "",
+            "", "STA", "", "", "STY", "STA", "STX", "", "DEY", "", "TXA", "", "STY", "STA", "STX", "",
+            "BCC", "STA", "", "", "STY", "STA", "STX", "", "TYA", "STA", "TXS", "", "", "STA", "", "",
+            "LDY", "LDA", "LDX", "", "LDY", "LDA", "LDX", "", "TAY", "LDA", "TAX", "", "LDY", "LDA", "LDX", "",
+            "BCS", "LDA", "", "", "LDY", "LDA", "LDX", "", "CLV", "LDA", "TSX", "", "LDY", "LDA", "LDX", "",
+            "CPY", "CMP", "", "", "CPY", "CMP", "DEC", "", "INY", "CMP", "DEX", "", "CPY", "CMP", "DEC", "",
+            "BNE", "CMP", "", "", "", "CMP", "DEC", "", "CLD", "CMP", "", "", "", "CMP", "DEC", "",
+            "CPX", "SBC", "", "", "CPX", "SBC", "INC", "", "INX", "SBC", "NOP", "", "CPX", "SBC", "INC", "",
+            "BEQ", "SBC", "", "", "", "SBC", "INC", "", "SED", "SBC", "", "", "", "SBC", "INC", ""};
+
     //private Memory mem = new Memory();
     //private Cpu myCpu = new Cpu(mem);
     @Override
@@ -31,6 +101,107 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    private String getAsTwoDigit(int number) {
+        String numStr = "00"+Integer.toHexString(number);
+        numStr = numStr.substring(numStr.length() - 2);
+        return numStr;
+    }
+
+    private String getAsFourDigit(int number) {
+        String numStr = "0000"+Integer.toHexString(number);
+        numStr = numStr.substring(numStr.length() - 4);
+        return numStr;
+    }
+
+
+    protected String getDisassembled(char[] memContents, int pc) {
+        int opCode = memContents[pc];
+        int mode = ADDRESS_MODES[opCode];
+        int numArgs = INSTRUCTION_LEN[opCode] - 1;
+        int argbyte1 = 0;
+        int argbyte2 = 0;
+        if (numArgs > 0) {
+            argbyte1 = memContents[pc + 1];
+        }
+
+        if (numArgs > 1) {
+            argbyte2 = memContents[pc + 2];
+        }
+
+        String addrStr = "";
+        String result = getAsFourDigit(pc);
+        result = result + " " + opCodeDesc[opCode] + " ";
+        switch (mode) {
+            case ADDRESS_MODE_ACCUMULATOR: result = result + " A";
+            break;
+
+            case ADDRESS_MODE_ABSOLUTE: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+                result = result + "$" + addrStr;
+            break;
+
+            case ADDRESS_MODE_ABSOLUTE_X_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+                result = result + "$" + addrStr + ",X";
+
+            break;
+
+            case ADDRESS_MODE_ABSOLUTE_Y_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+                result = result + "$" + addrStr + ",Y";
+
+            break;
+
+            case ADDRESS_MODE_IMMEDIATE: addrStr = getAsTwoDigit(argbyte1);
+                result = result + "#$" + addrStr;
+
+            break;
+
+            case ADDRESS_MODE_IMPLIED:
+                //return result;
+            break;
+
+            //case ADDRESS_MODE_INDIRECT:
+            //    tempAddress = (argbyte2 * 256 + argbyte1);
+            //    return (localMem.readMem(tempAddress + 1) * 256 + localMem.readMem(tempAddress));
+            //break;
+
+            case ADDRESS_MODE_X_INDEXED_INDIRECT:
+                addrStr = getAsTwoDigit(argbyte2 * 256 + argbyte1);
+                result = result + "($" + addrStr + ",X)";
+                     break;
+
+            case ADDRESS_MODE_INDIRECT_Y_INDEXED:
+                addrStr = getAsTwoDigit(argbyte1);
+                result = result + "($" + addrStr + "),Y";
+
+            break;
+
+            //case ADDRESS_MODE_RELATIVE:
+            //    addrStr = getAsFourDigit(((argbyte1 > 127) ? (argbyte1 - 256) : argbyte1) + pc + 2);
+            //    result = result + "$" + addrStr;
+            //    return result;
+            //break;
+
+            case ADDRESS_MODE_ZERO_PAGE:
+                addrStr = getAsTwoDigit(argbyte1);
+                result = result + "$" + addrStr;
+                //return result;
+            break;
+
+            case ADDRESS_MODE_ZERO_PAGE_X_INDEXED:
+                addrStr = getAsTwoDigit(argbyte1);
+                result = result + "$" + addrStr + ",X";
+                //return result;
+            break;
+
+            case ADDRESS_MODE_ZERO_PAGE_Y_INDEXED:
+                addrStr = getAsTwoDigit(argbyte1);
+                result = result + "$" + addrStr + ",Y";
+               // return result;
+            break;
+
+        }
+        return result;
     }
 
     public String getFlagDump() {
