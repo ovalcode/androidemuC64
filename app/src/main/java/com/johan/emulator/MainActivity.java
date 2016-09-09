@@ -33,6 +33,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public String getRegisterDump(char acc, char xReg, char yReg) {
+        String accStr = "00"+Integer.toHexString(acc);
+        accStr = accStr.substring(accStr.length() - 2);
+
+        String xRegStr = "00"+Integer.toHexString(xReg);
+        xRegStr = xRegStr.substring(xRegStr.length() - 2);
+
+        String yRegStr = "00"+Integer.toHexString(yReg);
+        yRegStr = yRegStr.substring(yRegStr.length() - 2);
+
+        return accStr + xRegStr + yRegStr;
+
+    }
+
     public String getMemDumpAsString(char[] memContents) {
         EditText editText = (EditText) findViewById(R.id.inputSearchEditText);
         String editAddress = "0"+editText.getText().toString();
@@ -60,11 +74,20 @@ public class MainActivity extends AppCompatActivity {
     private void refreshControls() {
         TextView view = (TextView) findViewById(R.id.memoryDump);
         view.setText(getMemDumpAsString(dump()));
+
+        TextView viewReg = (TextView) findViewById(R.id.Registers);
+        viewReg.setText(getRegisterDump(getAcc(), getXreg(), getYreg()));
+
+
     }
 
     public native char[] dump();
     public native void step();
     public static native void memoryInit();
+
+    public native char getAcc();
+    public native char getXreg();
+    public native char getYreg();
 
 
     public void onClick(View v) {

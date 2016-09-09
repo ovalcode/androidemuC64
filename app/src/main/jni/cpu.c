@@ -309,6 +309,19 @@ Java_com_johan_emulator_MainActivity_step(JNIEnv* pEnv, jobject pObj)
   step();
 }
 
+jchar Java_com_johan_emulator_MainActivity_getAcc(JNIEnv* pEnv, jobject pObj)
+{
+  return acc;
+}
 
+jchar Java_com_johan_emulator_MainActivity_getXreg(JNIEnv* pEnv, jobject pObj)
+{
+  return xReg;
+}
+
+jchar Java_com_johan_emulator_MainActivity_getYreg(JNIEnv* pEnv, jobject pObj)
+{
+  return yReg;
+}
 
 

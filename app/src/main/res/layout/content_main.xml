@@ -19,7 +19,7 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:columnCount="2"
-        android:rowCount="6">
+        android:rowCount="7">
     <EditText
         android:id="@+id/inputSearchEditText"
         android:layout_width="wrap_content"
@@ -44,6 +44,26 @@
         android:layout_column="1"
         android:onClick="onClick" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#00ff00"
+            android:text="00000000"
+            android:id="@+id/Registers"
+            android:layout_row="1"
+            android:layout_column="0" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#00ff00"
+            android:text="SNS"
+            android:id="@+id/Flags"
+            android:layout_row="1"
+            android:layout_column="1" />
+
 
         <!--android:minHeight="0dp"-->
 
@@ -51,7 +71,7 @@
 
         <Space android:layout_height="10dp"
         android:layout_width="wrap_content"
-        android:layout_row="1"
+        android:layout_row="2"
         android:layout_column="0"
 
         />
@@ -68,7 +88,7 @@
         android:typeface="monospace"
         android:textColor="#00ff00"
         android:textSize="12dp"
-        android:layout_row="2"
+        android:layout_row="3"
         android:layout_column="0"
         android:layout_columnSpan="2" />
 
@@ -77,7 +97,7 @@
             android:layout_height="wrap_content"
             android:text="STEP"
             android:id="@+id/button2"
-            android:layout_row="3"
+            android:layout_row="4"
             android:layout_column="0"
             android:onClick="onStepClick" />
 
