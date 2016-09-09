@@ -255,14 +255,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refreshControls() {
+
+        char[] memDump = dump();
+
         TextView view = (TextView) findViewById(R.id.memoryDump);
-        view.setText(getMemDumpAsString(dump()));
+        view.setText(getMemDumpAsString(memDump));
 
         TextView viewReg = (TextView) findViewById(R.id.Registers);
         viewReg.setText(getRegisterDump(getAcc(), getXreg(), getYreg()));
 
         TextView viewFlags = (TextView) findViewById(R.id.Flags);
         viewFlags.setText(getFlagDump());
+
+        TextView viewDiss = (TextView) findViewById(R.id.instruction);
+        viewDiss.setText(getDisassembled(memDump, getPc()));
+
+
 
     }
 
@@ -273,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
     public native char getAcc();
     public native char getXreg();
     public native char getYreg();
+    public native char getPc();
 
     public native char getZeroFlag();
     public native char getNegativeFlag();
