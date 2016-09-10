@@ -527,7 +527,7 @@ jchar Java_com_johan_emulator_MainActivity_getNegativeFlag(JNIEnv* pEnv, jobject
 
 jchar Java_com_johan_emulator_MainActivity_getCarryFlag(JNIEnv* pEnv, jobject pObj)
 {
-  return 0;
+  return carryFlag;
 }
 
 jchar Java_com_johan_emulator_MainActivity_getInterruptFlag(JNIEnv* pEnv, jobject pObj)
@@ -542,5 +542,5 @@ jchar Java_com_johan_emulator_MainActivity_getDecimalFlag(JNIEnv* pEnv, jobject 
 
 jchar Java_com_johan_emulator_MainActivity_getOverflowFlag(JNIEnv* pEnv, jobject pObj)
 {
-  return 0;
+  return overflowFlag;
 }
