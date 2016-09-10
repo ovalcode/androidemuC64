@@ -76,8 +76,10 @@
     int pc = 0;
     int zeroFlag = 0;
     int negativeFlag = 0;
+    int carryFlag =0;
+    int overflowFlag =0;
 
-  void updateFlags(jchar value) {
+void updateFlags(jchar value) {
     zeroFlag = (value == 0) ? 1 : 0;
     negativeFlag = ((value & 0x80) != 0) ? 1 : 0;
   }
@@ -147,6 +149,24 @@
     }
   }
 
+  char ADC(char operand1, char operand2) {
+    int temp = operand1 + operand2 + carryFlag;
+    carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
+    overflowFlag = (((operand1^temp) & (operand2^temp) & 0x80) == 0x80) ? 1 : 0;
+    temp = temp & 0xff;
+    return temp;
+  }
+
+  char SBC(char operand1, char operand2) {
+    operand2 = ~operand2 & 0xff;
+    operand2 = operand2 + (1 - carryFlag);
+    int temp = operand1 + operand2;
+    carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
+    overflowFlag = (((operand1^temp) & (operand2^temp) & 0x80) == 0x80) ? 1 : 0;
+    temp = temp & 0xff;
+    return temp;
+  }
+
     void step() {
       int opcode = memory_read(pc);
       pc = pc + 1;
@@ -165,6 +185,7 @@
       }    
 
       effectiveAdrress = calculateEffevtiveAdd(addressModes[opcode], arg1, arg2);
+      int tempVal;
 
       switch (opcode)
       {
@@ -300,6 +321,170 @@
         case 0x8C:
           memory_write(effectiveAdrress, yReg);
         break;
+/*ADC  Add Memory to Accumulator with Carry
+
+     A + M + C -> A, C                N Z C I D V
+                                      + + + - - +
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     ADC #oper     69    2     2
+     zeropage      ADC oper      65    2     3
+     zeropage,X    ADC oper,X    75    2     4
+     absolute      ADC oper      6D    3     4
+     absolute,X    ADC oper,X    7D    3     4*
+     absolute,Y    ADC oper,Y    79    3     4*
+     (indirect,X)  ADC (oper,X)  61    2     6
+     (indirect),Y  ADC (oper),Y  71    2     5* */
+
+          case 0x69:
+              acc = ADC (acc, arg1);
+              updateFlags(acc);
+              break;
+          case 0x65:
+          case 0x75:
+          case 0x6D:
+          case 0x7D:
+          case 0x79:
+          case 0x61:
+          case 0x71:
+              acc = ADC (acc, memory_read(effectiveAdrress));
+              updateFlags(acc);
+              break;
+
+/*SBC  Subtract Memory from Accumulator with Borrow
+
+     A - M - C -> A                   N Z C I D V
+                                      + + + - - +
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     SBC #oper     E9    2     2
+     zeropage      SBC oper      E5    2     3
+     zeropage,X    SBC oper,X    F5    2     4
+     absolute      SBC oper      ED    3     4
+     absolute,X    SBC oper,X    FD    3     4*
+     absolute,Y    SBC oper,Y    F9    3     4*
+     (indirect,X)  SBC (oper,X)  E1    2     6
+     (indirect),Y  SBC (oper),Y  F1    2     5*  */
+
+          case 0xE9:
+              acc = SBC (acc, arg1);
+              updateFlags(acc);
+              break;
+          case 0xE5:
+          case 0xF5:
+          case 0xED:
+          case 0xFD:
+          case 0xF9:
+          case 0xE1:
+          case 0xF1:
+              acc = SBC (acc, memory_read(effectiveAdrress));
+              updateFlags(acc);
+              break;
+/*INC  Increment Memory by One
+
+     M + 1 -> M                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      INC oper      E6    2     5
+     zeropage,X    INC oper,X    F6    2     6
+     absolut      INC oper      EE    3     6
+     absolute,X    INC oper,X    FE    3     7 */
+
+          case 0xE6:
+          case 0xF6:
+          case 0xEE:
+          case 0xFE:
+              tempVal = memory_read(effectiveAdrress);
+              tempVal++; tempVal = tempVal & 0xff;
+              memory_write(effectiveAdrress, tempVal);
+              updateFlags(tempVal);
+              break;
+
+/*INX  Increment Index X by One
+
+     X + 1 -> X                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       INX           E8    1     2*/
+
+          case 0xE8:
+
+              xReg++; xReg = xReg & 0xff;
+              updateFlags(xReg);
+              break;
+
+/*INY  Increment Index Y by One
+
+     Y + 1 -> Y                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       INY           C8    1     2*/
+
+          case 0xC8:
+
+              yReg++; yReg = yReg & 0xff;
+              updateFlags(yReg);
+              break;
+
+/*DEC  Decrement Memory by One
+
+     M - 1 -> M                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      DEC oper      C6    2     5
+     zeropage,X    DEC oper,X    D6    2     6
+     absolute      DEC oper      CE    3     3
+     absolute,X    DEC oper,X    DE    3     7 */
+
+          case 0xC6:
+          case 0xD6:
+          case 0xCE:
+          case 0xDE:
+              tempVal = memory_read(effectiveAdrress);
+              tempVal--; tempVal = tempVal & 0xff;
+              memory_write(effectiveAdrress, tempVal);
+              updateFlags(tempVal);
+              break;
+
+/*DEX  Decrement Index X by One
+
+     X - 1 -> X                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       DEC           CA    1     2*/
+
+          case 0xCA:
+
+              xReg--; xReg = xReg & 0xff;
+              updateFlags(xReg);
+              break;
+
+/*DEY  Decrement Index Y by One
+
+     Y - 1 -> Y                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       DEC           88    1     2*/
+
+          case 0x88:
+
+              yReg--; yReg = yReg & 0xff;
+              updateFlags(yReg);
+              break;
       }
     }
 
