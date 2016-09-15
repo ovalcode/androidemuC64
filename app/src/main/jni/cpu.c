@@ -149,6 +149,16 @@ void updateFlags(jchar value) {
     }
   }
 
+  void CMP(int operand1, int operand2) {
+    operand2 = ~operand2 & 0xff;
+    operand2 = operand2 + 1;
+    int temp = operand1 + operand2;
+    carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
+    temp = temp & 0xff;
+    zeroFlag = (temp == 0) ? 1 : 0;
+    negativeFlag = ((temp & 0x80) != 0) ? 1 : 0;
+  }
+
   char ADC(char operand1, char operand2) {
     int temp = operand1 + operand2 + carryFlag;
     carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
@@ -485,6 +495,75 @@ void updateFlags(jchar value) {
               yReg--; yReg = yReg & 0xff;
               updateFlags(yReg);
               break;
+
+/*CMP  Compare Memory with Accumulator
+
+     A - M                            N Z C I D V
+                                    + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     CMP #oper     C9    2     2
+     zeropage      CMP oper      C5    2     3
+     zeropage,X    CMP oper,X    D5    2     4
+     absolute      CMP oper      CD    3     4
+     absolute,X    CMP oper,X    DD    3     4*
+     absolute,Y    CMP oper,Y    D9    3     4*
+     (indirect,X)  CMP (oper,X)  C1    2     6
+     (indirect),Y  CMP (oper),Y  D1    2     5* */
+
+        case 0xc9:
+          CMP(acc, arg1);
+              break;
+        case 0xc5:
+        case 0xd5:
+        case 0xcd:
+        case 0xdD:
+        case 0xd9:
+        case 0xc1:
+        case 0xd1:
+          CMP(acc, memory_read(effectiveAdrress));
+              break;
+
+/*CPX  Compare Memory and Index X
+
+     X - M                            N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     CPX #oper     E0    2     2
+     zeropage      CPX oper      E4    2     3
+     absolute      CPX oper      EC    3     4
+*/
+
+        case 0xe0:
+          CMP(xReg, arg1);
+              break;
+        case 0xe4:
+        case 0xec:
+          CMP(xReg, memory_read(effectiveAdrress));
+              break;
+
+/*CPY  Compare Memory and Index Y
+
+     Y - M                            N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     CPY #oper     C0    2     2
+     zeropage      CPY oper      C4    2     3
+     absolute      CPY oper      CC    3     4*/
+
+        case 0xc0:
+          CMP(yReg, arg1);
+              break;
+        case 0xc4:
+        case 0xcc:
+          CMP(yReg, memory_read(effectiveAdrress));
+              break;
+
       }
     }
 
