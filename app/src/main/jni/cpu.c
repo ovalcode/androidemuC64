@@ -566,7 +566,141 @@ void updateFlags(jchar value) {
         case 0xcc:
           CMP(yReg, memory_read(effectiveAdrress));
               break;
+/*BCC  Branch on Carry Clear
 
+     branch on C = 0                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BCC oper      90    2     2** */
+
+        case 0x90:
+          if (carryFlag == 0)
+            pc = effectiveAdrress;
+              break;
+
+
+/*BCS  Branch on Carry Set
+
+     branch on C = 1                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BCS oper      B0    2     2** */
+
+        case 0xB0:
+          if (carryFlag == 1)
+            pc = effectiveAdrress;
+              break;
+
+
+/*BEQ  Branch on Result Zero
+
+     branch on Z = 1                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BEQ oper      F0    2     2** */
+
+        case 0xF0:
+          if (zeroFlag == 1)
+            pc = effectiveAdrress;
+              break;
+
+
+
+/*BMI  Branch on Result Minus
+
+     branch on N = 1                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BMI oper      30    2     2** */
+
+        case 0x30:
+          if (negativeFlag == 1)
+            pc = effectiveAdrress;
+              break;
+
+
+/*BNE  Branch on Result not Zero
+
+     branch on Z = 0                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BNE oper      D0    2     2**/
+
+        case 0xD0:
+          if (zeroFlag == 0)
+            pc = effectiveAdrress;
+              break;
+
+
+
+/*BPL  Branch on Result Plus
+
+     branch on N = 0                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BPL oper      10    2     2** */
+
+        case 0x10:
+          if (negativeFlag == 0)
+            pc = effectiveAdrress;
+              break;
+
+
+
+/*BVC  Branch on Overflow Clear
+
+     branch on V = 0                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BVC oper      50    2     2** */
+
+        case 0x50:
+          if (overflowFlag == 0)
+            pc = effectiveAdrress;
+              break;
+
+/*BVS  Branch on Overflow Set
+
+     branch on V = 1                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BVC oper      70    2     2** */
+
+        case 0x70:
+          if (overflowFlag == 1)
+            pc = effectiveAdrress;
+              break;
+
+              /*JMP  Jump to New Location
+
+     (PC+1) -> PCL                    N Z C I D V
+     (PC+2) -> PCH                    - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     absolute      JMP oper      4C    3     3
+     indirect      JMP (oper)    6C    3     5 */
+
+        case 0x4C:
+        case 0x6C:
+          pc = effectiveAdrress;
+              break;
       }
     }
 
