@@ -177,11 +177,10 @@ public class MainActivity extends AppCompatActivity {
 
             break;
 
-            //case ADDRESS_MODE_RELATIVE:
-            //    addrStr = getAsFourDigit(((argbyte1 > 127) ? (argbyte1 - 256) : argbyte1) + pc + 2);
-            //    result = result + "$" + addrStr;
-            //    return result;
-            //break;
+            case ADDRESS_MODE_RELATIVE:
+                addrStr = getAsFourDigit(((argbyte1 > 127) ? (argbyte1 - 256) : argbyte1) + pc + 2);
+                result = result + "$" + addrStr;
+            break;
 
             case ADDRESS_MODE_ZERO_PAGE:
                 addrStr = getAsTwoDigit(argbyte1);

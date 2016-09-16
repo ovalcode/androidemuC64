@@ -133,6 +133,9 @@ void updateFlags(jchar value) {
       break;
 
       case ADDRESS_MODE_RELATIVE:
+        tempAddress = (argbyte1 > 127) ? (argbyte1 - 256) : argbyte1;
+        tempAddress = tempAddress + pc;
+        return tempAddress;
       break;
 
       case ADDRESS_MODE_ZERO_PAGE:
