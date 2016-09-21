@@ -207,11 +207,16 @@ public class MainActivity extends AppCompatActivity {
     public String getFlagDump() {
         String result ="";
         result = result + ((getNegativeFlag() == 1) ? "N" : "-");
+        result = result + ((getOverflowFlag() == 1) ? "V" : "-");
+        result = result + "-";
+        result = result + "B";
+        result = result + ((getDecimalFlag() == 1) ? "D" : "-");
+        result = result + ((getInterruptFlag() == 1) ? "I" : "-");
         result = result + ((getZeroFlag() == 1) ? "Z" : "-");
         result = result + ((getCarryFlag() == 1) ? "C" : "-");
-        result = result + ((getInterruptFlag() == 1) ? "I" : "-");
-        result = result + ((getDecimalFlag() == 1) ? "N" : "-");
-        result = result + ((getOverflowFlag() == 1) ? "V" : "-");
+
+
+
 
         return result;
     }
