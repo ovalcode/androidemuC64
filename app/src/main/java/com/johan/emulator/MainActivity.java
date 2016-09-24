@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    public String getRegisterDump(char acc, char xReg, char yReg) {
+    public String getRegisterDump(char acc, char xReg, char yReg, char SP) {
         String accStr = "00"+Integer.toHexString(acc);
         accStr = accStr.substring(accStr.length() - 2);
 
@@ -231,7 +231,10 @@ public class MainActivity extends AppCompatActivity {
         String yRegStr = "00"+Integer.toHexString(yReg);
         yRegStr = yRegStr.substring(yRegStr.length() - 2);
 
-        return accStr + xRegStr + yRegStr;
+        String spStr = "00"+Integer.toHexString(SP);
+        spStr = spStr.substring(spStr.length() - 2);
+
+        return accStr + xRegStr + yRegStr + spStr;
 
     }
 
@@ -267,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
         view.setText(getMemDumpAsString(memDump));
 
         TextView viewReg = (TextView) findViewById(R.id.Registers);
-        viewReg.setText(getRegisterDump(getAcc(), getXreg(), getYreg()));
+        viewReg.setText(getRegisterDump(getAcc(), getXreg(), getYreg(), getSP()));
 
         TextView viewFlags = (TextView) findViewById(R.id.Flags);
         viewFlags.setText(getFlagDump());
@@ -286,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
     public native char getAcc();
     public native char getXreg();
     public native char getYreg();
+    public native char getSP();
     public native char getPc();
 
     public native char getZeroFlag();

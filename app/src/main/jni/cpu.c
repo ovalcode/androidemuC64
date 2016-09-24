@@ -845,6 +845,11 @@ jchar Java_com_johan_emulator_MainActivity_getYreg(JNIEnv* pEnv, jobject pObj)
   return yReg;
 }
 
+jchar Java_com_johan_emulator_MainActivity_getSP(JNIEnv* pEnv, jobject pObj)
+{
+  return sp;
+}
+
 jchar Java_com_johan_emulator_MainActivity_getPc(JNIEnv* pEnv, jobject pObj)
 {
   return pc;
@@ -880,3 +885,4 @@ jchar Java_com_johan_emulator_MainActivity_getOverflowFlag(JNIEnv* pEnv, jobject
 {
   return overflowFlag;
 }
+
