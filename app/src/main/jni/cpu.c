@@ -958,6 +958,102 @@ void updateFlags(jchar value) {
           carryFlag = 1;
               break;
 
+/*TAX  Transfer Accumulator to Index X
+
+     A -> X                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TAX           AA    1     2 */
+
+        case 0xAA:
+          xReg = acc;
+              zeroFlag = (xReg == 0) ? 1 : 0;
+              negativeFlag = ((xReg & 0x80) != 0) ? 1 : 0;
+              break;
+
+
+/*TAY  Transfer Accumulator to Index Y
+
+     A -> Y                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TAY           A8    1     2 */
+
+        case 0xA8:
+          yReg = acc;
+              zeroFlag = (yReg == 0) ? 1 : 0;
+              negativeFlag = ((yReg & 0x80) != 0) ? 1 : 0;
+              break;
+
+
+/*TSX  Transfer Stack Pointer to Index X
+
+     SP -> X                          N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TSX           BA    1     2 */
+
+        case 0xBA:
+          xReg = sp;
+              zeroFlag = (xReg == 0) ? 1 : 0;
+              negativeFlag = ((xReg & 0x80) != 0) ? 1 : 0;
+              break;
+
+
+
+/*TXA  Transfer Index X to Accumulator
+
+     X -> A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TXA           8A    1     2 */
+
+        case 0x8A:
+          acc = xReg;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+
+
+/*TXS  Transfer Index X to Stack Register
+
+     X -> SP                          N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TXS           9A    1     2 */
+
+        case 0x9A:
+          sp = xReg;
+              break;
+
+
+
+/*TYA  Transfer Index Y to Accumulator
+
+     Y -> A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TYA           98    1     2 */
+
+        case 0x98:
+          acc = yReg;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+
+
 
 
       }
