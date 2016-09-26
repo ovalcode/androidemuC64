@@ -1074,9 +1074,144 @@ void updateFlags(jchar value) {
               zeroFlag = ((acc & tempVal) == 0) ? 1 : 0;
               break;
 
+/*ASL  Shift Left One Bit (Memory or Accumulator)
+
+     C <- [76543210] <- 0             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ASL A         0A    1     2
+     zeropage      ASL oper      06    2     5
+     zeropage,X    ASL oper,X    16    2     6
+     absolute      ASL oper      0E    3     6
+     absolute,X    ASL oper,X    1E    3     7 */
+
+        case 0x0A:
+          acc = acc << 1;
+              carryFlag = ((acc & 0x100) != 0) ? 1 : 0;
+              acc = acc & 0xff;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              break;
+        case 0x06:
+        case 0x16:
+        case 0x0E:
+        case 0x1E:
+             tempVal = memory_read(effectiveAdrress);
+              tempVal = tempVal << 1;
+              carryFlag = ((tempVal & 0x100) != 0) ? 1 : 0;
+              tempVal = tempVal & 0xff;
+              negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
+              zeroFlag = (tempVal == 0) ? 1 : 0;
+              memory_write(effectiveAdrress, tempVal);
+              break;
 
 
 
+/*LSR  Shift One Bit Right (Memory or Accumulator)
+
+     0 -> [76543210] -> C             N Z C I D V
+                                      - + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   LSR A         4A    1     2
+     zeropage      LSR oper      46    2     5
+     zeropage,X    LSR oper,X    56    2     6
+     absolute      LSR oper      4E    3     6
+     absolute,X    LSR oper,X    5E    3     7 */
+
+        case 0x4A:
+          carryFlag = ((acc & 0x1) != 0) ? 1 : 0;
+              acc = acc >> 1;
+              acc = acc & 0xff;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              break;
+        case 0x46:
+        case 0x56:
+        case 0x4E:
+        case 0x5E:
+             tempVal = memory_read(effectiveAdrress);
+              carryFlag = ((tempVal & 0x1) != 0) ? 1 : 0;
+              tempVal = tempVal >> 1;
+              tempVal = tempVal & 0xff;
+              zeroFlag = (tempVal == 0) ? 1 : 0;
+              memory_write(effectiveAdrress, tempVal);
+              break;
+
+
+/*ROL  Rotate One Bit Left (Memory or Accumulator)
+
+     C <- [76543210] <- C             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ROL A         2A    1     2
+     zeropage      ROL oper      26    2     5
+     zeropage,X    ROL oper,X    36    2     6
+     absolute      ROL oper      2E    3     6
+     absolute,X    ROL oper,X    3E    3     7 */
+
+
+        case 0x2A:
+          acc = acc << 1;
+              acc = acc | carryFlag;
+              carryFlag = ((acc & 0x100) != 0) ? 1 : 0;
+              acc = acc & 0xff;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+
+        case 0x26:
+        case 0x36:
+        case 0x2E:
+        case 0x3E:
+              tempVal = memory_read(effectiveAdrress);
+              tempVal = tempVal << 1;
+              tempVal = tempVal | carryFlag;
+              carryFlag = ((tempVal & 0x100) != 0) ? 1 : 0;
+              tempVal = tempVal & 0xff;
+              zeroFlag = (tempVal == 0) ? 1 : 0;
+              negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
+              memory_write(effectiveAdrress,tempVal);
+              break;
+
+/*ROR  Rotate One Bit Right (Memory or Accumulator)
+
+     C -> [76543210] -> C             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ROR A         6A    1     2
+     zeropage      ROR oper      66    2     5
+     zeropage,X    ROR oper,X    76    2     6
+     absolute      ROR oper      6E    3     6
+     absolute,X    ROR oper,X    7E    3     7  */
+
+        case 0x6A:
+          acc = acc | (carryFlag << 8);
+              carryFlag = ((acc & 0x1) != 0) ? 1 : 0;
+              acc = acc >> 1;
+              acc = acc & 0xff;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+        case 0x66:
+        case 0x76:
+        case 0x6E:
+        case 0x7E:
+              tempVal = memory_read(effectiveAdrress);
+              tempVal = tempVal | (carryFlag << 8);
+              carryFlag = ((tempVal & 0x1) != 0) ? 1 : 0;
+              tempVal = tempVal >> 1;
+              tempVal = tempVal & 0xff;
+              zeroFlag = (tempVal == 0) ? 1 : 0;
+              negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
+              memory_write(effectiveAdrress, tempVal);
+              break;
       }
     }
 
