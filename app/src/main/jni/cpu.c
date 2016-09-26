@@ -916,6 +916,50 @@ void updateFlags(jchar value) {
               negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
               break;
 
+/*CLC  Clear Carry Flag
+
+     0 -> C                           N Z C I D V
+                                      - - 0 - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLC           18    1     2 */
+
+        case 0x18:
+          carryFlag = 0;
+              break;
+
+
+
+/*CLV  Clear Overflow Flag
+
+     0 -> V                           N Z C I D V
+                                      - - - - - 0
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLV           B8    1     2 */
+
+        case 0xB8:
+          overflowFlag = 0;
+              break;
+
+
+/*SEC  Set Carry Flag
+
+     1 -> C                           N Z C I D V
+                                      - - 1 - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SEC           38    1     2 */
+
+        case 0x38:
+          carryFlag = 1;
+              break;
+
+
+
       }
     }
 
