@@ -1053,6 +1053,27 @@ void updateFlags(jchar value) {
               negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
               break;
 
+/*BIT  Test Bits in Memory with Accumulator
+
+     bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
+     the zeroflag is set to the result of operand AND accumulator.
+
+     A AND M, M7 -> N, M6 -> V        N Z C I D V
+                                     M7 + - - - M6
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      BIT oper      24    2     3
+     absolute      BIT oper      2C    3     4 */
+
+        case 0x24:
+        case 0x2C:
+              tempVal = memory_read(effectiveAdrress);
+              negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
+              overflowFlag = ((tempVal & 0x40) != 0) ? 1 : 0;
+              zeroFlag = ((acc & tempVal) == 0) ? 1 : 0;
+              break;
+
 
 
 
