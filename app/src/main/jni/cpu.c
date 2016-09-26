@@ -815,11 +815,106 @@ void updateFlags(jchar value) {
 
       case 0x60:
         tempVal = Pop();
-        tempVal = tempVal + Pop() * 256;
+        tempVal = tempVal + (Pop() << 8);
         pc = tempVal + 1;
       break;
 
+/*AND  AND Memory with Accumulator
 
+     A AND M -> A                     N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     AND #oper     29    2     2
+     zeropage      AND oper      25    2     3
+     zeropage,X    AND oper,X    35    2     4
+     absolute      AND oper      2D    3     4
+     absolute,X    AND oper,X    3D    3     4*
+     absolute,Y    AND oper,Y    39    3     4*
+     (indirect,X)  AND (oper,X)  21    2     6
+     (indirect),Y  AND (oper),Y  31    2     5* */
+
+
+        case 0x29:  acc = acc & arg1;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+        case 0x25:
+        case 0x35:
+        case 0x2D:
+        case 0x3D:
+        case 0x39:
+        case 0x21:
+        case 0x31: acc = acc & memory_read(effectiveAdrress);
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+
+
+
+/*EOR  Exclusive-OR Memory with Accumulator
+
+     A EOR M -> A                     N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     EOR #oper     49    2     2
+     zeropage      EOR oper      45    2     3
+     zeropage,X    EOR oper,X    55    2     4
+     absolute      EOR oper      4D    3     4
+     absolute,X    EOR oper,X    5D    3     4*
+     absolute,Y    EOR oper,Y    59    3     4*
+     (indirect,X)  EOR (oper,X)  41    2     6
+     (indirect),Y  EOR (oper),Y  51    2     5* */
+
+        case 0x49:  acc = acc ^ arg1;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+        case 0x45:
+        case 0x55:
+        case 0x4D:
+        case 0x5D:
+        case 0x59:
+        case 0x41:
+        case 0x51: acc = acc ^ memory_read(effectiveAdrress);
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+
+
+/*ORA  OR Memory with Accumulator
+
+     A OR M -> A                      N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     ORA #oper     09    2     2
+     zeropage      ORA oper      05    2     3
+     zeropage,X    ORA oper,X    15    2     4
+     absolute      ORA oper      0D    3     4
+     absolute,X    ORA oper,X    1D    3     4*
+     absolute,Y    ORA oper,Y    19    3     4*
+     (indirect,X)  ORA (oper,X)  01    2     6
+     (indirect),Y  ORA (oper),Y  11    2     5* */
+
+        case 0x09:  acc = acc | arg1;
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
+        case 0x05:
+        case 0x15:
+        case 0x0D:
+        case 0x1D:
+        case 0x19:
+        case 0x01:
+        case 0x11: acc = acc | memory_read(effectiveAdrress);
+              zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+              break;
 
       }
     }
