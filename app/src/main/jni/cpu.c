@@ -74,7 +74,7 @@
     jchar xReg = 0;
     jchar yReg = 0;
     jchar sp = 0xff;
-    int pc = 0;
+    int pc = 0x400;
     int zeroFlag = 0;
     int negativeFlag = 0;
     int carryFlag =0;
