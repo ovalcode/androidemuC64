@@ -79,6 +79,7 @@
     int negativeFlag = 0;
     int carryFlag =0;
     int overflowFlag =0;
+    int remainingCycles;
 
 void updateFlags(jchar value) {
     zeroFlag = (value == 0) ? 1 : 0;
@@ -207,8 +208,10 @@ void updateFlags(jchar value) {
     carryFlag = (value) & 1;
   }
 
-    void step() {
+  int step() {
+      int result = 0;
       int opcode = memory_read(pc);
+      remainingCycles -= instructionCycles[opcode];
       pc = pc + 1;
       int iLen = instructionLengths[opcode];
       jchar arg1 = 0;
@@ -1212,8 +1215,22 @@ void updateFlags(jchar value) {
               negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
               memory_write(effectiveAdrress, tempVal);
               break;
+        default:
+          result = (opcode << 16) | pc;
+        break;
       }
+
+      return result;
     }
+
+int runBatch() {
+  remainingCycles = 20000;
+  int lastResult = 0;
+  while ((remainingCycles > 0) && (lastResult == 0)) {
+    lastResult = step();
+  }
+  return lastResult;
+}
 
 void
 Java_com_johan_emulator_MainActivity_step(JNIEnv* pEnv, jobject pObj)
