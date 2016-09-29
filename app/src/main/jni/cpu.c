@@ -79,6 +79,7 @@
     int negativeFlag = 0;
     int carryFlag =0;
     int overflowFlag =0;
+    int decimalFlag = 0;
     int remainingCycles;
 
 void updateFlags(jchar value) {
@@ -959,6 +960,32 @@ void updateFlags(jchar value) {
 
         case 0x38:
           carryFlag = 1;
+              break;
+
+/*CLD  Clear Decimal Mode
+
+     0 -> D                           N Z C I D V
+                                      - - - - 0 -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLD           D8    1     2 */
+
+        case 0xD8:
+          decimalFlag = 0;
+              break;
+
+/*SED  Set Decimal Flag
+
+     1 -> D                           N Z C I D V
+                                      - - - - 1 -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SED           F8    1     2  */
+
+        case 0xF8:
+          decimalFlag = 1;
               break;
 
 /*TAX  Transfer Accumulator to Index X
