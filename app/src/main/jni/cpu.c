@@ -79,6 +79,8 @@
     int negativeFlag = 0;
     int carryFlag =0;
     int overflowFlag =0;
+    int breakFlag = 1;
+    int interruptFlag = 0;
     int decimalFlag = 0;
     int remainingCycles;
 
@@ -197,7 +199,7 @@ void updateFlags(jchar value) {
   }
 
   char getStatusFlagsAsByte() {
-    char result = (negativeFlag << 7) | (overflowFlag << 6) | (zeroFlag << 1) |
+    char result = (negativeFlag << 7) | (overflowFlag << 6) |  (1 << 5) | (breakFlag << 4) | (decimalFlag << 3) | (interruptFlag << 2) | (zeroFlag << 1) |
     (carryFlag);
     return result;
   }
@@ -205,6 +207,8 @@ void updateFlags(jchar value) {
   void setStatusFlagsAsByte(char value) {
     negativeFlag = (value >> 7) & 1;
     overflowFlag = (value >> 6) & 1;
+    decimalFlag = (value >> 3) & 1;
+    interruptFlag = (value >> 2) & 1;
     zeroFlag = (value >> 1) & 1;
     carryFlag = (value) & 1;
   }
@@ -1242,6 +1246,16 @@ void updateFlags(jchar value) {
               negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
               memory_write(effectiveAdrress, tempVal);
               break;
+
+/*NOP  No Operation
+     ---                              N Z C I D V
+                                      - - - - - -
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       NOP           EA    1     2 */
+
+        case 0xEA:
+          break;
         default:
           result = (opcode << 16) | pc;
         break;
