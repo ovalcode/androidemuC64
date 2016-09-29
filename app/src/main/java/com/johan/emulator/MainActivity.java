@@ -320,7 +320,9 @@ public class MainActivity extends AppCompatActivity {
         timerTask = new TimerTask() {
             @Override
             public void run() {
+              //System.out.println("In Beginning: " + System.currentTimeMillis());
               final int result = runBatch();
+              //System.out.println("In End: " + System.currentTimeMillis());
               if (result != 0) {
                   handler.post(new Runnable() {
                       @Override
@@ -333,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        timer.schedule(timerTask, 20);
+        timer.schedule(timerTask, 20, 20);
     }
 
     public void doAlert(int result) {
