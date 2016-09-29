@@ -1228,8 +1228,14 @@ int runBatch() {
   int lastResult = 0;
   while ((remainingCycles > 0) && (lastResult == 0)) {
     lastResult = step();
+    if (lastResult != 0)
+      break;
   }
   return lastResult;
+}
+
+jint Java_com_johan_emulator_MainActivity_runBatch() {
+  return runBatch();
 }
 
 void

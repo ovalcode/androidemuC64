@@ -1,8 +1,10 @@
 package com.johan.emulator;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -10,6 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -83,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
             "CPX", "SBC", "", "", "CPX", "SBC", "INC", "", "INX", "SBC", "NOP", "", "CPX", "SBC", "INC", "",
             "BEQ", "SBC", "", "", "", "SBC", "INC", "", "SED", "SBC", "", "", "", "SBC", "INC", ""};
 
+    Timer timer;
+    TimerTask timerTask;
+
+    final Handler handler = new Handler();
     //private Memory mem = new Memory();
     //private Cpu myCpu = new Cpu(mem);
     @Override
@@ -215,9 +224,6 @@ public class MainActivity extends AppCompatActivity {
         result = result + ((getZeroFlag() == 1) ? "Z" : "-");
         result = result + ((getCarryFlag() == 1) ? "C" : "-");
 
-
-
-
         return result;
     }
 
@@ -278,12 +284,11 @@ public class MainActivity extends AppCompatActivity {
         TextView viewDiss = (TextView) findViewById(R.id.instruction);
         viewDiss.setText(getDisassembled(memDump, getPc()));
 
-
-
     }
 
     public native char[] dump();
     public native void step();
+    public native int runBatch();
     public static native void memoryInit();
 
     public native char getAcc();
@@ -308,6 +313,42 @@ public class MainActivity extends AppCompatActivity {
         step();
         refreshControls();
     }
+
+    public void onRunClick(View v) {
+        timer = new Timer();
+
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+              final int result = runBatch();
+              if (result != 0) {
+                  handler.post(new Runnable() {
+                      @Override
+                      public void run() {
+                          timer.cancel();
+                          doAlert(result);
+                      }
+                  });
+              }
+            }
+        };
+
+        timer.schedule(timerTask, 20);
+    }
+
+    public void doAlert(int result) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder
+                .setTitle("Error")
+                .setMessage(result+"")
+                .setPositiveButton("Yes",null)
+                .show();
+    }
+
+    public void onStopClick(View v) {
+      timer.cancel();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
