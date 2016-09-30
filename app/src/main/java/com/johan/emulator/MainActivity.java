@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
     Timer timer;
     TimerTask timerTask;
 
+    private boolean running = false;
+
     final Handler handler = new Handler();
     //private Memory mem = new Memory();
     //private Cpu myCpu = new Cpu(mem);
@@ -315,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onRunClick(View v) {
+        running = true;
         timer = new Timer();
 
         timerTask = new TimerTask() {
@@ -331,6 +334,15 @@ public class MainActivity extends AppCompatActivity {
                           doAlert(result);
                       }
                   });
+              } else if (!running) {
+                  handler.post(new Runnable() {
+                      @Override
+                      public void run() {
+                          timer.cancel();
+                          refreshControls();
+                      }
+                  });
+
               }
             }
         };
@@ -348,7 +360,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onStopClick(View v) {
-      timer.cancel();
+        running = false;
+        //timer.cancel();
     }
 
     @Override
