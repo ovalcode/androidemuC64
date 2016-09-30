@@ -1256,9 +1256,72 @@ void updateFlags(jchar value) {
 
         case 0xEA:
           break;
+
+/*BRK  Force Break
+
+     interrupt,                       N Z C I D V
+     push PC+2, push SR               - - - 1 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       BRK           00    1     7 */
+
+        case 0x00:
+              tempVal = pc + 1;
+              Push(tempVal >> 8);
+              Push(tempVal & 0xff);
+              Push(getStatusFlagsAsByte());
+              interruptFlag = 1;
+              tempVal = memory_read(0xffff) * 256;
+              tempVal = tempVal + memory_read(0xfffe);
+              pc = tempVal;
+              break;
+
+/*RTI  Return from Interrupt
+
+     pull SR, pull PC                 N Z C I D V
+                                      from stack
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       RTI           40    1     6 */
+
+        case 0x40:
+          setStatusFlagsAsByte(Pop());
+          tempVal = Pop();
+          tempVal = (Pop() << 8) + tempVal;
+          pc = tempVal;
+        break;
         default:
           result = (opcode << 16) | pc;
         break;
+
+/*CLI  Clear Interrupt Disable Bit
+
+     0 -> I                           N Z C I D V
+                                      - - - 0 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLI           58    1     2 */
+
+        case 0x58:
+          interruptFlag = 0;
+              break;
+
+/*SEI  Set Interrupt Disable Status
+
+     1 -> I                           N Z C I D V
+                                      - - - 1 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SEI           78    1     2 */
+
+        case 0x78:
+          interruptFlag = 1;
+              break;
+
       }
 
       return result;
