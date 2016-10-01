@@ -177,7 +177,7 @@ void updateFlags(jchar value) {
 
   char SBC(char operand1, char operand2) {
     operand2 = ~operand2 & 0xff;
-    operand2 = operand2 + (1 - carryFlag);
+    operand2 = operand2 + carryFlag;
     int temp = operand1 + operand2;
     carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
     overflowFlag = (((operand1^temp) & (operand2^temp) & 0x80) == 0x80) ? 1 : 0;
