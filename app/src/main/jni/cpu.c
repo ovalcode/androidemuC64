@@ -1161,6 +1161,7 @@ void updateFlags(jchar value) {
               acc = acc >> 1;
               acc = acc & 0xff;
               zeroFlag = (acc == 0) ? 1 : 0;
+              negativeFlag = 0;
               break;
         case 0x46:
         case 0x56:
@@ -1171,6 +1172,7 @@ void updateFlags(jchar value) {
               tempVal = tempVal >> 1;
               tempVal = tempVal & 0xff;
               zeroFlag = (tempVal == 0) ? 1 : 0;
+              negativeFlag = 0;
               memory_write(effectiveAdrress, tempVal);
               break;
 
