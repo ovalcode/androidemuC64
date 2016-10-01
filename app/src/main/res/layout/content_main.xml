@@ -131,6 +131,20 @@
             android:layout_column="1"
             android:onClick="onStopClick" />
 
+        <EditText
+            android:id="@+id/breakAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:ellipsize="start"
+
+            android:hint="Break"
+            android:inputType="text"
+            android:background="@drawable/edittextstyle"
+            android:layout_row="7"
+            android:layout_column="0"/>
+
+
 
     </GridLayout>
     <![CDATA[

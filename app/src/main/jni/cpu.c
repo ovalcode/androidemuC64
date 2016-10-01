@@ -1327,19 +1327,24 @@ void updateFlags(jchar value) {
       return result;
     }
 
-int runBatch() {
+int runBatch(int address) {
   remainingCycles = 20000;
   int lastResult = 0;
   while ((remainingCycles > 0) && (lastResult == 0)) {
     lastResult = step();
     if (lastResult != 0)
       break;
+    if ((address > 0) && (pc == address)) {
+      lastResult = -1;
+      break;
+    }
   }
+
   return lastResult;
 }
 
-jint Java_com_johan_emulator_MainActivity_runBatch() {
-  return runBatch();
+jint Java_com_johan_emulator_MainActivity_runBatch(jint address) {
+  return runBatch(address);
 }
 
 void

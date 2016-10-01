@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
     TimerTask timerTask;
 
     private boolean running = false;
+    private int breakAddress = 0;
 
     final Handler handler = new Handler();
     //private Memory mem = new Memory();
@@ -246,6 +247,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private int getBreakAddress () {
+        EditText editText = (EditText) findViewById(R.id.breakAddress);
+        String editAddress = "0"+editText.getText().toString();
+
+        int intaddress = Integer.parseInt(editAddress,16);
+        return intaddress;
+    }
+
     public String getMemDumpAsString(char[] memContents) {
         EditText editText = (EditText) findViewById(R.id.inputSearchEditText);
         String editAddress = "0"+editText.getText().toString();
@@ -290,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
 
     public native char[] dump();
     public native void step();
-    public native int runBatch();
+    public native int runBatch(int address);
     public static native void memoryInit();
 
     public native char getAcc();
@@ -319,14 +328,15 @@ public class MainActivity extends AppCompatActivity {
     public void onRunClick(View v) {
         running = true;
         timer = new Timer();
+        breakAddress = getBreakAddress();
 
         timerTask = new TimerTask() {
             @Override
             public void run() {
               //System.out.println("In Beginning: " + System.currentTimeMillis());
-              final int result = runBatch();
+              final int result = runBatch(breakAddress);
               //System.out.println("In End: " + System.currentTimeMillis());
-              if (result != 0) {
+              if (result > 0) {
                   handler.post(new Runnable() {
                       @Override
                       public void run() {
@@ -334,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
                           doAlert(result);
                       }
                   });
-              } else if (!running) {
+              } else if (!running | (result < 0)) {
                   handler.post(new Runnable() {
                       @Override
                       public void run() {
