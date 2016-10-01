@@ -1343,7 +1343,7 @@ int runBatch(int address) {
   return lastResult;
 }
 
-jint Java_com_johan_emulator_MainActivity_runBatch(jint address) {
+jint Java_com_johan_emulator_MainActivity_runBatch(JNIEnv* pEnv, jobject pObj, jint address) {
   return runBatch(address);
 }
 
