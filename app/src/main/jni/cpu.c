@@ -177,8 +177,7 @@ void updateFlags(jchar value) {
 
   unsigned char SBC(unsigned char operand1, unsigned char operand2) {
     operand2 = ~operand2 & 0xff;
-    operand2 = operand2 + carryFlag;
-    int temp = operand1 + operand2;
+    int temp = operand1 + operand2 + carryFlag;
     carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
     overflowFlag = (((operand1^temp) & (operand2^temp) & 0x80) == 0x80) ? 1 : 0;
     temp = temp & 0xff;
@@ -1403,7 +1402,7 @@ jchar Java_com_johan_emulator_MainActivity_getInterruptFlag(JNIEnv* pEnv, jobjec
 
 jchar Java_com_johan_emulator_MainActivity_getDecimalFlag(JNIEnv* pEnv, jobject pObj)
 {
-  return 0;
+  return decimalFlag;
 }
 
 jchar Java_com_johan_emulator_MainActivity_getOverflowFlag(JNIEnv* pEnv, jobject pObj)
