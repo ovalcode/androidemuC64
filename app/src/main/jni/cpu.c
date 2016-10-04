@@ -175,7 +175,25 @@ void updateFlags(jchar value) {
     return temp;
   }
 
-  unsigned char SBC(unsigned char operand1, unsigned char operand2) {
+  unsigned char adcDecimal(unsigned char operand) {
+    unsigned char l = 0;
+    unsigned char h = 0;
+    unsigned char result = 0;
+    l = (acc & 0x0f) + (operand & 0x0f) + carryFlag;
+    if ((l & 0xff) > 9) l += 6;
+    h = (acc >> 4) + (operand >> 4) + (l > 15 ? 1 : 0);
+    if ((h & 0xff) > 9) h += 6;
+    result = (l & 0x0f) | (h << 4);
+    result &= 0xff;
+    carryFlag = (h > 15) ? 1 : 0;
+    zeroFlag = (result == 0) ? 1 : 0;
+    negativeFlag = 0;
+    overflowFlag = 0;
+    return result;
+}
+
+
+unsigned char SBC(unsigned char operand1, unsigned char operand2) {
     operand2 = ~operand2 & 0xff;
     int temp = operand1 + operand2 + carryFlag;
     carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
@@ -183,6 +201,22 @@ void updateFlags(jchar value) {
     temp = temp & 0xff;
     return temp;
   }
+
+unsigned char sbcDecimal(unsigned char operand) {
+  unsigned char l = 0;
+  unsigned char h = 0;
+  unsigned char result = 0;
+  l = (acc & 0x0f) - (operand & 0x0f) - (1 - carryFlag);
+  if ((l & 0x10) != 0) l -= 6;
+  h = (acc >> 4) - (operand >> 4) - ((l & 0x10) != 0 ? 1 : 0);
+  if ((h & 0x10) != 0) h -= 6;
+  result = (l & 0x0f) | (h << 4);
+  carryFlag = ((h & 0xff) < 15) ? 1 : 0;
+  zeroFlag = (result == 0) ? 1 : 0;
+  negativeFlag = 0;
+  overflowFlag = 0;
+  return (result & 0xff);
+}
 
   void Push(unsigned char value) {
     memory_write((sp | 0x100), value);
@@ -385,8 +419,12 @@ void updateFlags(jchar value) {
      (indirect),Y  ADC (oper),Y  71    2     5* */
 
           case 0x69:
-              acc = ADC (acc, arg1);
+            if (decimalFlag == 0) {
+              acc = ADC(acc, arg1);
               updateFlags(acc);
+            } else {
+              acc = adcDecimal(arg1);
+            }
               break;
           case 0x65:
           case 0x75:
@@ -395,8 +433,12 @@ void updateFlags(jchar value) {
           case 0x79:
           case 0x61:
           case 0x71:
-              acc = ADC (acc, memory_read(effectiveAdrress));
+            if (decimalFlag == 0) {
+              acc = ADC(acc, memory_read(effectiveAdrress));
               updateFlags(acc);
+            } else {
+              acc = adcDecimal(memory_read(effectiveAdrress));
+            }
               break;
 
 /*SBC  Subtract Memory from Accumulator with Borrow
@@ -416,8 +458,12 @@ void updateFlags(jchar value) {
      (indirect),Y  SBC (oper),Y  F1    2     5*  */
 
           case 0xE9:
-              acc = SBC (acc, arg1);
+            if (decimalFlag == 0) {
+              acc = SBC(acc, arg1);
               updateFlags(acc);
+            } else {
+              acc = sbcDecimal(arg1);
+            }
               break;
           case 0xE5:
           case 0xF5:
@@ -426,8 +472,12 @@ void updateFlags(jchar value) {
           case 0xF9:
           case 0xE1:
           case 0xF1:
-              acc = SBC (acc, memory_read(effectiveAdrress));
+            if (decimalFlag == 0) {
+              acc = SBC(acc, memory_read(effectiveAdrress));
               updateFlags(acc);
+            } else {
+              acc = sbcDecimal(memory_read(effectiveAdrress));
+            }
               break;
 /*INC  Increment Memory by One
 
