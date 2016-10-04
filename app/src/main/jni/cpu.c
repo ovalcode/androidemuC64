@@ -167,7 +167,7 @@ void updateFlags(jchar value) {
     negativeFlag = ((temp & 0x80) != 0) ? 1 : 0;
   }
 
-  char ADC(char operand1, char operand2) {
+  unsigned char ADC(unsigned char operand1, unsigned char operand2) {
     int temp = operand1 + operand2 + carryFlag;
     carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
     overflowFlag = (((operand1^temp) & (operand2^temp) & 0x80) == 0x80) ? 1 : 0;
@@ -175,7 +175,7 @@ void updateFlags(jchar value) {
     return temp;
   }
 
-  char SBC(char operand1, char operand2) {
+  unsigned char SBC(unsigned char operand1, unsigned char operand2) {
     operand2 = ~operand2 & 0xff;
     operand2 = operand2 + carryFlag;
     int temp = operand1 + operand2;
@@ -185,26 +185,26 @@ void updateFlags(jchar value) {
     return temp;
   }
 
-  void Push(char value) {
+  void Push(unsigned char value) {
     memory_write((sp | 0x100), value);
     sp--;
     sp = sp & 0xff;
   }
 
-  char Pop() {
+  unsigned char Pop() {
     sp++;
     sp = sp & 0xff;
-    char result = memory_read(sp | 0x100);
+    unsigned char result = memory_read(sp | 0x100);
     return result;
   }
 
-  char getStatusFlagsAsByte() {
-    char result = (negativeFlag << 7) | (overflowFlag << 6) |  (1 << 5) | (breakFlag << 4) | (decimalFlag << 3) | (interruptFlag << 2) | (zeroFlag << 1) |
+  unsigned char getStatusFlagsAsByte() {
+    unsigned char result = (negativeFlag << 7) | (overflowFlag << 6) |  (1 << 5) | (breakFlag << 4) | (decimalFlag << 3) | (interruptFlag << 2) | (zeroFlag << 1) |
     (carryFlag);
     return result;
   }
 
-  void setStatusFlagsAsByte(char value) {
+  void setStatusFlagsAsByte(unsigned char value) {
     negativeFlag = (value >> 7) & 1;
     overflowFlag = (value >> 6) & 1;
     decimalFlag = (value >> 3) & 1;
