@@ -294,6 +294,23 @@ unsigned char sbcDecimal(unsigned char operand) {
     return tempVal;
   }
 
+  unsigned char shiftLeft (unsigned char value, int shiftInBit) {
+    int temp = (value << 1) | shiftInBit;
+    carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
+    temp = temp & 0xff;
+    zeroFlag = (temp == 0) ? 1 : 0;
+    negativeFlag = ((temp & 0x80) == 0x80) ? 1 : 0;
+    return temp;
+  }
+
+  unsigned char shiftRight (unsigned char value, int shiftInBit) {
+    carryFlag = value & 1;
+    int temp = (value >> 1) | (shiftInBit << 7);
+    temp = temp & 0xff;
+    zeroFlag = (temp == 0) ? 1 : 0;
+    negativeFlag = ((temp & 0x80) == 0x80) ? 1 : 0;
+    return temp;
+  }
 
   int step() {
       int result = 0;
