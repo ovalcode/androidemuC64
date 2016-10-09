@@ -170,14 +170,14 @@ void updateFlags(jchar value) {
     negativeFlag = ((temp & 0x80) != 0) ? 1 : 0;
   }
 
-  unsigned char setNZ(unsigned char value) {
+  inline unsigned char setNZ(unsigned char value) {
       value = value & 0xff;
       zeroFlag = (value == 0) ? 1 : 0;
       negativeFlag = ((value & 0x80) != 0) ? 1 : 0;
       return value;
   }
 
-  unsigned char resolveRead() {
+  inline unsigned char resolveRead() {
     unsigned char addressMode = addressModes[opcode];
     if (addressMode == ADDRESS_MODE_IMMEDIATE)
       return (arg1 & 0xff);
@@ -185,7 +185,7 @@ void updateFlags(jchar value) {
     return memory_read(effectiveAdrress) & 0xff;
   }
 
-  void resolveWrite(unsigned char value) {
+  inline void resolveWrite(unsigned char value) {
     unsigned char addressMode = addressModes[opcode];
     int effectiveAdrress = calculateEffevtiveAdd(addressMode, arg1, arg2);
     memory_write(effectiveAdrress, value & 0xff );
@@ -216,14 +216,14 @@ void updateFlags(jchar value) {
     return result;
 }
 
-void BranchClear(int flag) {
+inline void BranchClear(int flag) {
   if (flag == 1)
     return;
   int effectiveAdrress = calculateEffevtiveAdd(ADDRESS_MODE_RELATIVE, arg1, arg2);
   pc = effectiveAdrress;
 }
 
-void BranchSet(int flag) {
+inline void BranchSet(int flag) {
   if (flag == 0)
     return;
   int effectiveAdrress = calculateEffevtiveAdd(ADDRESS_MODE_RELATIVE, arg1, arg2);
@@ -284,25 +284,25 @@ unsigned char sbcDecimal(unsigned char operand) {
     carryFlag = (value) & 1;
   }
 
-  void pushWord(int word) {
+  inline void pushWord(int word) {
     Push((word >> 8) & 0xff);
     Push(word & 0xff);
   }
 
-  int popWord() {
+  inline int popWord() {
     int tempVal = Pop();
     tempVal = tempVal | (Pop() << 8);
     return tempVal;
   }
 
-  unsigned char shiftLeft (unsigned char value, int shiftInBit) {
+  inline unsigned char shiftLeft (unsigned char value, int shiftInBit) {
     int temp = (value << 1) | shiftInBit;
     carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
     temp = temp & 0xff;
     return temp;
   }
 
-  unsigned char shiftRight (unsigned char value, int shiftInBit) {
+  inline unsigned char shiftRight (unsigned char value, int shiftInBit) {
     carryFlag = value & 1;
     int temp = (value >> 1) | (shiftInBit << 7);
     temp = temp & 0xff;
