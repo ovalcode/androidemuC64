@@ -75,6 +75,9 @@
     jchar yReg = 0;
     jchar sp = 0xff;
     int pc = 0x400;
+    int opcode;
+    jchar arg1;
+    jchar arg2;
     int zeroFlag = 0;
     int negativeFlag = 0;
     int carryFlag =0;
@@ -100,8 +103,8 @@ void updateFlags(jchar value) {
     int tempAddress = 0;
     switch (mode)
     {
-      case ADDRESS_MODE_ACCUMULATOR: return 0; 
-      break;
+      //case ADDRESS_MODE_ACCUMULATOR: return 0;
+      //break;
 
       case ADDRESS_MODE_ABSOLUTE: return ((argbyte2 << 8) + argbyte1);
       break;
@@ -116,11 +119,11 @@ void updateFlags(jchar value) {
         return tempAddress;
       break;
 
-      case ADDRESS_MODE_IMMEDIATE: 
-      break;
+      //case ADDRESS_MODE_IMMEDIATE:
+      //break;
 
-      case ADDRESS_MODE_IMPLIED:
-      break;
+      //case ADDRESS_MODE_IMPLIED:
+      //break;
 
       case ADDRESS_MODE_INDIRECT:
         tempAddress = ((argbyte2 << 8) + argbyte1);
@@ -167,6 +170,27 @@ void updateFlags(jchar value) {
     negativeFlag = ((temp & 0x80) != 0) ? 1 : 0;
   }
 
+  inline unsigned char setNZ(unsigned char value) {
+      value = value & 0xff;
+      zeroFlag = (value == 0) ? 1 : 0;
+      negativeFlag = ((value & 0x80) != 0) ? 1 : 0;
+      return value;
+  }
+
+  inline unsigned char resolveRead() {
+    unsigned char addressMode = addressModes[opcode];
+    if (addressMode == ADDRESS_MODE_IMMEDIATE)
+      return (arg1 & 0xff);
+    int effectiveAdrress = calculateEffevtiveAdd(addressMode, arg1, arg2);
+    return memory_read(effectiveAdrress) & 0xff;
+  }
+
+  inline void resolveWrite(unsigned char value) {
+    unsigned char addressMode = addressModes[opcode];
+    int effectiveAdrress = calculateEffevtiveAdd(addressMode, arg1, arg2);
+    memory_write(effectiveAdrress, value & 0xff );
+  }
+
   unsigned char ADC(unsigned char operand1, unsigned char operand2) {
     int temp = operand1 + operand2 + carryFlag;
     carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
@@ -190,6 +214,20 @@ void updateFlags(jchar value) {
     negativeFlag = 0;
     overflowFlag = 0;
     return result;
+}
+
+inline void BranchClear(int flag) {
+  if (flag == 1)
+    return;
+  int effectiveAdrress = calculateEffevtiveAdd(ADDRESS_MODE_RELATIVE, arg1, arg2);
+  pc = effectiveAdrress;
+}
+
+inline void BranchSet(int flag) {
+  if (flag == 0)
+    return;
+  int effectiveAdrress = calculateEffevtiveAdd(ADDRESS_MODE_RELATIVE, arg1, arg2);
+  pc = effectiveAdrress;
 }
 
 
@@ -246,15 +284,40 @@ unsigned char sbcDecimal(unsigned char operand) {
     carryFlag = (value) & 1;
   }
 
+  inline void pushWord(int word) {
+    Push((word >> 8) & 0xff);
+    Push(word & 0xff);
+  }
+
+  inline int popWord() {
+    int tempVal = Pop();
+    tempVal = tempVal | (Pop() << 8);
+    return tempVal;
+  }
+
+  inline unsigned char shiftLeft (unsigned char value, int shiftInBit) {
+    int temp = (value << 1) | shiftInBit;
+    carryFlag = ((temp & 0x100) == 0x100) ? 1 : 0;
+    temp = temp & 0xff;
+    return temp;
+  }
+
+  inline unsigned char shiftRight (unsigned char value, int shiftInBit) {
+    carryFlag = value & 1;
+    int temp = (value >> 1) | (shiftInBit << 7);
+    temp = temp & 0xff;
+    return temp;
+  }
+
   int step() {
       int result = 0;
-      int opcode = memory_read(pc);
+      opcode = memory_read(pc);
       remainingCycles -= instructionCycles[opcode];
       pc = pc + 1;
       int iLen = instructionLengths[opcode];
-      jchar arg1 = 0;
-      jchar arg2 = 0;
-      int effectiveAdrress = 0;
+      arg1 = 0;
+      arg2 = 0;
+      //int effectiveAdrress = 0;
       if (iLen > 1) {
         arg1 = memory_read(pc);
         pc = pc + 1;
@@ -265,7 +328,7 @@ unsigned char sbcDecimal(unsigned char operand) {
         pc = pc + 1;
       }    
 
-      effectiveAdrress = calculateEffevtiveAdd(addressModes[opcode], arg1, arg2);
+      //effectiveAdrress = calculateEffevtiveAdd(addressModes[opcode], arg1, arg2);
       int tempVal;
 
       switch (opcode)
@@ -285,9 +348,6 @@ unsigned char sbcDecimal(unsigned char operand) {
      (indirect),Y  LDA (oper),Y  B1    2     5* */
 
         case 0xa9:
-          acc = arg1;
-          updateFlags(acc);
-        break;
         case 0xA5:
         case 0xB5:
         case 0xAD:
@@ -295,8 +355,7 @@ unsigned char sbcDecimal(unsigned char operand) {
         case 0xB9:
         case 0xA1:
         case 0xB1:
-          acc = memory_read(effectiveAdrress);
-          updateFlags(acc);
+          acc = setNZ(resolveRead());
         break;
 
 /*LDX  Load Index X with Memory
@@ -311,16 +370,11 @@ unsigned char sbcDecimal(unsigned char operand) {
      absolute,Y    LDX oper,Y    BE    3     4**/
 
         case 0xA2:
-          xReg = arg1;
-          updateFlags(xReg);
-        break;
-
         case 0xA6:
         case 0xB6:
         case 0xAE:
         case 0xBE:
-          xReg = memory_read(effectiveAdrress);
-          updateFlags(xReg);
+          xReg = setNZ(resolveRead());
         break;
 
 
@@ -338,16 +392,11 @@ unsigned char sbcDecimal(unsigned char operand) {
 
 
         case 0xA0:
-          yReg = arg1;
-          updateFlags(yReg);
-        break;
-
         case 0xA4:
         case 0xB4:
         case 0xAC:
         case 0xBC:
-          yReg = memory_read(effectiveAdrress);
-          updateFlags(yReg);
+          yReg = setNZ(resolveRead());
         break;
  
 /*STA  Store Accumulator in Memory
@@ -370,7 +419,7 @@ unsigned char sbcDecimal(unsigned char operand) {
         case 0x99:
         case 0x81:
         case 0x91:
-          memory_write(effectiveAdrress, acc);
+          resolveWrite(acc);
         break;
 
 
@@ -386,7 +435,7 @@ unsigned char sbcDecimal(unsigned char operand) {
         case 0x86:
         case 0x96:
         case 0x8E:
-          memory_write(effectiveAdrress, xReg);
+          resolveWrite(xReg);
         break;
 /*STY  Sore Index Y in Memory
      Y -> M                           N Z C I D V
@@ -400,7 +449,7 @@ unsigned char sbcDecimal(unsigned char operand) {
         case 0x84:
         case 0x94:
         case 0x8C:
-          memory_write(effectiveAdrress, yReg);
+          resolveWrite(yReg);
         break;
 /*ADC  Add Memory to Accumulator with Carry
 
@@ -434,10 +483,10 @@ unsigned char sbcDecimal(unsigned char operand) {
           case 0x61:
           case 0x71:
             if (decimalFlag == 0) {
-              acc = ADC(acc, memory_read(effectiveAdrress));
+              acc = ADC(acc, resolveRead());
               updateFlags(acc);
             } else {
-              acc = adcDecimal(memory_read(effectiveAdrress));
+              acc = adcDecimal(resolveRead());
             }
               break;
 
@@ -473,10 +522,10 @@ unsigned char sbcDecimal(unsigned char operand) {
           case 0xE1:
           case 0xF1:
             if (decimalFlag == 0) {
-              acc = SBC(acc, memory_read(effectiveAdrress));
+              acc = SBC(acc, resolveRead());
               updateFlags(acc);
             } else {
-              acc = sbcDecimal(memory_read(effectiveAdrress));
+              acc = sbcDecimal(resolveRead());
             }
               break;
 /*INC  Increment Memory by One
@@ -495,10 +544,7 @@ unsigned char sbcDecimal(unsigned char operand) {
           case 0xF6:
           case 0xEE:
           case 0xFE:
-              tempVal = memory_read(effectiveAdrress);
-              tempVal++; tempVal = tempVal & 0xff;
-              memory_write(effectiveAdrress, tempVal);
-              updateFlags(tempVal);
+              resolveWrite(setNZ(resolveRead() + 1));
               break;
 
 /*INX  Increment Index X by One
@@ -511,9 +557,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       INX           E8    1     2*/
 
           case 0xE8:
-
-              xReg++; xReg = xReg & 0xff;
-              updateFlags(xReg);
+              xReg = setNZ(xReg + 1);
               break;
 
 /*INY  Increment Index Y by One
@@ -526,9 +570,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       INY           C8    1     2*/
 
           case 0xC8:
-
-              yReg++; yReg = yReg & 0xff;
-              updateFlags(yReg);
+              yReg = setNZ(yReg + 1);
               break;
 
 /*DEC  Decrement Memory by One
@@ -547,11 +589,8 @@ unsigned char sbcDecimal(unsigned char operand) {
           case 0xD6:
           case 0xCE:
           case 0xDE:
-              tempVal = memory_read(effectiveAdrress);
-              tempVal--; tempVal = tempVal & 0xff;
-              memory_write(effectiveAdrress, tempVal);
-              updateFlags(tempVal);
-              break;
+             resolveWrite(setNZ(resolveRead() - 1));
+             break;
 
 /*DEX  Decrement Index X by One
 
@@ -563,9 +602,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       DEC           CA    1     2*/
 
           case 0xCA:
-
-              xReg--; xReg = xReg & 0xff;
-              updateFlags(xReg);
+               xReg = setNZ(xReg - 1);
               break;
 
 /*DEY  Decrement Index Y by One
@@ -578,9 +615,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       DEC           88    1     2*/
 
           case 0x88:
-
-              yReg--; yReg = yReg & 0xff;
-              updateFlags(yReg);
+               yReg = setNZ(yReg - 1);
               break;
 
 /*CMP  Compare Memory with Accumulator
@@ -609,7 +644,7 @@ unsigned char sbcDecimal(unsigned char operand) {
         case 0xd9:
         case 0xc1:
         case 0xd1:
-          CMP(acc, memory_read(effectiveAdrress));
+          CMP(acc, resolveRead());
               break;
 
 /*CPX  Compare Memory and Index X
@@ -629,7 +664,7 @@ unsigned char sbcDecimal(unsigned char operand) {
               break;
         case 0xe4:
         case 0xec:
-          CMP(xReg, memory_read(effectiveAdrress));
+          CMP(xReg, resolveRead());
               break;
 
 /*CPY  Compare Memory and Index Y
@@ -648,7 +683,7 @@ unsigned char sbcDecimal(unsigned char operand) {
               break;
         case 0xc4:
         case 0xcc:
-          CMP(yReg, memory_read(effectiveAdrress));
+          CMP(yReg, resolveRead());
               break;
 /*BCC  Branch on Carry Clear
 
@@ -660,8 +695,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      relative      BCC oper      90    2     2** */
 
         case 0x90:
-          if (carryFlag == 0)
-            pc = effectiveAdrress;
+          BranchClear(carryFlag);
               break;
 
 
@@ -675,8 +709,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      relative      BCS oper      B0    2     2** */
 
         case 0xB0:
-          if (carryFlag == 1)
-            pc = effectiveAdrress;
+          BranchSet(carryFlag);
               break;
 
 
@@ -690,9 +723,8 @@ unsigned char sbcDecimal(unsigned char operand) {
      relative      BEQ oper      F0    2     2** */
 
         case 0xF0:
-          if (zeroFlag == 1)
-            pc = effectiveAdrress;
-              break;
+          BranchSet(zeroFlag);
+        break;
 
 
 
@@ -706,8 +738,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      relative      BMI oper      30    2     2** */
 
         case 0x30:
-          if (negativeFlag == 1)
-            pc = effectiveAdrress;
+          BranchSet(negativeFlag);
               break;
 
 
@@ -721,8 +752,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      relative      BNE oper      D0    2     2**/
 
         case 0xD0:
-          if (zeroFlag == 0)
-            pc = effectiveAdrress;
+           BranchClear(zeroFlag);
               break;
 
 
@@ -737,8 +767,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      relative      BPL oper      10    2     2** */
 
         case 0x10:
-          if (negativeFlag == 0)
-            pc = effectiveAdrress;
+          BranchClear(negativeFlag);
               break;
 
 
@@ -753,8 +782,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      relative      BVC oper      50    2     2** */
 
         case 0x50:
-          if (overflowFlag == 0)
-            pc = effectiveAdrress;
+          BranchClear(overflowFlag);
               break;
 
 /*BVS  Branch on Overflow Set
@@ -767,8 +795,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      relative      BVC oper      70    2     2** */
 
         case 0x70:
-          if (overflowFlag == 1)
-            pc = effectiveAdrress;
+          BranchSet(overflowFlag);
               break;
 
               /*JMP  Jump to New Location
@@ -783,7 +810,7 @@ unsigned char sbcDecimal(unsigned char operand) {
 
         case 0x4C:
         case 0x6C:
-          pc = effectiveAdrress;
+          pc = calculateEffevtiveAdd(addressModes[opcode], arg1, arg2);
               break;
 
 /*PHA  Push Accumulator on Stack
@@ -824,9 +851,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       PLA           68    1     4 */
 
       case 0x68:
-        acc = Pop();
-        zeroFlag = (acc == 0) ? 1 : 0;
-        negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+        acc = setNZ(Pop());
       break;
 
 
@@ -855,10 +880,8 @@ unsigned char sbcDecimal(unsigned char operand) {
      absolute      JSR oper      20    3     6 */
 
       case 0x20:
-        tempVal = pc - 1;
-        Push((tempVal >> 8) & 0xff);
-        Push(tempVal & 0xff);
-        pc = effectiveAdrress;
+        pushWord (pc - 1);
+        pc = (arg2 << 8) | arg1;
       break;
 
 /*RTS  Return from Subroutine
@@ -871,9 +894,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       RTS           60    1     6 */
 
       case 0x60:
-        tempVal = Pop();
-        tempVal = tempVal + (Pop() << 8);
-        pc = tempVal + 1;
+        pc = popWord() + 1;
       break;
 
 /*AND  AND Memory with Accumulator
@@ -893,19 +914,14 @@ unsigned char sbcDecimal(unsigned char operand) {
      (indirect),Y  AND (oper),Y  31    2     5* */
 
 
-        case 0x29:  acc = acc & arg1;
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
-              break;
+        case 0x29:
         case 0x25:
         case 0x35:
         case 0x2D:
         case 0x3D:
         case 0x39:
         case 0x21:
-        case 0x31: acc = acc & memory_read(effectiveAdrress);
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+        case 0x31: acc = setNZ(acc & resolveRead());
               break;
 
 
@@ -926,19 +942,14 @@ unsigned char sbcDecimal(unsigned char operand) {
      (indirect,X)  EOR (oper,X)  41    2     6
      (indirect),Y  EOR (oper),Y  51    2     5* */
 
-        case 0x49:  acc = acc ^ arg1;
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
-              break;
+        case 0x49:
         case 0x45:
         case 0x55:
         case 0x4D:
         case 0x5D:
         case 0x59:
         case 0x41:
-        case 0x51: acc = acc ^ memory_read(effectiveAdrress);
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+        case 0x51: acc = setNZ(acc ^ resolveRead());
               break;
 
 
@@ -958,19 +969,14 @@ unsigned char sbcDecimal(unsigned char operand) {
      (indirect,X)  ORA (oper,X)  01    2     6
      (indirect),Y  ORA (oper),Y  11    2     5* */
 
-        case 0x09:  acc = acc | arg1;
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
-              break;
+        case 0x09:
         case 0x05:
         case 0x15:
         case 0x0D:
         case 0x1D:
         case 0x19:
         case 0x01:
-        case 0x11: acc = acc | memory_read(effectiveAdrress);
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+        case 0x11: acc = setNZ(acc | resolveRead());
               break;
 
 /*CLC  Clear Carry Flag
@@ -1051,9 +1057,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       TAX           AA    1     2 */
 
         case 0xAA:
-          xReg = acc;
-              zeroFlag = (xReg == 0) ? 1 : 0;
-              negativeFlag = ((xReg & 0x80) != 0) ? 1 : 0;
+          xReg = setNZ(acc);
               break;
 
 
@@ -1067,9 +1071,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       TAY           A8    1     2 */
 
         case 0xA8:
-          yReg = acc;
-              zeroFlag = (yReg == 0) ? 1 : 0;
-              negativeFlag = ((yReg & 0x80) != 0) ? 1 : 0;
+          yReg = setNZ(acc);
               break;
 
 
@@ -1083,9 +1085,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       TSX           BA    1     2 */
 
         case 0xBA:
-          xReg = sp;
-              zeroFlag = (xReg == 0) ? 1 : 0;
-              negativeFlag = ((xReg & 0x80) != 0) ? 1 : 0;
+          xReg = setNZ(sp);
               break;
 
 
@@ -1100,9 +1100,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       TXA           8A    1     2 */
 
         case 0x8A:
-          acc = xReg;
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+          acc = setNZ(xReg);
               break;
 
 
@@ -1131,9 +1129,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       TYA           98    1     2 */
 
         case 0x98:
-          acc = yReg;
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+          acc = setNZ(yReg);
               break;
 
 /*BIT  Test Bits in Memory with Accumulator
@@ -1151,7 +1147,7 @@ unsigned char sbcDecimal(unsigned char operand) {
 
         case 0x24:
         case 0x2C:
-              tempVal = memory_read(effectiveAdrress);
+              tempVal = resolveRead();
               negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
               overflowFlag = ((tempVal & 0x40) != 0) ? 1 : 0;
               zeroFlag = ((acc & tempVal) == 0) ? 1 : 0;
@@ -1171,23 +1167,13 @@ unsigned char sbcDecimal(unsigned char operand) {
      absolute,X    ASL oper,X    1E    3     7 */
 
         case 0x0A:
-          acc = acc << 1;
-              carryFlag = ((acc & 0x100) != 0) ? 1 : 0;
-              acc = acc & 0xff;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
-              zeroFlag = (acc == 0) ? 1 : 0;
+          acc = setNZ(shiftLeft(acc, 0));
               break;
         case 0x06:
         case 0x16:
         case 0x0E:
         case 0x1E:
-             tempVal = memory_read(effectiveAdrress);
-              tempVal = tempVal << 1;
-              carryFlag = ((tempVal & 0x100) != 0) ? 1 : 0;
-              tempVal = tempVal & 0xff;
-              negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
-              zeroFlag = (tempVal == 0) ? 1 : 0;
-              memory_write(effectiveAdrress, tempVal);
+             resolveWrite(setNZ(shiftLeft(resolveRead(), 0)));
               break;
 
 
@@ -1206,23 +1192,13 @@ unsigned char sbcDecimal(unsigned char operand) {
      absolute,X    LSR oper,X    5E    3     7 */
 
         case 0x4A:
-          carryFlag = ((acc & 0x1) != 0) ? 1 : 0;
-              acc = acc >> 1;
-              acc = acc & 0xff;
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = 0;
+          acc = setNZ(shiftRight(acc, 0));
               break;
         case 0x46:
         case 0x56:
         case 0x4E:
         case 0x5E:
-             tempVal = memory_read(effectiveAdrress);
-              carryFlag = ((tempVal & 0x1) != 0) ? 1 : 0;
-              tempVal = tempVal >> 1;
-              tempVal = tempVal & 0xff;
-              zeroFlag = (tempVal == 0) ? 1 : 0;
-              negativeFlag = 0;
-              memory_write(effectiveAdrress, tempVal);
+             resolveWrite(setNZ(shiftRight(resolveRead(), 0)));
               break;
 
 
@@ -1241,26 +1217,13 @@ unsigned char sbcDecimal(unsigned char operand) {
 
 
         case 0x2A:
-          acc = acc << 1;
-              acc = acc | carryFlag;
-              carryFlag = ((acc & 0x100) != 0) ? 1 : 0;
-              acc = acc & 0xff;
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+          acc = setNZ(shiftLeft(acc, carryFlag));
               break;
-
         case 0x26:
         case 0x36:
         case 0x2E:
         case 0x3E:
-              tempVal = memory_read(effectiveAdrress);
-              tempVal = tempVal << 1;
-              tempVal = tempVal | carryFlag;
-              carryFlag = ((tempVal & 0x100) != 0) ? 1 : 0;
-              tempVal = tempVal & 0xff;
-              zeroFlag = (tempVal == 0) ? 1 : 0;
-              negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
-              memory_write(effectiveAdrress,tempVal);
+              resolveWrite(setNZ(shiftLeft(resolveRead(), carryFlag)));
               break;
 
 /*ROR  Rotate One Bit Right (Memory or Accumulator)
@@ -1277,25 +1240,13 @@ unsigned char sbcDecimal(unsigned char operand) {
      absolute,X    ROR oper,X    7E    3     7  */
 
         case 0x6A:
-          acc = acc | (carryFlag << 8);
-              carryFlag = ((acc & 0x1) != 0) ? 1 : 0;
-              acc = acc >> 1;
-              acc = acc & 0xff;
-              zeroFlag = (acc == 0) ? 1 : 0;
-              negativeFlag = ((acc & 0x80) != 0) ? 1 : 0;
+          acc = setNZ(shiftRight(acc, carryFlag));
               break;
         case 0x66:
         case 0x76:
         case 0x6E:
         case 0x7E:
-              tempVal = memory_read(effectiveAdrress);
-              tempVal = tempVal | (carryFlag << 8);
-              carryFlag = ((tempVal & 0x1) != 0) ? 1 : 0;
-              tempVal = tempVal >> 1;
-              tempVal = tempVal & 0xff;
-              zeroFlag = (tempVal == 0) ? 1 : 0;
-              negativeFlag = ((tempVal & 0x80) != 0) ? 1 : 0;
-              memory_write(effectiveAdrress, tempVal);
+              resolveWrite(setNZ(shiftRight(resolveRead(), carryFlag)));
               break;
 
 /*NOP  No Operation
@@ -1318,9 +1269,7 @@ unsigned char sbcDecimal(unsigned char operand) {
      implied       BRK           00    1     7 */
 
         case 0x00:
-              tempVal = pc + 1;
-              Push(tempVal >> 8);
-              Push(tempVal & 0xff);
+              pushWord(pc + 1);
               Push(getStatusFlagsAsByte());
               interruptFlag = 1;
               tempVal = memory_read(0xffff) * 256;
@@ -1339,9 +1288,7 @@ unsigned char sbcDecimal(unsigned char operand) {
 
         case 0x40:
           setStatusFlagsAsByte(Pop());
-          tempVal = Pop();
-          tempVal = (Pop() << 8) + tempVal;
-          pc = tempVal;
+          pc = popWord();
         break;
         default:
           result = (opcode << 16) | pc;
