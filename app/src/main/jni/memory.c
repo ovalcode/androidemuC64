@@ -36,6 +36,16 @@ void Java_com_johan_emulator_MainActivity_loadROMS(JNIEnv* env, jobject pObj, jo
   for (i = 0xa000; i < 0xc000; i++) {
     mainMem[i] = buffer[i & 0x1fff];
   }
+  AAsset_close(assetF);
+
+  assetF = AAssetManager_open(assetManager, "kernal.bin", AASSET_MODE_UNKNOWN);
+  AAsset_read(assetF, buffer, 8182);
+
+  for (i = 0xe000; i < 0x10000; i++) {
+    mainMem[i] = buffer[i & 0x1fff];
+  }
+  AAsset_close(assetF);
+
 }
 
 
