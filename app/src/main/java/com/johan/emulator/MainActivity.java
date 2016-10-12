@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         AssetManager mgr = getResources().getAssets();
         loadROMS(mgr);
+        resetCpu();
 
         refreshControls();
         //TextView view = (TextView) findViewById(R.id.memoryDump);
@@ -317,6 +318,7 @@ public class MainActivity extends AppCompatActivity {
     public native char getYreg();
     public native char getSP();
     public native char getPc();
+    public native void resetCpu();
 
     public native char getZeroFlag();
     public native char getNegativeFlag();

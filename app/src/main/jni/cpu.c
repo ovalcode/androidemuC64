@@ -1376,6 +1376,13 @@ jchar Java_com_johan_emulator_MainActivity_getPc(JNIEnv* pEnv, jobject pObj)
   return pc;
 }
 
+void Java_com_johan_emulator_MainActivity_resetCpu(JNIEnv* pEnv, jobject pObj) 
+{
+  pc = memory_read (0xfffc) | (memory_read(0xfffd) << 8);
+  pc = pc & 0xffff;
+  //pc = 0xfce2;
+}
+
 
 jchar Java_com_johan_emulator_MainActivity_getZeroFlag(JNIEnv* pEnv, jobject pObj)
 {
