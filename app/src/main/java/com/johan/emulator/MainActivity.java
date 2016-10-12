@@ -1,5 +1,6 @@
 package com.johan.emulator;
 
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,10 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -103,10 +108,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        AssetManager mgr = getResources().getAssets();
+        loadROMS(mgr);
+
         refreshControls();
         //TextView view = (TextView) findViewById(R.id.memoryDump);
         //view.setText(mem.getMemDump());
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -301,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
     public native void step();
     public native int runBatch(int address);
     public static native void memoryInit();
+    private native void loadROMS (AssetManager pAssetManager);
 
     public native char getAcc();
     public native char getXreg();
