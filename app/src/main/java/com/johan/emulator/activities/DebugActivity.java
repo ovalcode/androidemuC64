@@ -1,4 +1,4 @@
-package com.johan.emulator;
+package com.johan.emulator.activities;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.johan.emulator.R;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +23,7 @@ import java.io.InputStreamReader;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class DebugActivity extends AppCompatActivity {
 
     private static final int ADDRESS_MODE_ACCUMULATOR = 0;
     private static final int ADDRESS_MODE_ABSOLUTE = 1;
