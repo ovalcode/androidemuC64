@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.View;
 
 import com.johan.emulator.R;
@@ -40,6 +42,24 @@ public class FrontActivity extends AppCompatActivity {
         });
     }
 
+    public void doAlert(int result) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder
+                .setTitle("Error")
+                .setMessage(result+"")
+                .setPositiveButton("Yes",null)
+                .show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_front, menu);
+        return true;
+    }
+
+
+
     @Override
     protected  void onResume() {
         super.onResume();
@@ -51,7 +71,7 @@ public class FrontActivity extends AppCompatActivity {
             @Override
             public void run() {
                 //System.out.println("In Beginning: " + System.currentTimeMillis());
-                final int result = emuInstance.runBatch(1);
+                final int result = emuInstance.runBatch(0);
                 //System.out.println("In End: " + System.currentTimeMillis());
                 if (result > 0) {
                     handler.post(new Runnable() {
@@ -66,7 +86,7 @@ public class FrontActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             timer.cancel();
-                            refreshControls();
+                            //NB!! jump to debug activity
                         }
                     });
 

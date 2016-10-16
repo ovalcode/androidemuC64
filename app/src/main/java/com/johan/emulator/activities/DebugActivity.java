@@ -126,14 +126,6 @@ public class DebugActivity extends AppCompatActivity {
         timer.schedule(timerTask, 20, 20);
     }
 
-    public void doAlert(int result) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder
-                .setTitle("Error")
-                .setMessage(result+"")
-                .setPositiveButton("Yes",null)
-                .show();
-    }
 
     public void onStopClick(View v) {
         running = false;
