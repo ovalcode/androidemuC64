@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.johan.emulator.R;
+import com.johan.emulator.engine.Emu6502;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,22 +26,16 @@ import java.util.TimerTask;
 
 public class DebugActivity extends AppCompatActivity {
 
+    private Emu6502 emuInstance = Emu6502.getInstance(getResources().getAssets());
 
-    //private Memory mem = new Memory();
-    //private Cpu myCpu = new Cpu(mem);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        AssetManager mgr = getResources().getAssets();
-        loadROMS(mgr);
-        resetCpu();
 
-        refreshControls();
-        //TextView view = (TextView) findViewById(R.id.memoryDump);
-        //view.setText(mem.getMemDump());
+        //NB!! Do refresh controls when onResume()
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -64,19 +59,22 @@ public class DebugActivity extends AppCompatActivity {
 
     private void refreshControls() {
 
-        char[] memDump = dump();
+        EditText editText = (EditText) findViewById(R.id.inputSearchEditText);
+        String editAddress = "0"+editText.getText().toString();
+
+        int intaddress = Integer.parseInt(editAddress,16);
 
         TextView view = (TextView) findViewById(R.id.memoryDump);
-        view.setText(getMemDumpAsString(memDump));
+        view.setText(emuInstance.getMemDumpAsString(intaddress));
 
         TextView viewReg = (TextView) findViewById(R.id.Registers);
-        viewReg.setText(getRegisterDump(getAcc(), getXreg(), getYreg(), getSP()));
+        viewReg.setText(emuInstance.getRegisterDump());
 
         TextView viewFlags = (TextView) findViewById(R.id.Flags);
-        viewFlags.setText(getFlagDump());
+        viewFlags.setText(emuInstance.getFlagDump());
 
         TextView viewDiss = (TextView) findViewById(R.id.instruction);
-        viewDiss.setText(getDisassembled(memDump, getPc()));
+        viewDiss.setText(emuInstance.getDisassembled());
 
     }
 
@@ -87,46 +85,12 @@ public class DebugActivity extends AppCompatActivity {
     }
 
     public void onStepClick(View v) {
-        step();
+        emuInstance.step();
         refreshControls();
     }
 
-    public void onRunClick(View v) {
-        running = true;
-        timer = new Timer();
-        breakAddress = getBreakAddress();
 
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-              //System.out.println("In Beginning: " + System.currentTimeMillis());
-              final int result = runBatch(breakAddress);
-              //System.out.println("In End: " + System.currentTimeMillis());
-              if (result > 0) {
-                  handler.post(new Runnable() {
-                      @Override
-                      public void run() {
-                          timer.cancel();
-                          doAlert(result);
-                      }
-                  });
-              } else if (!running | (result < 0)) {
-                  handler.post(new Runnable() {
-                      @Override
-                      public void run() {
-                          timer.cancel();
-                          refreshControls();
-                      }
-                  });
-
-              }
-            }
-        };
-
-        timer.schedule(timerTask, 20, 20);
-    }
-
-
+    //TODO: menu switching
     public void onStopClick(View v) {
         running = false;
         //timer.cancel();
@@ -154,5 +118,12 @@ public class DebugActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected  void onResume() {
+        super.onResume();
+        refreshControls();
+    }
 
-}
+
+
+    }

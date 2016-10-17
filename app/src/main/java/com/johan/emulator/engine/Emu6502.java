@@ -94,22 +94,23 @@ public class Emu6502 {
     }
 
 
-    protected String getDisassembled(char[] memContents, int pc) {
-        int opCode = memContents[pc];
+    public String getDisassembled() {
+        char[] memContents = dump();
+        int opCode = memContents[getPc()];
         int mode = ADDRESS_MODES[opCode];
         int numArgs = INSTRUCTION_LEN[opCode] - 1;
         int argbyte1 = 0;
         int argbyte2 = 0;
         if (numArgs > 0) {
-            argbyte1 = memContents[pc + 1];
+            argbyte1 = memContents[getPc() + 1];
         }
 
         if (numArgs > 1) {
-            argbyte2 = memContents[pc + 2];
+            argbyte2 = memContents[getPc() + 2];
         }
 
         String addrStr = "";
-        String result = getAsFourDigit(pc);
+        String result = getAsFourDigit(getPc());
         result = result + " " + opCodeDesc[opCode] + " ";
         switch (mode) {
             case ADDRESS_MODE_ACCUMULATOR: result = result + " A";
@@ -155,7 +156,7 @@ public class Emu6502 {
                 break;
 
             case ADDRESS_MODE_RELATIVE:
-                addrStr = getAsFourDigit(((argbyte1 > 127) ? (argbyte1 - 256) : argbyte1) + pc + 2);
+                addrStr = getAsFourDigit(((argbyte1 > 127) ? (argbyte1 - 256) : argbyte1) + getPc() + 2);
                 result = result + "$" + addrStr;
                 break;
 
@@ -195,37 +196,35 @@ public class Emu6502 {
         return result;
     }
 
-    public String getRegisterDump(char acc, char xReg, char yReg, char SP) {
-        String accStr = "00"+Integer.toHexString(acc);
+    public String getRegisterDump() {
+        String accStr = "00"+Integer.toHexString(getAcc());
         accStr = accStr.substring(accStr.length() - 2);
 
-        String xRegStr = "00"+Integer.toHexString(xReg);
+        String xRegStr = "00"+Integer.toHexString(getXreg());
         xRegStr = xRegStr.substring(xRegStr.length() - 2);
 
-        String yRegStr = "00"+Integer.toHexString(yReg);
+        String yRegStr = "00"+Integer.toHexString(getYreg());
         yRegStr = yRegStr.substring(yRegStr.length() - 2);
 
-        String spStr = "00"+Integer.toHexString(SP);
+        String spStr = "00"+Integer.toHexString(getSP());
         spStr = spStr.substring(spStr.length() - 2);
 
         return accStr + xRegStr + yRegStr + spStr;
 
     }
 
-    public String getMemDumpAsString(char[] memContents) {
-        EditText editText = (EditText) findViewById(R.id.inputSearchEditText);
-        String editAddress = "0"+editText.getText().toString();
+    public String getMemDumpAsString(int address) {
+        char[] memContents = dump();
 
-        int intaddress = Integer.parseInt(editAddress,16);
         String result = "";
         byte[] temp = new byte[48];
         for (int i=0; i < temp.length; i++) {
-            temp[i] = (byte) memContents[i+intaddress];
+            temp[i] = (byte) memContents[i+address];
         }
 
         for (int i = 0; i < temp.length; i++) {
             if ((i % 16) == 0) {
-                String numberStr = Integer.toHexString(i+intaddress);
+                String numberStr = Integer.toHexString(i+address);
                 numberStr = "0000" + numberStr;
                 result = result + "\n" + numberStr.substring(numberStr.length() - 4);
             }
@@ -236,25 +235,25 @@ public class Emu6502 {
         return result;
     }
 
-    public native char[] dump();
+    private native char[] dump();
     public native void step();
     public native int runBatch(int address);
     public static native void memoryInit();
     private static native void loadROMS (AssetManager pAssetManager);
 
-    public native char getAcc();
-    public native char getXreg();
-    public native char getYreg();
-    public native char getSP();
-    public native char getPc();
+    private native char getAcc();
+    private native char getXreg();
+    private native char getYreg();
+    private native char getSP();
+    private native char getPc();
     public static native void resetCpu();
 
-    public native char getZeroFlag();
-    public native char getNegativeFlag();
-    public native char getCarryFlag();
-    public native char getInterruptFlag();
-    public native char getDecimalFlag();
-    public native char getOverflowFlag();
+    private native char getZeroFlag();
+    private native char getNegativeFlag();
+    private native char getCarryFlag();
+    private native char getInterruptFlag();
+    private native char getDecimalFlag();
+    private native char getOverflowFlag();
 
     protected Emu6502() {
 

@@ -1342,42 +1342,42 @@ int runBatch(int address) {
   return lastResult;
 }
 
-jint Java_com_johan_emulator_MainActivity_runBatch(JNIEnv* pEnv, jobject pObj, jint address) {
+jint Java_com_johan_emulator_engine_Emu6502_runBatch(JNIEnv* pEnv, jobject pObj, jint address) {
   return runBatch(address);
 }
 
 void
-Java_com_johan_emulator_MainActivity_step(JNIEnv* pEnv, jobject pObj)
+Java_com_johan_emulator_engine_Emu6502_step(JNIEnv* pEnv, jobject pObj)
 {
   step();
 }
 
-jchar Java_com_johan_emulator_MainActivity_getAcc(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getAcc(JNIEnv* pEnv, jobject pObj)
 {
   return acc;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getXreg(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getXreg(JNIEnv* pEnv, jobject pObj)
 {
   return xReg;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getYreg(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getYreg(JNIEnv* pEnv, jobject pObj)
 {
   return yReg;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getSP(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getSP(JNIEnv* pEnv, jobject pObj)
 {
   return sp;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getPc(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getPc(JNIEnv* pEnv, jobject pObj)
 {
   return pc;
 }
 
-void Java_com_johan_emulator_MainActivity_resetCpu(JNIEnv* pEnv, jobject pObj) 
+void Java_com_johan_emulator_engine_Emu6502_resetCpu(JNIEnv* pEnv, jobject pObj)
 {
   pc = memory_read (0xfffc) | (memory_read(0xfffd) << 8);
   pc = pc & 0xffff;
@@ -1385,32 +1385,32 @@ void Java_com_johan_emulator_MainActivity_resetCpu(JNIEnv* pEnv, jobject pObj)
 }
 
 
-jchar Java_com_johan_emulator_MainActivity_getZeroFlag(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getZeroFlag(JNIEnv* pEnv, jobject pObj)
 {
   return zeroFlag;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getNegativeFlag(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getNegativeFlag(JNIEnv* pEnv, jobject pObj)
 {
   return negativeFlag;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getCarryFlag(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getCarryFlag(JNIEnv* pEnv, jobject pObj)
 {
   return carryFlag;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getInterruptFlag(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getInterruptFlag(JNIEnv* pEnv, jobject pObj)
 {
   return 0;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getDecimalFlag(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getDecimalFlag(JNIEnv* pEnv, jobject pObj)
 {
   return decimalFlag;
 }
 
-jchar Java_com_johan_emulator_MainActivity_getOverflowFlag(JNIEnv* pEnv, jobject pObj)
+jchar Java_com_johan_emulator_engine_Emu6502_getOverflowFlag(JNIEnv* pEnv, jobject pObj)
 {
   return overflowFlag;
 }

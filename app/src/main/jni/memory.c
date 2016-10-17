@@ -27,7 +27,7 @@ Java_com_johan_emulator_MainActivity_memoryInit(JNIEnv* pEnv, jobject pObj)
 }
 
 
-void Java_com_johan_emulator_MainActivity_loadROMS(JNIEnv* env, jobject pObj, jobject pAssetManager) {
+void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, jobject pAssetManager) {
   AAssetManager* assetManager = AAssetManager_fromJava(env, pAssetManager);
   AAsset* assetF = AAssetManager_open(assetManager, "basic.bin", AASSET_MODE_UNKNOWN);
   uint8_t buffer[8192];
@@ -50,7 +50,7 @@ void Java_com_johan_emulator_MainActivity_loadROMS(JNIEnv* env, jobject pObj, jo
 
 
 jcharArray
-Java_com_johan_emulator_MainActivity_dump(JNIEnv* pEnv, jobject pObj)
+Java_com_johan_emulator_engine_Emu6502_dump(JNIEnv* pEnv, jobject pObj)
 {
   jcharArray result;
   result = (*pEnv)->NewCharArray(pEnv,sizeof(mainMem)/sizeof(mainMem[0]));
