@@ -21,8 +21,8 @@ public class FrontActivity extends AppCompatActivity {
     TimerTask timerTask;
 
     private boolean running = false;
-    final Handler handler = new Handler();
-    private Emu6502 emuInstance = Emu6502.getInstance(getResources().getAssets());
+    //final Handler handler = new Handler();
+    private Emu6502 emuInstance; //Emu6502.getInstance(getResources().getAssets());
 
 
     @Override
@@ -31,6 +31,7 @@ public class FrontActivity extends AppCompatActivity {
         setContentView(R.layout.activity_front);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        emuInstance = Emu6502.getInstance(getResources().getAssets());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -64,10 +65,10 @@ public class FrontActivity extends AppCompatActivity {
     protected  void onResume() {
         super.onResume();
         running = true;
-        timer = new Timer();
+        //timer = new Timer();
         //breakAddress = getBreakAddress();
 
-        timerTask = new TimerTask() {
+        /*timerTask = new TimerTask() {
             @Override
             public void run() {
                 //System.out.println("In Beginning: " + System.currentTimeMillis());
@@ -92,9 +93,9 @@ public class FrontActivity extends AppCompatActivity {
 
                 }
             }
-        };
+        };*/
 
-        timer.schedule(timerTask, 20, 20);
+        //timer.schedule(timerTask, 20, 20);
 
     }
 
