@@ -264,6 +264,7 @@ public class Emu6502 {
           return emu6502Instance;
         loadROMS(mgr);
         resetCpu();
+        emu6502Instance = new Emu6502();
        return emu6502Instance;
 
     }

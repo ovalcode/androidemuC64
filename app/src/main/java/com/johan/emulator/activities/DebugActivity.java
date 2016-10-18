@@ -26,7 +26,7 @@ import java.util.TimerTask;
 
 public class DebugActivity extends AppCompatActivity {
 
-    private Emu6502 emuInstance = Emu6502.getInstance(getResources().getAssets());
+    private Emu6502 emuInstance; //Emu6502.getInstance(this.getResources().getAssets());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +34,7 @@ public class DebugActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        emuInstance = Emu6502.getInstance(getResources().getAssets());
 
         //NB!! Do refresh controls when onResume()
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -84,6 +85,10 @@ public class DebugActivity extends AppCompatActivity {
       refreshControls();
     }
 
+    public void onRunClick(View v) {
+
+    }
+
     public void onStepClick(View v) {
         emuInstance.step();
         refreshControls();
@@ -92,7 +97,7 @@ public class DebugActivity extends AppCompatActivity {
 
     //TODO: menu switching
     public void onStopClick(View v) {
-        running = false;
+        //running = false;
         //timer.cancel();
     }
 

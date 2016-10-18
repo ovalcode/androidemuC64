@@ -122,15 +122,6 @@
             android:layout_column="0"
             android:onClick="onRunClick" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="STOP"
-            android:id="@+id/button4"
-            android:layout_row="6"
-            android:layout_column="1"
-            android:onClick="onStopClick" />
-
         <EditText
             android:id="@+id/breakAddress"
             android:layout_width="wrap_content"
