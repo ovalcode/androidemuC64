@@ -1,5 +1,6 @@
 package com.johan.emulator.activities;
 
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -86,7 +87,8 @@ public class DebugActivity extends AppCompatActivity {
     }
 
     public void onRunClick(View v) {
-
+        Intent i = new Intent(this, FrontActivity.class);
+        startActivity(i);
     }
 
     public void onStepClick(View v) {

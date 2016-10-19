@@ -23,6 +23,7 @@ public class FrontActivity extends AppCompatActivity {
     TimerTask timerTask;
 
     private boolean running = false;
+    private boolean switchToDebug = false;
     final Handler handler = new Handler();
     private Emu6502 emuInstance; //Emu6502.getInstance(getResources().getAssets());
 
@@ -69,7 +70,7 @@ public class FrontActivity extends AppCompatActivity {
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_stop) {
-            running = false;
+            switchToDebug = true;
             return true;
         }
 
@@ -77,9 +78,16 @@ public class FrontActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        running = false;
+    }
+
+    @Override
     protected  void onResume() {
         super.onResume();
         running = true;
+        switchToDebug = false;
         timer = new Timer();
         //breakAddress = getBreakAddress();
 
@@ -96,18 +104,23 @@ public class FrontActivity extends AppCompatActivity {
                             doAlert(result);
                         }
                     });
-                } else if (!running | (result < 0)) {
+                } else if (!running | (result < 0) | switchToDebug) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             timer.cancel();
-                            Intent i = new Intent(FrontActivity.this, DebugActivity.class);
-                            FrontActivity.this.startActivity(i);
+                            running = false;
+                            //Intent i = new Intent(FrontActivity.this, DebugActivity.class);
+                            //FrontActivity.this.startActivity(i);
 
                             //NB!! jump to debug activity
                         }
                     });
 
+                }
+                if (switchToDebug) {
+                    Intent i = new Intent(FrontActivity.this, DebugActivity.class);
+                    FrontActivity.this.startActivity(i);
                 }
             }
         };
