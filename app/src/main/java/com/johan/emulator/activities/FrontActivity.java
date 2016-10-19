@@ -67,7 +67,6 @@ public class FrontActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_stop) {
             running = false;
@@ -76,9 +75,6 @@ public class FrontActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
-
 
     @Override
     protected  void onResume() {
@@ -90,9 +86,8 @@ public class FrontActivity extends AppCompatActivity {
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                //System.out.println("In Beginning: " + System.currentTimeMillis());
                 final int result = emuInstance.runBatch(0);
-                //System.out.println("In End: " + System.currentTimeMillis());
+
                 if (result > 0) {
                     handler.post(new Runnable() {
                         @Override
@@ -105,9 +100,10 @@ public class FrontActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            System.out.print("Execution stopped");
                             timer.cancel();
                             Intent i = new Intent(FrontActivity.this, DebugActivity.class);
+                            FrontActivity.this.startActivity(i);
+
                             //NB!! jump to debug activity
                         }
                     });
