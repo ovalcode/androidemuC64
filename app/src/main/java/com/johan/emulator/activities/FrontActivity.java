@@ -1,5 +1,6 @@
 package com.johan.emulator.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -8,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.johan.emulator.R;
@@ -21,7 +23,7 @@ public class FrontActivity extends AppCompatActivity {
     TimerTask timerTask;
 
     private boolean running = false;
-    //final Handler handler = new Handler();
+    final Handler handler = new Handler();
     private Emu6502 emuInstance; //Emu6502.getInstance(getResources().getAssets());
 
 
@@ -59,16 +61,33 @@ public class FrontActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_stop) {
+            running = false;
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
 
 
     @Override
     protected  void onResume() {
         super.onResume();
         running = true;
-        //timer = new Timer();
+        timer = new Timer();
         //breakAddress = getBreakAddress();
 
-        /*timerTask = new TimerTask() {
+        timerTask = new TimerTask() {
             @Override
             public void run() {
                 //System.out.println("In Beginning: " + System.currentTimeMillis());
@@ -86,16 +105,18 @@ public class FrontActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            System.out.print("Execution stopped");
                             timer.cancel();
+                            Intent i = new Intent(FrontActivity.this, DebugActivity.class);
                             //NB!! jump to debug activity
                         }
                     });
 
                 }
             }
-        };*/
+        };
 
-        //timer.schedule(timerTask, 20, 20);
+        timer.schedule(timerTask, 20, 20);
 
     }
 
