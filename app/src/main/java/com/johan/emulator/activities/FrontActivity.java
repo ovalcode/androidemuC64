@@ -1,6 +1,9 @@
 package com.johan.emulator.activities;
 
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 
 import com.johan.emulator.R;
@@ -95,7 +100,6 @@ public class FrontActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final int result = emuInstance.runBatch(0);
-
                 if (result > 0) {
                     handler.post(new Runnable() {
                         @Override
