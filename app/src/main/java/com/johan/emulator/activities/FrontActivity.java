@@ -19,6 +19,7 @@ import android.view.View;
 
 import com.johan.emulator.R;
 import com.johan.emulator.engine.Emu6502;
+import com.johan.emulator.view.C64SurfaceView;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +27,8 @@ import java.util.TimerTask;
 public class FrontActivity extends AppCompatActivity {
     Timer timer;
     TimerTask timerTask;
+    int xpos = 100;
+    int ypos = 100;
 
     private boolean running = false;
     private boolean switchToDebug = false;
@@ -100,6 +103,20 @@ public class FrontActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final int result = emuInstance.runBatch(0);
+                C64SurfaceView surfaceView = (C64SurfaceView) findViewById(R.id.Video);
+                SurfaceHolder holder = surfaceView.getCreatedHolder();
+                Canvas canvas = null;
+                if (holder != null)
+                    canvas = holder.lockCanvas();
+                if (canvas != null) {
+                    Paint paint = new Paint();
+                    paint.setStyle(Paint.Style.FILL);
+                    paint.setColor(Color.RED);
+                    canvas.drawCircle(xpos,ypos, 50, paint);
+                    xpos++;
+                    ypos++;
+                    holder.unlockCanvasAndPost(canvas);
+                }
                 if (result > 0) {
                     handler.post(new Runnable() {
                         @Override
