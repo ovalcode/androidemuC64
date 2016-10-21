@@ -47,7 +47,8 @@ public class FrontActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
-        mByteBuffer = ByteBuffer.allocateDirect(320*200*2);
+        mByteBuffer = ByteBuffer.allocateDirect(320*200*2*4);
+        mBitmap = Bitmap.createBitmap(320,200, Bitmap.Config.RGB_565);
         emuInstance.setFrameBuffer(mByteBuffer);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -115,12 +116,12 @@ public class FrontActivity extends AppCompatActivity {
                 if (holder != null)
                     canvas = holder.lockCanvas();
                 if (canvas != null) {
-                    Paint paint = new Paint();
-                    paint.setStyle(Paint.Style.FILL);
-                    paint.setColor(Color.RED);
-                    canvas.drawCircle(xpos,ypos, 50, paint);
-                    xpos++;
-                    ypos++;
+                    //Paint paint = new Paint();
+                    //paint.setStyle(Paint.Style.FILL);
+                    //paint.setColor(Color.RED);
+                    mByteBuffer.rewind();
+                    mBitmap.copyPixelsFromBuffer(mByteBuffer);
+                    canvas.drawBitmap(mBitmap,0,0, null);
                     holder.unlockCanvasAndPost(canvas);
                 }
                 if (result > 0) {

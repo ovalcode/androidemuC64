@@ -30,9 +30,15 @@ Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
 
 
 void Java_com_johan_emulator_engine_Emu6502_setFrameBuffer(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
-  g_buffer = (jbyte*)(*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
-  g_buffer[22] = 1;
+  g_buffer = (jbyte *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
+  int i;
+  for (i = 0; i < 16000; i = i + 2) {
+    g_buffer[i] = 0;
+    g_buffer[i + 1] = 31;
+  }
 }
+
+
 
 void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, jobject pAssetManager) {
   AAssetManager* assetManager = AAssetManager_fromJava(env, pAssetManager);
