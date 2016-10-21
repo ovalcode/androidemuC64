@@ -11,6 +11,8 @@ jchar my_program[] = {
 };
 
 jchar mainMem[65536];
+jchar charRom[4096];
+jbyte* g_buffer;
 
 jchar memory_read(int address) {
   return mainMem[address];
@@ -26,6 +28,11 @@ Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
   //memcpy(mainMem, my_program, sizeof(my_program));
 }
 
+
+void Java_com_johan_emulator_engine_Emu6502_setFrameBuffer(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
+  g_buffer = (jbyte*)(*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
+  g_buffer[22] = 1;
+}
 
 void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, jobject pAssetManager) {
   AAssetManager* assetManager = AAssetManager_fromJava(env, pAssetManager);
@@ -45,6 +52,15 @@ void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, 
     mainMem[i] = buffer[i & 0x1fff];
   }
   AAsset_close(assetF);
+
+  assetF = AAssetManager_open(assetManager, "characters.bin", AASSET_MODE_UNKNOWN);
+  AAsset_read(assetF, buffer, 4096);
+
+  for (i = 0x0; i < 0x1000; i++) {
+    charRom[i] = buffer[i];
+  }
+  AAsset_close(assetF);
+
 
 }
 

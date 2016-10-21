@@ -1,6 +1,7 @@
 package com.johan.emulator.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,6 +22,7 @@ import com.johan.emulator.R;
 import com.johan.emulator.engine.Emu6502;
 import com.johan.emulator.view.C64SurfaceView;
 
+import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,6 +31,8 @@ public class FrontActivity extends AppCompatActivity {
     TimerTask timerTask;
     int xpos = 100;
     int ypos = 100;
+    private ByteBuffer mByteBuffer;
+    private Bitmap mBitmap;
 
     private boolean running = false;
     private boolean switchToDebug = false;
@@ -43,6 +47,8 @@ public class FrontActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
+        mByteBuffer = ByteBuffer.allocateDirect(320*200*2);
+        emuInstance.setFrameBuffer(mByteBuffer);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

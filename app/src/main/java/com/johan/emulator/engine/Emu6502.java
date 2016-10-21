@@ -1,6 +1,7 @@
 package com.johan.emulator.engine;
 
 import android.content.res.AssetManager;
+import java.nio.ByteBuffer;
 import android.widget.EditText;
 
 import com.johan.emulator.R;
@@ -254,6 +255,7 @@ public class Emu6502 {
     private native char getInterruptFlag();
     private native char getDecimalFlag();
     private native char getOverflowFlag();
+    public native void setFrameBuffer(ByteBuffer buf);
 
     protected Emu6502() {
 

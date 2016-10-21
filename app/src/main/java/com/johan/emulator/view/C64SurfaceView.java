@@ -41,12 +41,6 @@ public class C64SurfaceView extends SurfaceView {
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                //Canvas canvas = holder.lockCanvas();
-                //Paint paint = new Paint();
-                //paint.setStyle(Paint.Style.FILL);
-                //paint.setColor(Color.RED);
-                //canvas.drawCircle(100,100, 50, paint);
-                //holder.unlockCanvasAndPost(canvas);
 
             }
 
