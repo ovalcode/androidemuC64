@@ -119,6 +119,7 @@ public class FrontActivity extends AppCompatActivity {
                     //Paint paint = new Paint();
                     //paint.setStyle(Paint.Style.FILL);
                     //paint.setColor(Color.RED);
+                    emuInstance.populateFrame();
                     mByteBuffer.rewind();
                     mBitmap.copyPixelsFromBuffer(mByteBuffer);
                     canvas.drawBitmap(mBitmap,0,0, null);

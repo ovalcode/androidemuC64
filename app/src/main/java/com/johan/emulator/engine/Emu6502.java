@@ -256,6 +256,7 @@ public class Emu6502 {
     private native char getDecimalFlag();
     private native char getOverflowFlag();
     public native void setFrameBuffer(ByteBuffer buf);
+    public native void populateFrame();
 
     protected Emu6502() {
 
