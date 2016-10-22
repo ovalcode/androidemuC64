@@ -12,7 +12,7 @@ jchar my_program[] = {
 
 jchar mainMem[65536];
 jchar charRom[4096];
-jbyte* g_buffer;
+jchar* g_buffer;
 
 jchar memory_read(int address) {
   return mainMem[address];
@@ -30,14 +30,36 @@ Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
 
 
 void Java_com_johan_emulator_engine_Emu6502_setFrameBuffer(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
-  g_buffer = (jbyte *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
-  int i;
-  for (i = 0; i < 16000; i = i + 2) {
-    g_buffer[i] = 0;
-    g_buffer[i + 1] = 31;
-  }
+  g_buffer = (jchar *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
+
 }
 
+void Java_com_johan_emulator_engine_Emu6502_populateFrame(JNIEnv* pEnv, jobject pObj) {
+  int currentLine;
+  int currentCharInLine;
+  int currentPixel;
+  int currentPosInCharMem = 1024;
+  int posInBuffer = 0;
+  for (currentLine = 0; currentLine < 200; currentLine++) {
+    int currentLineInChar = currentLine & 7;
+    if ((currentLine != 0) && ((currentLineInChar) == 0))
+      currentPosInCharMem = currentPosInCharMem + 40;
+    for (currentCharInLine = 0; currentCharInLine < 40; currentCharInLine++) {
+      jchar currentChar = mainMem[currentPosInCharMem + currentCharInLine];
+      jchar dataLine = charRom[(currentChar << 3) | currentLineInChar];
+      int posToWriteBegin = posInBuffer + (currentCharInLine << 3);
+      int posToWrite;
+      for (posToWrite = posToWriteBegin; posToWrite < (posToWriteBegin + 8); posToWrite++) {
+        if ((dataLine & 0x80) != 0)
+          g_buffer[posToWrite] = 0xffff;
+        else
+          g_buffer[posToWrite] = 0x0;
+        dataLine = dataLine << 1;
+      }
+    }
+    posInBuffer = posInBuffer + 320;
+  }
+}
 
 
 void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, jobject pAssetManager) {
