@@ -19,6 +19,9 @@ jchar memory_read(int address) {
 }
 
 void memory_write(int address, jchar value) {
+  if (((address >= 0xa000) && (address < 0xc000)) |
+       ((address >= 0xe000) && (address < 0x10000)))
+    return;
   mainMem[address] = value;
 }
 
