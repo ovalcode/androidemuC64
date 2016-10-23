@@ -1415,3 +1415,16 @@ jchar Java_com_johan_emulator_engine_Emu6502_getOverflowFlag(JNIEnv* pEnv, jobje
   return overflowFlag;
 }
 
+void Java_com_johan_emulator_engine_Emu6502_interruptCpu(JNIEnv* pEnv, jobject pObj)
+{
+  if (interruptFlag == 1)
+    return;
+  pushWord(pc);
+  breakFlag = 0;
+  Push(getStatusFlagsAsByte());
+  breakFlag = 1;
+  interruptFlag = 1;
+  int tempVal = memory_read(0xffff) * 256;
+  tempVal = tempVal + memory_read(0xfffe);
+  pc = tempVal;
+}

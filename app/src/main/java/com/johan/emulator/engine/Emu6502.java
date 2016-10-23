@@ -257,6 +257,7 @@ public class Emu6502 {
     private native char getOverflowFlag();
     public native void setFrameBuffer(ByteBuffer buf);
     public native void populateFrame();
+    public native void interruptCpu();
 
     protected Emu6502() {
 
