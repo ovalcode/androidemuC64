@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.inputmethodservice.Keyboard;
+import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -51,14 +53,25 @@ public class FrontActivity extends AppCompatActivity {
         mBitmap = Bitmap.createBitmap(320,200, Bitmap.Config.RGB_565);
         emuInstance.setFrameBuffer(mByteBuffer);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        // Create the Keyboard
+        Keyboard mKeyboard= new Keyboard(this,R.xml.kbd);
+
+        // Lookup the KeyboardView
+        KeyboardView mKeyboardView= (KeyboardView)findViewById(R.id.keyboardview);
+
+        mKeyboardView.setKeyboard(mKeyboard);
+
+        mKeyboardView.setPreviewEnabled(false);
+        mKeyboardView.setOnKeyboardActionListener(new MyListener());
+
+        //FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        //fab.setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View view) {
+        //        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+        //                .setAction("Action", null).show();
+        //    }
+        //});
     }
 
     public void doAlert(int result) {
