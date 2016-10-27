@@ -258,6 +258,7 @@ public class Emu6502 {
     public native void setFrameBuffer(ByteBuffer buf);
     public native void populateFrame();
     public native void interruptCpu();
+    public native void setKeyboardMatrix(ByteBuffer keyBoardMatrix);
 
     protected Emu6502() {
 

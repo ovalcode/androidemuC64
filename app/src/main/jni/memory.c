@@ -13,9 +13,24 @@ jchar my_program[] = {
 jchar mainMem[65536];
 jchar charRom[4096];
 jchar* g_buffer;
+jbyte* keyboardMatrix;
+
+jchar getKeyPortByte(int outPortBits) {
+  int temp = 0;
+  int i;
+  for (i = 0; i < 8; i++) {
+    if ((outPortBits & 0x80) == 0)
+      temp = temp | keyboardMatrix[i];
+    outPortBits = outPortBits << 1;
+  }
+  return ~temp & 0xff;
+}
 
 jchar memory_read(int address) {
-  return mainMem[address];
+  if (address == 0xdc01)
+    return getKeyPortByte(mainMem[0xdc00]);
+  else
+    return mainMem[address];
 }
 
 void memory_write(int address, jchar value) {
@@ -29,6 +44,11 @@ void
 Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
 {
   //memcpy(mainMem, my_program, sizeof(my_program));
+}
+
+
+void Java_com_johan_emulator_engine_Emu6502_setKeyboardMatrix(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
+  keyboardMatrix = (jbyte *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
 }
 
 

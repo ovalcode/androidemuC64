@@ -34,6 +34,7 @@ public class FrontActivity extends AppCompatActivity {
     int xpos = 100;
     int ypos = 100;
     private ByteBuffer mByteBuffer;
+    private ByteBuffer keyBoardMatrix;
     private Bitmap mBitmap;
 
     private boolean running = false;
@@ -50,6 +51,16 @@ public class FrontActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
         mByteBuffer = ByteBuffer.allocateDirect(320*200*2*4);
+        keyBoardMatrix = ByteBuffer.allocate(8);
+        keyBoardMatrix.put((byte)0xff);
+        keyBoardMatrix.put((byte)0xff);
+        keyBoardMatrix.put((byte)0xff);
+        keyBoardMatrix.put((byte)0xff);
+        keyBoardMatrix.put((byte)0xff);
+        keyBoardMatrix.put((byte)0xff);
+        keyBoardMatrix.put((byte)0xff);
+        keyBoardMatrix.put((byte)0xff);
+        emuInstance.setKeyboardMatrix(keyBoardMatrix);
         mBitmap = Bitmap.createBitmap(320,200, Bitmap.Config.RGB_565);
         emuInstance.setFrameBuffer(mByteBuffer);
 
@@ -62,7 +73,52 @@ public class FrontActivity extends AppCompatActivity {
         mKeyboardView.setKeyboard(mKeyboard);
 
         mKeyboardView.setPreviewEnabled(false);
-        mKeyboardView.setOnKeyboardActionListener(new MyListener());
+        mKeyboardView.setOnKeyboardActionListener(new KeyboardView.OnKeyboardActionListener() {
+
+            @Override
+            public void onPress(int i) {
+                byte tempKey = keyBoardMatrix.get(2);
+                tempKey = (byte)(tempKey | 32);
+                keyBoardMatrix.put(2, tempKey);
+            }
+
+            @Override
+            public void onRelease(int i) {
+                byte tempKey = keyBoardMatrix.get(2);
+                tempKey = (byte)(tempKey & ~32);
+                keyBoardMatrix.put(2, tempKey);
+            }
+
+            @Override
+            public void onKey(int i, int[] ints) {
+
+            }
+
+            @Override
+            public void onText(CharSequence charSequence) {
+
+            }
+
+            @Override
+            public void swipeLeft() {
+
+            }
+
+            @Override
+            public void swipeRight() {
+
+            }
+
+            @Override
+            public void swipeDown() {
+
+            }
+
+            @Override
+            public void swipeUp() {
+
+            }
+        });
 
         //FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         //fab.setOnClickListener(new View.OnClickListener() {
