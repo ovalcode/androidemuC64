@@ -51,15 +51,7 @@ public class FrontActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
         mByteBuffer = ByteBuffer.allocateDirect(320*200*2*4);
-        keyBoardMatrix = ByteBuffer.allocate(8);
-        keyBoardMatrix.put((byte)0xff);
-        keyBoardMatrix.put((byte)0xff);
-        keyBoardMatrix.put((byte)0xff);
-        keyBoardMatrix.put((byte)0xff);
-        keyBoardMatrix.put((byte)0xff);
-        keyBoardMatrix.put((byte)0xff);
-        keyBoardMatrix.put((byte)0xff);
-        keyBoardMatrix.put((byte)0xff);
+        keyBoardMatrix = ByteBuffer.allocateDirect(8);
         emuInstance.setKeyboardMatrix(keyBoardMatrix);
         mBitmap = Bitmap.createBitmap(320,200, Bitmap.Config.RGB_565);
         emuInstance.setFrameBuffer(mByteBuffer);
@@ -77,16 +69,16 @@ public class FrontActivity extends AppCompatActivity {
 
             @Override
             public void onPress(int i) {
-                byte tempKey = keyBoardMatrix.get(2);
-                tempKey = (byte)(tempKey | 32);
-                keyBoardMatrix.put(2, tempKey);
+                byte tempKey = keyBoardMatrix.get(4);
+                tempKey = (byte)(tempKey | 1);
+                keyBoardMatrix.put(4, tempKey);
             }
 
             @Override
             public void onRelease(int i) {
-                byte tempKey = keyBoardMatrix.get(2);
-                tempKey = (byte)(tempKey & ~32);
-                keyBoardMatrix.put(2, tempKey);
+                byte tempKey = keyBoardMatrix.get(4);
+                tempKey = (byte)(tempKey & ~1);
+                keyBoardMatrix.put(4, tempKey);
             }
 
             @Override
