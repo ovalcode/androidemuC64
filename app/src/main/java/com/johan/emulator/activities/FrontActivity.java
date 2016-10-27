@@ -69,16 +69,29 @@ public class FrontActivity extends AppCompatActivity {
 
             @Override
             public void onPress(int i) {
-                byte tempKey = keyBoardMatrix.get(4);
-                tempKey = (byte)(tempKey | 1);
-                keyBoardMatrix.put(4, tempKey);
+                System.out.println("Kode: "+i);
+                byte col = (byte)(i & 7);
+                col = (byte) (1 << col);
+                byte row = (byte)(i & 0x38);
+                row = (byte) (row >> 3);
+                row = (byte)(7 - row);
+                System.out.println("Row: "+row);
+                System.out.println("Col: "+col);
+                byte tempKey = keyBoardMatrix.get(row);
+                tempKey = (byte)(tempKey | col);
+                keyBoardMatrix.put(row, tempKey);
             }
 
             @Override
             public void onRelease(int i) {
-                byte tempKey = keyBoardMatrix.get(4);
-                tempKey = (byte)(tempKey & ~1);
-                keyBoardMatrix.put(4, tempKey);
+                byte col = (byte)(i & 7);
+                col = (byte) (1 << col);
+                byte row = (byte)(i & 0x38);
+                row = (byte) (row >> 3);
+                row = (byte)(7 - row);
+                byte tempKey = keyBoardMatrix.get(row);
+                tempKey = (byte)(tempKey & ~col);
+                keyBoardMatrix.put(row, tempKey);
             }
 
             @Override

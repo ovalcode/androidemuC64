@@ -4,6 +4,16 @@
     android:keyHeight="10%p" >
 
     <Row>
-        <Key android:codes="55"    android:keyLabel="7" android:keyEdgeFlags="left" />
+        <Key android:codes="56"    android:keyLabel="1" android:keyEdgeFlags="left" />
+        <Key android:codes="59"    android:keyLabel="2"  />
+        <Key android:codes="8"    android:keyLabel="3"  />
+        <Key android:codes="11"    android:keyLabel="4"  />
+        <Key android:codes="16"    android:keyLabel="5"  />
+        <Key android:codes="19"    android:keyLabel="6"  />
+        <Key android:codes="24"    android:keyLabel="7"  />
+        <Key android:codes="27"    android:keyLabel="8"  />
+        <Key android:codes="32"    android:keyLabel="9"  />
+        <Key android:codes="35"    android:keyLabel="0"  />
+
     </Row>
 </Keyboard>
