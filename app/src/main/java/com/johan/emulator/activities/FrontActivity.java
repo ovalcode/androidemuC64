@@ -25,6 +25,7 @@ import com.johan.emulator.engine.Emu6502;
 import com.johan.emulator.view.C64SurfaceView;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,6 +36,7 @@ public class FrontActivity extends AppCompatActivity {
     int ypos = 100;
     private ByteBuffer mByteBuffer;
     private ByteBuffer keyBoardMatrix;
+    private Keyboard.Key shiftKey;
     private Bitmap mBitmap;
 
     private boolean running = false;
@@ -64,11 +66,20 @@ public class FrontActivity extends AppCompatActivity {
 
         mKeyboardView.setKeyboard(mKeyboard);
 
+        List<Keyboard.Key> keys = mKeyboard.getKeys();
+        for (Keyboard.Key currentKey : keys) {
+            if (currentKey.codes[0] == 15)
+                shiftKey = currentKey;
+        }
+
+
         mKeyboardView.setPreviewEnabled(false);
         mKeyboardView.setOnKeyboardActionListener(new KeyboardView.OnKeyboardActionListener() {
 
             @Override
             public void onPress(int i) {
+                if (i == 15)
+                    return;
                 System.out.println("Kode: "+i);
                 byte col = (byte)(i & 7);
                 col = (byte) (1 << col);
@@ -84,6 +95,8 @@ public class FrontActivity extends AppCompatActivity {
 
             @Override
             public void onRelease(int i) {
+                if (i == 15)
+                    return;
                 byte col = (byte)(i & 7);
                 col = (byte) (1 << col);
                 byte row = (byte)(i & 0x38);
@@ -96,7 +109,19 @@ public class FrontActivity extends AppCompatActivity {
 
             @Override
             public void onKey(int i, int[] ints) {
+                if (i != 15)
+                    return;
+                if (shiftKey.on) {
+                    byte tempKey = keyBoardMatrix.get(6);
+                    tempKey = (byte)(tempKey | (1 << 7));
+                    keyBoardMatrix.put(6, tempKey);
 
+                } else {
+                    byte tempKey = keyBoardMatrix.get(6);
+                    tempKey = (byte)(tempKey & ~ (1 << 7));
+                    keyBoardMatrix.put(6, tempKey);
+
+                }
             }
 
             @Override

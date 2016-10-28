@@ -41,7 +41,7 @@
         <Key android:codes="1"    android:keyLabel="↫" />
     </Row>
     <Row>
-        <Key android:codes="15"    android:keyLabel="↥" android:keyEdgeFlags="left" />
+        <Key android:codes="15"    android:keyLabel="↥" android:isSticky="true" android:keyEdgeFlags="left" />
         <Key android:codes="12"    android:keyLabel="Z"  />
         <Key android:codes="23"    android:keyLabel="X" />
         <Key android:codes="20"    android:keyLabel="C" />
