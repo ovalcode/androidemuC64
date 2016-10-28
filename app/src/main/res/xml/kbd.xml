@@ -47,9 +47,9 @@
         <Key android:codes="20"    android:keyLabel="C" />
         <Key android:codes="31"    android:keyLabel="V" />
         <Key android:codes="28"    android:keyLabel="B" />
-        <Key android:codes="36"    android:keyLabel="N" />
-        <Key android:codes="39"    android:keyLabel="M" />
-
+        <Key android:codes="39"    android:keyLabel="N" />
+        <Key android:codes="36"    android:keyLabel="M" />
+        <Key android:codes="0"    android:keyLabel="↤" />
     </Row>
 
     <Row>
