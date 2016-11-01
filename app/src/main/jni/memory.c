@@ -15,6 +15,9 @@ jchar charRom[4096];
 jchar* g_buffer;
 jbyte* keyboardMatrix;
 
+struct timer_struct timerA;
+struct timer_struct timerB;
+
 jchar getKeyPortByte(int outPortBits) {
   int temp = 0;
   int i;
@@ -43,7 +46,8 @@ void memory_write(int address, jchar value) {
 void
 Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
 {
-  //memcpy(mainMem, my_program, sizeof(my_program));
+  timerA = getTimerInstanceA();
+  timerB = getTimerInstanceB();
 }
 
 

@@ -11,7 +11,8 @@ struct timer_struct {
   int remainingCycles;
   int started;
   void (*expiredevent) (struct timer_struct*);
+  void (*interrupt) (struct timer_struct*);
   int stateParam1;
   int stateParam2;
-  int state;
+  int stateParam3;
 };
