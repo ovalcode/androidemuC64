@@ -1392,6 +1392,23 @@ void Java_com_johan_emulator_engine_Emu6502_resetCpu(JNIEnv* pEnv, jobject pObj)
   timer_list_head = NULL;
 }
 
+void add_timer_to_list(struct timer_struct * timer) {
+  if (timer_list_head == NULL) {
+    timer_list_head = malloc(sizeof(timer_node));
+    timer_list_head->timer = timer;
+    timer_list_head->next = NULL;
+    return;
+  } else {
+     timer_node * current = head;
+     while (current != NULL) {
+        timer_node * previous = current;
+        current = current->next;
+    }
+    previous->next = malloc(sizeof(timer_node));
+    previous->next->timer = timer;
+    previous->next->next = NULL;
+  }
+}
 
 jchar Java_com_johan_emulator_engine_Emu6502_getZeroFlag(JNIEnv* pEnv, jobject pObj)
 {
