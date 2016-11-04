@@ -70,6 +70,13 @@
   2, 6, 0, 0, 3, 3, 5, 0, 2, 2, 2, 0, 4, 4, 6, 0, 
   2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0};
 
+  struct timer_node {
+    struct timer_struct * timer;
+    struct timer_node * next;
+  }
+
+  struct timer_node * timer_list_head;
+
     jchar acc = 0;
     jchar xReg = 0;
     jchar yReg = 0;
@@ -1382,6 +1389,7 @@ void Java_com_johan_emulator_engine_Emu6502_resetCpu(JNIEnv* pEnv, jobject pObj)
   pc = memory_read (0xfffc) | (memory_read(0xfffd) << 8);
   pc = pc & 0xffff;
   //pc = 0xfce2;
+  timer_list_head = NULL;
 }
 
 
