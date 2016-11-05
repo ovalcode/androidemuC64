@@ -1337,9 +1337,12 @@ unsigned char sbcDecimal(unsigned char operand) {
 void processAlarms() {
      timer_node * current = head;
      while (current != NULL) {
-        current->remainingCycles = current->remainingCycles - currentCycles;
-        if (current->remainingCycles < 0) {
-          current->remainingCycles = 0;
+        if (current->started == 1) {
+          current->remainingCycles = current->remainingCycles - currentCycles;
+          if (current->remainingCycles < 0) {
+            current->remainingCycles = 0;
+            current->expiredevent();
+          }
         }
         current = current->next;
      }
