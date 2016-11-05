@@ -93,6 +93,7 @@
     int interruptFlag = 0;
     int decimalFlag = 0;
     int remainingCycles;
+    int currentCycles;
 
 void updateFlags(jchar value) {
     zeroFlag = (value == 0) ? 1 : 0;
@@ -319,7 +320,8 @@ unsigned char sbcDecimal(unsigned char operand) {
   int step() {
       int result = 0;
       opcode = memory_read(pc);
-      remainingCycles -= instructionCycles[opcode];
+      currentCycles = instructionCycles[opcode];
+      remainingCycles -= currentCycles;
       pc = pc + 1;
       int iLen = instructionLengths[opcode];
       arg1 = 0;
@@ -1332,6 +1334,18 @@ unsigned char sbcDecimal(unsigned char operand) {
       return result;
     }
 
+void processAlarms() {
+     timer_node * current = head;
+     while (current != NULL) {
+        current->remainingCycles = current->remainingCycles - currentCycles;
+        if (current->remainingCycles < 0) {
+          current->remainingCycles = 0;
+        }
+        current = current->next;
+     }
+
+}
+
 int runBatch(int address) {
   remainingCycles = 20000;
   int lastResult = 0;
@@ -1403,7 +1417,7 @@ void add_timer_to_list(struct timer_struct * timer) {
      while (current != NULL) {
         timer_node * previous = current;
         current = current->next;
-    }
+     }
     previous->next = malloc(sizeof(timer_node));
     previous->next->timer = timer;
     previous->next->next = NULL;
