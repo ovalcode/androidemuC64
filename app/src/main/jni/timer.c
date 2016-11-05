@@ -14,7 +14,8 @@ void expired(struct timer_struct *tdev) {
 struct timer_struct getTimerInstanceA() {
   struct timer_struct mytimer;
   mytimer.expiredevent = &expired;
-  mytimer. RemainingCycles = 0xffff;
+  mytimer.RemainingCycles = 0xffff;
+  mytimer.started = 0;
   return mytimer;
 }
 
@@ -22,5 +23,6 @@ struct timer_struct getTimerInstanceB() {
   struct timer_struct mytimer;
   mytimer.expiredevent = &expired;
   mytimer.RemainingCycles = 0xffff;
+  mytimer.started = 0;
   return mytimer;
 }

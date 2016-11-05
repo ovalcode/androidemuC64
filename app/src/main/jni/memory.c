@@ -5,7 +5,7 @@
 #include <string.h>
 #include <jni.h>
 #include <android/asset_manager_jni.h>
-
+#include <alarm.h>
 
 jchar my_program[] = {
 };
@@ -47,7 +47,9 @@ void
 Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
 {
   timerA = getTimerInstanceA();
+  add_timer_to_list(&timerA);
   timerB = getTimerInstanceB();
+  add_timer_to_list(&timerB);
 }
 
 

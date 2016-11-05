@@ -16,3 +16,5 @@ struct timer_struct {
   int stateParam2;
   int stateParam3;
 };
+
+void add_timer_to_list(struct timer_struct * timer);
