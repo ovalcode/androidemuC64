@@ -29,7 +29,41 @@ jchar getKeyPortByte(int outPortBits) {
   return ~temp & 0xff;
 }
 
+jchar cia1_read(address) {
+  jchar result = 0;
+  switch (address) {
+    case 0xdc00:
+    break;
+
+    case 0xdc01:
+      result = getKeyPortByte(mainMem[0xdc00]);
+    break;
+
+    case 0xdc02:      
+    break;
+
+    case 0xdc03:
+    break;
+
+    case 0xdc04: //timer A low
+    break;
+
+    case 0xdc05: //timer A high
+    break;
+
+    case 0xdc06: //timer B low
+    break;
+
+    case 0xdc07: //timer B high
+    break;
+
+
+  }
+  return result;
+}
+
 jchar memory_read(int address) {
+  if ((address >=dc00) & (address < 0xdc10))
   if (address == 0xdc01)
     return getKeyPortByte(mainMem[0xdc00]);
   else

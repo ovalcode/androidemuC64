@@ -268,6 +268,7 @@ public class Emu6502 {
       if (emu6502Instance != null)
           return emu6502Instance;
         loadROMS(mgr);
+        memoryInit();
         resetCpu();
         emu6502Instance = new Emu6502();
        return emu6502Instance;
