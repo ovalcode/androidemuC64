@@ -29,7 +29,8 @@ jchar getKeyPortByte(int outPortBits) {
   return ~temp & 0xff;
 }
 
-jchar cia1_read(address) {
+
+jchar cia1_read(int address) {
   jchar result = 0;
   switch (address) {
     case 0xdc00:
@@ -46,26 +47,90 @@ jchar cia1_read(address) {
     break;
 
     case 0xdc04: //timer A low
+      result = get_time_low(&timerA);
     break;
 
     case 0xdc05: //timer A high
+      result = get_time_high(&timerA);
     break;
 
     case 0xdc06: //timer B low
+      result = get_time_low(&timerB);
     break;
 
     case 0xdc07: //timer B high
+      result = get_time_high(&timerB);
     break;
 
+    case 0xdc0d: // interrupt control
+      result = read_interrupts_register();
+    break;
+
+    case 0xdc0e: // control reg a
+      result = get_control_reg(&timerA);
+    break;
+
+    case 0xdc0f: // control reg b
+      result = get_control_reg(&timerB);
+    break;
 
   }
   return result;
 }
 
+void cia1_write(int address, int value) {
+
+  switch (address) {
+    case 0xdc00:
+      mainMem[address] = value;
+    break;
+
+    case 0xdc01:
+      mainMem[address] = value;
+    break;
+
+    case 0xdc02:
+    break;
+
+    case 0xdc03:
+    break;
+
+    case 0xdc04: //timer A low
+      set_time_low(&timerA, value);
+    break;
+
+    case 0xdc05: //timer A high
+      set_time_high(&timerA, value);
+    break;
+
+    case 0xdc06: //timer B low
+      set_time_low(&timerB, value);
+    break;
+
+    case 0xdc07: //timer B high
+      set_time_high(&timerB, value);
+    break;
+
+    case 0xdc0d: // interrupt control
+      result = set_mask(value);
+    break;
+
+    case 0xdc0e: // control reg a
+      set_control_reg(&timerA, value);
+    break;
+
+    case 0xdc0f: // control reg b
+      set_control_reg(&timerB);
+    break;
+
+  }
+  return result;
+}
+
+
 jchar memory_read(int address) {
-  if ((address >=dc00) & (address < 0xdc10))
-  if (address == 0xdc01)
-    return getKeyPortByte(mainMem[0xdc00]);
+  if ((address >=0xdc00) & (address < 0xdc10))
+    return cia1_read(address);
   else
     return mainMem[address];
 }
@@ -74,7 +139,11 @@ void memory_write(int address, jchar value) {
   if (((address >= 0xa000) && (address < 0xc000)) |
        ((address >= 0xe000) && (address < 0x10000)))
     return;
-  mainMem[address] = value;
+
+  if ((address >=0xdc00) & (address < 0xdc10))
+    cia1_write(address, value);
+  else
+    mainMem[address] = value;
 }
 
 void
