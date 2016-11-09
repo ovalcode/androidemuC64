@@ -10,3 +10,5 @@
 int read_interrupts_register();
 void set_mask(int new_mask);
 int trigger_irq();
+void interrupt_timer_A();
+void interrupt_timer_B();

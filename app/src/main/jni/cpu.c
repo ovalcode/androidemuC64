@@ -5,6 +5,10 @@
 #include <memory.h>
 #include <jni.h>
 #include <interrupts.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <alarm.h>
+
 
   #define ADDRESS_MODE_ACCUMULATOR 0
   #define ADDRESS_MODE_ABSOLUTE 1
@@ -1357,11 +1361,11 @@ unsigned char sbcDecimal(unsigned char operand) {
 void processAlarms() {
      struct timer_node * current = timer_list_head;
      while (current != NULL) {
-        if (current->started == 1) {
-          current->remainingCycles = current->remainingCycles - currentCycles;
-          if (current->remainingCycles < 0) {
-            current->remainingCycles = 0;
-            current->expiredevent();
+        if (current->timer->started == 1) {
+          current->timer->remainingCycles = current->timer->remainingCycles - currentCycles;
+          if (current->timer->remainingCycles < 0) {
+            current->timer->remainingCycles = 0;
+            current->timer->expiredevent(current->timer);
           }
         }
         current = current->next;
@@ -1432,17 +1436,18 @@ void Java_com_johan_emulator_engine_Emu6502_resetCpu(JNIEnv* pEnv, jobject pObj)
 
 void add_timer_to_list(struct timer_struct * timer) {
   if (timer_list_head == NULL) {
-    timer_list_head = malloc(sizeof(timer_node));
+    timer_list_head = malloc(sizeof(struct timer_node));
     timer_list_head->timer = timer;
     timer_list_head->next = NULL;
     return;
   } else {
-     timer_node * current = head;
+     struct timer_node * current = timer_list_head;
+     struct timer_node * previous = NULL;
      while (current != NULL) {
-        timer_node * previous = current;
+        previous = current;
         current = current->next;
      }
-    previous->next = malloc(sizeof(timer_node));
+    previous->next = malloc(sizeof(struct timer_node));
     previous->next->timer = timer;
     previous->next->next = NULL;
   }

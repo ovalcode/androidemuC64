@@ -2,7 +2,7 @@ int interrupt_mask;
 int interrupts_occured;
 
 void set_mask(int new_mask) {
-  if ((new _mask & 0x80) == 0x80) { //set the following masks
+  if ((new_mask & 0x80) == 0x80) { //set the following masks
     interrupt_mask = (interrupt_mask | new_mask) & 0x7f;
   } else { //clear the following masks
     new_mask = ~new_mask;

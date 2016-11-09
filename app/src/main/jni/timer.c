@@ -3,7 +3,7 @@
 //
 
 #include <alarm.h>
-
+#include <interrupts.h>
 
 void expired(struct timer_struct *tdev) {
   tdev->remainingCycles = tdev->stateParam1;
@@ -57,7 +57,7 @@ int get_time_high(struct timer_struct *tdev) {
 struct timer_struct getTimerInstanceA() {
   struct timer_struct mytimer;
   mytimer.expiredevent = &expired;
-  mytimer.RemainingCycles = 0xffff;
+  mytimer.remainingCycles = 0xffff;
   mytimer.started = 0;
   mytimer.interrupt = &interrupt_timer_A;
   return mytimer;
@@ -66,7 +66,7 @@ struct timer_struct getTimerInstanceA() {
 struct timer_struct getTimerInstanceB() {
   struct timer_struct mytimer;
   mytimer.expiredevent = &expired;
-  mytimer.RemainingCycles = 0xffff;
+  mytimer.remainingCycles = 0xffff;
   mytimer.started = 0;
   mytimer.interrupt = &interrupt_timer_B;
   return mytimer;
