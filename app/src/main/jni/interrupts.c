@@ -17,7 +17,7 @@ int read_interrupts_register() {
 }
 
 int trigger_irq() {
-  return (interrupts_occured & interrupt_mask) != 0;
+  return (interrupts_occured & interrupt_mask);
 }
 
 void interrupt_timer_A() {

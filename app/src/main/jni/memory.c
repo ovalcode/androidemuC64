@@ -6,6 +6,8 @@
 #include <jni.h>
 #include <android/asset_manager_jni.h>
 #include <alarm.h>
+#include <timer.h>
+#include <interrupts.h>
 
 jchar my_program[] = {
 };
@@ -96,23 +98,23 @@ void cia1_write(int address, int value) {
     break;
 
     case 0xdc04: //timer A low
-      set_time_low(&timerA, value);
+      set_timer_low(&timerA, value);
     break;
 
     case 0xdc05: //timer A high
-      set_time_high(&timerA, value);
+      set_timer_high(&timerA, value);
     break;
 
     case 0xdc06: //timer B low
-      set_time_low(&timerB, value);
+      set_timer_low(&timerB, value);
     break;
 
     case 0xdc07: //timer B high
-      set_time_high(&timerB, value);
+      set_timer_high(&timerB, value);
     break;
 
     case 0xdc0d: // interrupt control
-      result = set_mask(value);
+      set_mask(value);
     break;
 
     case 0xdc0e: // control reg a
@@ -120,11 +122,11 @@ void cia1_write(int address, int value) {
     break;
 
     case 0xdc0f: // control reg b
-      set_control_reg(&timerB);
+      set_control_reg(&timerB,value);
     break;
 
   }
-  return result;
+
 }
 
 

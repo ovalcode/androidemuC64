@@ -209,7 +209,7 @@ public class FrontActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final int result = emuInstance.runBatch(0);
-                emuInstance.interruptCpu();
+                //emuInstance.interruptCpu();
                 C64SurfaceView surfaceView = (C64SurfaceView) findViewById(R.id.Video);
                 SurfaceHolder holder = surfaceView.getCreatedHolder();
                 Canvas canvas = null;

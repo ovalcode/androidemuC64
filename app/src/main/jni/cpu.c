@@ -4,6 +4,7 @@
 
 #include <memory.h>
 #include <jni.h>
+#include <interrupts.h>
 
   #define ADDRESS_MODE_ACCUMULATOR 0
   #define ADDRESS_MODE_ABSOLUTE 1
@@ -73,7 +74,7 @@
   struct timer_node {
     struct timer_struct * timer;
     struct timer_node * next;
-  }
+  };
 
   struct timer_node * timer_list_head;
 
@@ -166,6 +167,8 @@ void updateFlags(jchar value) {
         return (argbyte1 + yReg) & 0xff;
       break;
     }
+    return 0;
+
   }
 
   void CMP(int operand1, int operand2) {
@@ -317,8 +320,25 @@ unsigned char sbcDecimal(unsigned char operand) {
     return temp;
   }
 
+  void process_interrupts() {
+    if (interruptFlag == 1)
+      return;
+    if (trigger_irq() == 0)
+      return;
+    pushWord(pc);
+    breakFlag = 0;
+    Push(getStatusFlagsAsByte());
+    breakFlag = 1;
+    interruptFlag = 1;
+    int tempVal = memory_read(0xffff) * 256;
+    tempVal = tempVal + memory_read(0xfffe);
+    pc = tempVal;
+
+  }
+
   int step() {
       int result = 0;
+      process_interrupts();
       opcode = memory_read(pc);
       currentCycles = instructionCycles[opcode];
       remainingCycles -= currentCycles;
@@ -1335,7 +1355,7 @@ unsigned char sbcDecimal(unsigned char operand) {
     }
 
 void processAlarms() {
-     timer_node * current = head;
+     struct timer_node * current = timer_list_head;
      while (current != NULL) {
         if (current->started == 1) {
           current->remainingCycles = current->remainingCycles - currentCycles;
@@ -1471,3 +1491,4 @@ void Java_com_johan_emulator_engine_Emu6502_interruptCpu(JNIEnv* pEnv, jobject p
   tempVal = tempVal + memory_read(0xfffe);
   pc = tempVal;
 }
+
