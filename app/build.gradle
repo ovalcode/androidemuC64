@@ -4,6 +4,13 @@ android {
     compileSdkVersion 24
     buildToolsVersion "24.0.0"
 
+    sourceSets {
+        main {
+            jni.srcDirs = []
+        }
+    }
+
+
     defaultConfig {
         applicationId "com.johan.myapplication"
         minSdkVersion 15

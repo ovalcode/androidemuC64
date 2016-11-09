@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <alarm.h>
+#include <android/log.h>
 
 
   #define ADDRESS_MODE_ACCUMULATOR 0
@@ -342,6 +343,7 @@ unsigned char sbcDecimal(unsigned char operand) {
 
   int step() {
       int result = 0;
+    __android_log_print(ANDROID_LOG_DEBUG, "Hello", "Hello");
       process_interrupts();
       opcode = memory_read(pc);
       currentCycles = instructionCycles[opcode];
