@@ -12,8 +12,10 @@ void set_mask(int new_mask) {
 }
 
 int read_interrupts_register() {
-  int ir_msb = ((interrupts_occured & interrupt_mask) != 0) ? 0x80 : 0;
-  return ir_msb | interrupts_occured;
+  int read_result = interrupts_occured;
+  interrupts_occured = 0;
+  int ir_msb = ((read_result & interrupt_mask) != 0) ? 0x80 : 0;
+  return ir_msb | read_result;
 }
 
 int trigger_irq() {

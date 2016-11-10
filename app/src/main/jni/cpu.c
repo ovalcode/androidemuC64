@@ -343,7 +343,7 @@ unsigned char sbcDecimal(unsigned char operand) {
 
   int step() {
       int result = 0;
-    __android_log_print(ANDROID_LOG_DEBUG, "Hello", "Hello");
+    //__android_log_print(ANDROID_LOG_DEBUG, "Hello", "Hello");
       process_interrupts();
       opcode = memory_read(pc);
       currentCycles = instructionCycles[opcode];
@@ -1363,9 +1363,12 @@ unsigned char sbcDecimal(unsigned char operand) {
 void processAlarms() {
      struct timer_node * current = timer_list_head;
      while (current != NULL) {
+       __android_log_print(ANDROID_LOG_DEBUG, "entered alarm loop", "alarm loop");
         if (current->timer->started == 1) {
+          __android_log_print(ANDROID_LOG_DEBUG, "timer started", "timer started");
           current->timer->remainingCycles = current->timer->remainingCycles - currentCycles;
           if (current->timer->remainingCycles < 0) {
+            __android_log_print(ANDROID_LOG_DEBUG, "timer ran out", "timer ran out");
             current->timer->remainingCycles = 0;
             current->timer->expiredevent(current->timer);
           }
