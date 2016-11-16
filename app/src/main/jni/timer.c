@@ -7,8 +7,8 @@
 #include <android/log.h>
 
 void expired(struct timer_struct *tdev) {
-  __android_log_print(ANDROID_LOG_DEBUG, "expired", "expired");
-  tdev->remainingCycles = tdev->stateParam1;
+  //__android_log_print(ANDROID_LOG_DEBUG, "expired", "expired");
+  tdev->remainingCycles = tdev->stateParam2;
   if (tdev->stateParam1 == 0) //if not continuios
     tdev->started=0;
   tdev->interrupt();
