@@ -7,4 +7,10 @@
         android:orderInCategory="100"
         android:title="Stop"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_attach"
+        android:orderInCategory="100"
+        android:title="Attach Tape"
+        app:showAsAction="never" />
+
 </menu>

@@ -186,6 +186,11 @@ public class FrontActivity extends AppCompatActivity {
         if (id == R.id.action_stop) {
             switchToDebug = true;
             return true;
+        } else if (id == R.id.action_attach) {
+            Intent i = new Intent(this, FileDialogueActivity.class);
+            FrontActivity.this.startActivity(i);
+
+          return true;
         }
 
         return super.onOptionsItemSelected(item);
