@@ -31,7 +31,7 @@ public class FileDialogueActivity extends Activity {
         // See which child activity is calling us back.
         if (requestCode == REQUEST_PATH){
             if (resultCode == RESULT_OK) {
-                curFileName = data.getStringExtra("GetFileName");
+                curFileName = data.getStringExtra("GetPath") + "/" +data.getStringExtra("GetFileName");
                 edittext.setText(curFileName);
             }
         }
