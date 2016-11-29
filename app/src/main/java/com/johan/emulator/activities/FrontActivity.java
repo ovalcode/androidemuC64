@@ -24,6 +24,9 @@ import com.johan.emulator.R;
 import com.johan.emulator.engine.Emu6502;
 import com.johan.emulator.view.C64SurfaceView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Timer;
@@ -188,9 +191,9 @@ public class FrontActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_attach) {
             Intent i = new Intent(this, FileDialogueActivity.class);
-            FrontActivity.this.startActivity(i);
+            startActivityForResult(i, 1);
 
-          return true;
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -254,6 +257,7 @@ public class FrontActivity extends AppCompatActivity {
                 }
                 if (switchToDebug) {
                     Intent i = new Intent(FrontActivity.this, DebugActivity.class);
+                    //startActivityForResult(i, 1);
                     FrontActivity.this.startActivity(i);
                 }
             }
@@ -261,6 +265,23 @@ public class FrontActivity extends AppCompatActivity {
 
         timer.schedule(timerTask, 20, 20);
 
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        // See which child activity is calling us back.
+        if (requestCode == 1){
+            if (resultCode == RESULT_OK) {
+                String curFileName = data.getStringExtra("GetFullPath");
+                try {
+                    FileInputStream fis = new FileInputStream(curFileName);
+                    byte[] dd = new byte[1024];
+                    fis.read(dd);
+                    System.out.println(dd[0]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 }

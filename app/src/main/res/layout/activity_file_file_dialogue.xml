@@ -37,5 +37,18 @@
             android:layout_width="wrap_content"
             android:onClick="getfile" >
         </Button>
+
     </RelativeLayout>
+
+    <Button android:text="Attach"
+        android:id="@+id/attachButton"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:onClick="onAttachClick"
+        >
+
+    </Button>
 </LinearLayout>

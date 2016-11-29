@@ -26,6 +26,14 @@ public class FileDialogueActivity extends Activity {
         Intent intent1 = new Intent(this, FileChooser.class);
         startActivityForResult(intent1,REQUEST_PATH);
     }
+
+    public void onAttachClick(View v) {
+        Intent intent = new Intent();
+        intent.putExtra("GetFullPath",curFileName);
+        setResult(RESULT_OK, intent);
+        finish();
+
+    }
     // Listen for results.
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         // See which child activity is calling us back.
