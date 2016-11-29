@@ -197,6 +197,8 @@ public class FrontActivity extends AppCompatActivity {
             startActivityForResult(i, 1);
 
             return true;
+        } else if(id == R.id.action_play) {
+            emuInstance.togglePlay();
         }
 
         return super.onOptionsItemSelected(item);

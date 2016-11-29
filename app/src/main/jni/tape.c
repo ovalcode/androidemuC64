@@ -32,7 +32,7 @@ void tape_pulse_expired(struct timer_struct *tdev) {
   interrupt_flag();
 }
 
-void togglePlay() {
+void Java_com_johan_emulator_engine_Emu6502_togglePlay() {
   playDown = !playDown;
 }
 

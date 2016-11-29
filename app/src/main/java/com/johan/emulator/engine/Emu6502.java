@@ -242,6 +242,7 @@ public class Emu6502 {
     public static native void memoryInit();
     private static native void loadROMS (AssetManager pAssetManager);
     public native void attachNewTape(ByteBuffer buf);
+    public native void togglePlay();
 
     private native char getAcc();
     private native char getXreg();

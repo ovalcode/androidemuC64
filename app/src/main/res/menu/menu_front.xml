@@ -12,5 +12,10 @@
         android:orderInCategory="100"
         android:title="Attach Tape"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_play"
+        android:orderInCategory="100"
+        android:title="Play"
+        app:showAsAction="never" />
 
 </menu>
