@@ -241,6 +241,7 @@ public class Emu6502 {
     public native int runBatch(int address);
     public static native void memoryInit();
     private static native void loadROMS (AssetManager pAssetManager);
+    public static native void attachNewTape(ByteBuffer buf);
 
     private native char getAcc();
     private native char getXreg();

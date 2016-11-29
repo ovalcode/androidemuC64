@@ -30,3 +30,6 @@ void interrupt_timer_B() {
   interrupts_occured = interrupts_occured | 2;
 }
 
+void interrupt_flag() {
+  interrupts_occured = interrupts_occured | 16;
+}

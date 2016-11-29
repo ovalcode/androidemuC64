@@ -27,7 +27,9 @@ import com.johan.emulator.view.C64SurfaceView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,6 +40,7 @@ public class FrontActivity extends AppCompatActivity {
     int xpos = 100;
     int ypos = 100;
     private ByteBuffer mByteBuffer;
+    private ByteBuffer mTape;
     private ByteBuffer keyBoardMatrix;
     private Keyboard.Key shiftKey;
     private Bitmap mBitmap;
@@ -273,10 +276,15 @@ public class FrontActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 String curFileName = data.getStringExtra("GetFullPath");
                 try {
-                    FileInputStream fis = new FileInputStream(curFileName);
-                    byte[] dd = new byte[1024];
-                    fis.read(dd);
-                    System.out.println(dd[0]);
+
+                    RandomAccessFile file = new RandomAccessFile(curFileName, "r");
+                    FileChannel inChannel = file.getChannel();
+                    long fileSize = inChannel.size();
+                    mTape = ByteBuffer.allocateDirect((int) fileSize);
+                    inChannel.read(mTape);
+                    mTape.rewind();
+                    inChannel.close();
+                    file.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

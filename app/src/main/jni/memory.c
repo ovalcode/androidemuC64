@@ -19,6 +19,7 @@ jbyte* keyboardMatrix;
 
 struct timer_struct timerA;
 struct timer_struct timerB;
+struct timer_struct tape_timer;
 
 jchar getKeyPortByte(int outPortBits) {
   int temp = 0;
@@ -129,9 +130,25 @@ void cia1_write(int address, int value) {
 
 }
 
+jchar read_port_1() {
+  jchar result = mainMem[1] & 0xcf;
+  result = result | (getMotorOnBit(tape_timer) << 4);
+  result = result | (isPlayDownBit() << 5);
+  return result;
+}
+
+void write_port_1(jchar value) {
+  mainMem[1] = value;
+
+  int motorStatus = (value & (1 << 5)) >> 5;
+  setMotorOn(tape_timer, motorStatus);
+}
+
 
 jchar memory_read(int address) {
-  if ((address >=0xdc00) & (address < 0xdc10))
+  if (address == 1)
+    return read_port_1;
+  else if ((address >=0xdc00) & (address < 0xdc10))
     return cia1_read(address);
   else
     return mainMem[address];
@@ -142,7 +159,9 @@ void memory_write(int address, jchar value) {
        ((address >= 0xe000) && (address < 0x10000)))
     return;
 
-  if ((address >=0xdc00) & (address < 0xdc10))
+  if (address == 1)
+    write_port_1(value);
+  else if ((address >=0xdc00) & (address < 0xdc10))
     cia1_write(address, value);
   else
     mainMem[address] = value;
@@ -155,6 +174,8 @@ Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
   add_timer_to_list(&timerA);
   timerB = getTimerInstanceB();
   add_timer_to_list(&timerB);
+  tape_timer = getTapeInstance();
+  add_timer_to_list(&tape_timer);
 }
 
 
@@ -224,6 +245,11 @@ void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, 
   AAsset_close(assetF);
 
 
+}
+
+void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
+  jbyte * tape_image = (jbyte *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
+  attachNewTape(tape_image, tape_timer);
 }
 
 
