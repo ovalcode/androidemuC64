@@ -12,3 +12,4 @@ void set_mask(int new_mask);
 int trigger_irq();
 void interrupt_timer_A();
 void interrupt_timer_B();
+void interrupt_flag();

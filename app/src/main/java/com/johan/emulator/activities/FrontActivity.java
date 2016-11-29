@@ -285,6 +285,7 @@ public class FrontActivity extends AppCompatActivity {
                     mTape.rewind();
                     inChannel.close();
                     file.close();
+                    emuInstance.attachNewTape(mTape);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -1,6 +1,9 @@
 //
 // Created by johan on 2016/11/29.
 //
+#include <alarm.h>
+#include <interrupts.h>
+#include <jni.h>
 
 int playDown = 0;
 jbyte* tape_image;

@@ -8,6 +8,7 @@
 #include <alarm.h>
 #include <timer.h>
 #include <interrupts.h>
+#include <tape.h>
 
 jchar my_program[] = {
 };
@@ -132,7 +133,7 @@ void cia1_write(int address, int value) {
 
 jchar read_port_1() {
   jchar result = mainMem[1] & 0xcf;
-  result = result | (getMotorOnBit(tape_timer) << 4);
+  result = result | (getMotorOnBit(&tape_timer) << 4);
   result = result | (isPlayDownBit() << 5);
   return result;
 }
@@ -141,13 +142,13 @@ void write_port_1(jchar value) {
   mainMem[1] = value;
 
   int motorStatus = (value & (1 << 5)) >> 5;
-  setMotorOn(tape_timer, motorStatus);
+  setMotorOn(&tape_timer, motorStatus);
 }
 
 
 jchar memory_read(int address) {
   if (address == 1)
-    return read_port_1;
+    return read_port_1();
   else if ((address >=0xdc00) & (address < 0xdc10))
     return cia1_read(address);
   else
@@ -249,7 +250,7 @@ void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, 
 
 void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
   jbyte * tape_image = (jbyte *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
-  attachNewTape(tape_image, tape_timer);
+  attachNewTape(tape_image, &tape_timer);
 }
 
 
