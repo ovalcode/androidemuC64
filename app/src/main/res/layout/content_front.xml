@@ -14,8 +14,8 @@
     
     <com.johan.emulator.view.C64SurfaceView
         android:id="@+id/Video"
-        android:layout_width="320px"
-        android:layout_height="200px" />
+        android:layout_width="640px"
+        android:layout_height="400px" />
 
     <android.inputmethodservice.KeyboardView
         android:id="@+id/keyboardview"

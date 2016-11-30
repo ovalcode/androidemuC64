@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DrawFilter;
 import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
@@ -44,6 +46,8 @@ public class FrontActivity extends AppCompatActivity {
     private ByteBuffer keyBoardMatrix;
     private Keyboard.Key shiftKey;
     private Bitmap mBitmap;
+    private Paint paint;
+    private DrawFilter filter;
 
     private boolean running = false;
     private boolean switchToDebug = false;
@@ -58,11 +62,15 @@ public class FrontActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
-        mByteBuffer = ByteBuffer.allocateDirect(320*200*2*4);
+        mByteBuffer = ByteBuffer.allocateDirect(320*200*2);
         keyBoardMatrix = ByteBuffer.allocateDirect(8);
         emuInstance.setKeyboardMatrix(keyBoardMatrix);
         mBitmap = Bitmap.createBitmap(320,200, Bitmap.Config.RGB_565);
-
+        filter = new PaintFlagsDrawFilter(Paint.ANTI_ALIAS_FLAG, 0);
+        paint = new Paint();
+        paint.setAntiAlias(false);
+        paint.setDither(false);
+        paint.setFilterBitmap(false);
 
         emuInstance.setFrameBuffer(mByteBuffer);
 
@@ -237,7 +245,11 @@ public class FrontActivity extends AppCompatActivity {
                     emuInstance.populateFrame();
                     mByteBuffer.rewind();
                     mBitmap.copyPixelsFromBuffer(mByteBuffer);
-                    canvas.drawBitmap(mBitmap,0,0, null);
+                    canvas.save();
+                    canvas.scale(1.5f, 1.5f);
+                    canvas.setDrawFilter(filter);
+                    canvas.drawBitmap(mBitmap,0,0, paint);
+                    canvas.restore();
                     holder.unlockCanvasAndPost(canvas);
                 }
                 if (result > 0) {
