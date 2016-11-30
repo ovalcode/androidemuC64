@@ -133,8 +133,8 @@ void cia1_write(int address, int value) {
 
 jchar read_port_1() {
   jchar result = mainMem[1] & 0xcf;
-  result = result | (getMotorOnBit(&tape_timer) << 4);
-  result = result | (isPlayDownBit() << 5);
+  result = result | (getMotorOnBit(&tape_timer) << 5);
+  result = result | (isPlayDownBit() << 4);
   return result;
 }
 

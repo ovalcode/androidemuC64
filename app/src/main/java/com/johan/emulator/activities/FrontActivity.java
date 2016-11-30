@@ -62,6 +62,8 @@ public class FrontActivity extends AppCompatActivity {
         keyBoardMatrix = ByteBuffer.allocateDirect(8);
         emuInstance.setKeyboardMatrix(keyBoardMatrix);
         mBitmap = Bitmap.createBitmap(320,200, Bitmap.Config.RGB_565);
+
+
         emuInstance.setFrameBuffer(mByteBuffer);
 
         // Create the Keyboard
