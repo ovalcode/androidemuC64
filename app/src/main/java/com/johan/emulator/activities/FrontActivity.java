@@ -62,10 +62,10 @@ public class FrontActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
-        mByteBuffer = ByteBuffer.allocateDirect(400*400*2);
+        mByteBuffer = ByteBuffer.allocateDirect(368*300*2);
         keyBoardMatrix = ByteBuffer.allocateDirect(8);
         emuInstance.setKeyboardMatrix(keyBoardMatrix);
-        mBitmap = Bitmap.createBitmap(400,400, Bitmap.Config.RGB_565);
+        mBitmap = Bitmap.createBitmap(368,300, Bitmap.Config.RGB_565);
         filter = new PaintFlagsDrawFilter(Paint.ANTI_ALIAS_FLAG, 0);
         paint = new Paint();
         paint.setAntiAlias(false);
@@ -246,8 +246,8 @@ public class FrontActivity extends AppCompatActivity {
                     mByteBuffer.rewind();
                     mBitmap.copyPixelsFromBuffer(mByteBuffer);
                     canvas.save();
-                    canvas.scale(1.5f, 1.5f);
-                    canvas.setDrawFilter(filter);
+                    canvas.scale(1.1f, 1.1f);
+                    //canvas.setDrawFilter(filter);
                     canvas.drawBitmap(mBitmap,0,0, paint);
                     canvas.restore();
                     holder.unlockCanvasAndPost(canvas);
