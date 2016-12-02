@@ -81,6 +81,8 @@
     struct timer_node * next;
   };
 
+  int frameFinished = 0;
+
   struct timer_node * timer_list_head;
 
     jchar acc = 0;
@@ -1379,9 +1381,10 @@ void processAlarms() {
 }
 
 int runBatch(int address) {
-  remainingCycles = 20000;
+  //remainingCycles = 20000;
+  frameFinished = 0;
   int lastResult = 0;
-  while ((remainingCycles > 0) && (lastResult == 0)) {
+  while ((!frameFinished) && (lastResult == 0)) {
     lastResult = step();
     if (lastResult != 0)
       break;

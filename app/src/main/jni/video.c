@@ -4,11 +4,15 @@
 
 #include <stdbool.h>
 #include <jni.h>
+#include <alarm.h>
+
 int line_count = 0;
 int posInBuffer = 0;
 int posInCharMem = 0;
 int screenLineRegion = 0;
-jchar* g_buffer;
+extern jchar charRom[4096];
+extern jchar* g_buffer;
+extern int frameFinished;
 
 jchar colors_RGB_888[16][3] = {
 {0, 0, 0},
@@ -39,7 +43,7 @@ int inBorderArea(int line_num, int charPos) {
   //if
 }
 
-void initialise() {
+void initialise_video() {
   int i;
   for (i=0; i < 16; i++) {
     int red = colors_RGB_888[i][0] >> 3;
@@ -60,7 +64,7 @@ inline void fillColor(int count, int colorEntryNumber) {
 }
 
 inline void updatelineCharPos() {
-  if (line_count < 50) || (line_count > (49 + 200)) {
+  if ((line_count < 50) || (line_count > (49 + 200))) {
     screenLineRegion = false;
     return;
   }
@@ -85,7 +89,7 @@ inline void drawScreenLine() {
     int bitmapDataRow = charRom[(charcode << 3) | (line_in_visible & 7)];
     int j;
     int foregroundColor = memory_read(0xd800 + i + posInCharMem) & 0xf;
-    int backgroundColor = memory_read(0xd021) & 0xf
+    int backgroundColor = memory_read(0xd021) & 0xf;
     for (j = 0; j < 8; j++) {
       int pixelSet = bitmapDataRow & 0x80;
       if (pixelSet) {
@@ -116,8 +120,22 @@ inline void processLine() {
 
 
 void video_line_expired(struct timer_struct *tdev) {
+  tdev->remainingCycles = 63;
   processLine();
   line_count++;
-  if (line_count > 310)
+  if (line_count > 310) {
     line_count = 0;
+    frameFinished = 1;
+    posInBuffer = 0;
+  }
 }
+
+struct timer_struct getVideoInstance() {
+  struct timer_struct myVideo;
+  myVideo.expiredevent = &video_line_expired;
+  myVideo.remainingCycles = 63;
+  myVideo.started = 1;
+  //myVideo.interrupt = &interrupt_timer_A;
+  return myVideo;
+}
+

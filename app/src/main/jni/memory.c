@@ -9,6 +9,7 @@
 #include <timer.h>
 #include <interrupts.h>
 #include <tape.h>
+#include <video.h>
 
 jchar my_program[] = {
 };
@@ -21,6 +22,7 @@ jbyte* keyboardMatrix;
 struct timer_struct timerA;
 struct timer_struct timerB;
 struct timer_struct tape_timer;
+struct timer_struct video_timer;
 
 jchar getKeyPortByte(int outPortBits) {
   int temp = 0;
@@ -177,6 +179,9 @@ Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
   add_timer_to_list(&timerB);
   tape_timer = getTapeInstance();
   add_timer_to_list(&tape_timer);
+  video_timer = getVideoInstance();
+  add_timer_to_list(&video_timer);
+  initialise_video();
 }
 
 
