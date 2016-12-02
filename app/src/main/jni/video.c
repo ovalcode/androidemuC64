@@ -6,6 +6,8 @@
 #include <jni.h>
 int line_count = 0;
 int posInBuffer = 0;
+int posInCharMem = 0;
+int screenLineRegion = 0;
 jchar* g_buffer;
 
 jchar colors_RGB_888[16][3] = {
@@ -28,6 +30,8 @@ jchar colors_RGB_888[16][3] = {
 };
 
 jchar colors_RGB_565[16];
+
+int line_in_visible;
 
 int inBorderArea(int line_num, int charPos) {
   //if
@@ -55,19 +59,65 @@ inline void fillColor(int count, int colorEntryNumber) {
   }
 }
 
+inline void updatelineCharPos() {
+  if (line_count < 50) || (line_count > (49 + 200)) {
+    screenLineRegion = false;
+    return;
+  }
 
-void video_line_expired(struct timer_struct *tdev) {
+  screenLineRegion = true;
+
+  line_in_visible = line_count - 50;
+
+  if (line_in_visible == 0) {
+    posInCharMem = 0;
+    return;
+  }
+
+  if (!(line_in_visible & 7))
+    posInCharMem = posInCharMem + 40;
+}
+
+inline void drawScreenLine() {
+  int i;
+  for (i = 0; i < 40; i++) {
+    jchar charcode = memory_read(1024 + i + posInCharMem);
+    int bitmapDataRow = charRom[(charcode << 3) | (line_in_visible & 7)];
+    int j;
+    int foregroundColor = memory_read(0xd800 + i + posInCharMem) & 0xf;
+    int backgroundColor = memory_read(0xd021) & 0xf
+    for (j = 0; j < 8; j++) {
+      int pixelSet = bitmapDataRow & 0x80;
+      if (pixelSet) {
+        g_buffer[posInBuffer] = colors_RGB_565[foregroundColor];
+      } else {
+        g_buffer[posInBuffer] = colors_RGB_565[backgroundColor];
+      }
+      posInBuffer++;
+      bitmapDataRow = bitmapDataRow << 1;
+    }
+  }
+}
+
+inline void processLine() {
   if (line_count > 299)
     return;
 
-  int currentCharPos;
-  for (currentCharPos = 0; currentCharPos < 3; currentCharPos++) {
-  //do border
+  updatelineCharPos();
+  fillColor(24, memory_read(0xd020) & 0xf);
+  int screenEnabled = (memory_read(0xd011) & 0x10) ? 1 : 0;
+  if (screenLineRegion && screenEnabled) {
+    drawScreenLine();
+  } else {
+    fillColor(320, memory_read(0xd020) & 0xf);
   }
+  fillColor(24, memory_read(0xd020) & 0xf);
+}
 
 
+void video_line_expired(struct timer_struct *tdev) {
+  processLine();
   line_count++;
   if (line_count > 310)
     line_count = 0;
-  //300 visible lines -> 311 total -> 11 lines invisible
 }
