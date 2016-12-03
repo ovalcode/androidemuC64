@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <jni.h>
 #include <alarm.h>
+#include <memory.h>
 
 int line_count = 0;
 int posInBuffer = 0;
@@ -82,12 +83,17 @@ inline void updatelineCharPos() {
 
 inline void drawScreenLine() {
   int i;
+  int batchCharMem[40];
+  int batchColorMem[40];
+  int backgroundColor = memory_read(0xd021) & 0xf;
+  memory_read_batch(batchCharMem, 1024 + posInCharMem, 40);
+  memory_read_batch(batchColorMem, 0xd800 + posInCharMem, 40);
   for (i = 0; i < 40; i++) {
-    jchar charcode = memory_read(1024 + i + posInCharMem);
+    jchar charcode = batchCharMem[i];//memory_read(1024 + i + posInCharMem);
     int bitmapDataRow = charRom[(charcode << 3) | (line_in_visible & 7)];
     int j;
-    int foregroundColor = memory_read(0xd800 + i + posInCharMem) & 0xf;
-    int backgroundColor = memory_read(0xd021) & 0xf;
+    int foregroundColor = batchColorMem[i] & 0xf;//memory_read(0xd800 + i + posInCharMem) & 0xf;
+
     for (j = 0; j < 8; j++) {
       int pixelSet = bitmapDataRow & 0x80;
       if (pixelSet) {

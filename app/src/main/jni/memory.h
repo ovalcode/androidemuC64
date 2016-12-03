@@ -9,3 +9,4 @@
 
 unsigned char memory_read(int address);
 void memory_write(int address, unsigned char value);
+void memory_read_batch(int *batch, int address, int count);

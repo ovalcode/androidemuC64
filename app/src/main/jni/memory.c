@@ -190,7 +190,12 @@ jchar memory_read(int address) {
     return mainMem[address];
 }
 
-
+void memory_read_batch(int *batch, int address, int count) {
+  int i;
+  for (i = 0; i < count; i++) {
+    batch[i] = mainMem[address + i];
+  }
+}
 
 void memory_write(int address, jchar value) {
   //if (((address >= 0xa000) && (address < 0xc000)) |
