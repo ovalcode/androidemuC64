@@ -41,6 +41,9 @@ public class FrontActivity extends AppCompatActivity {
     TimerTask timerTask;
     int xpos = 100;
     int ypos = 100;
+    int numSamples = 0;
+    long runningTotal = 0;
+
     private ByteBuffer mByteBuffer;
     private ByteBuffer mTape;
     private ByteBuffer keyBoardMatrix;
@@ -231,7 +234,17 @@ public class FrontActivity extends AppCompatActivity {
         timerTask = new TimerTask() {
             @Override
             public void run() {
+                long startTime = System.currentTimeMillis();
                 final int result = emuInstance.runBatch(0);
+                long endTime = System.currentTimeMillis();
+                runningTotal = runningTotal + (endTime - startTime);
+                numSamples++;
+                if (numSamples == 120) {
+                    double avg = runningTotal / 120.0;
+                    runningTotal = 0;
+                    numSamples = 0;
+                    System.out.println("Times: "+avg);
+                }
                 //emuInstance.interruptCpu();
                 C64SurfaceView surfaceView = (C64SurfaceView) findViewById(R.id.Video);
                 SurfaceHolder holder = surfaceView.getCreatedHolder();

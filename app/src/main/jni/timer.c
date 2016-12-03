@@ -15,13 +15,13 @@ void expired(struct timer_struct *tdev) {
 }
 
 void set_timer_low(struct timer_struct *tdev , int lowValue) {
-  __android_log_print(ANDROID_LOG_DEBUG, "set timer low", "set timer low");
+  //__android_log_print(ANDROID_LOG_DEBUG, "set timer low", "set timer low");
   tdev->stateParam2 = tdev->stateParam2 & (0xff << 8);
   tdev->stateParam2 = tdev->stateParam2 | lowValue;
 }
 
 void set_timer_high(struct timer_struct *tdev , int highValue) {
-  __android_log_print(ANDROID_LOG_DEBUG, "set timer high", "set timer high");
+  //__android_log_print(ANDROID_LOG_DEBUG, "set timer high", "set timer high");
   tdev->stateParam2 = tdev->stateParam2 & 0xff;
   tdev->stateParam2 = tdev->stateParam2 | (highValue << 8);
 }
