@@ -11,11 +11,30 @@
 #include <tape.h>
 #include <video.h>
 
+#define BASIC_VISIBLE 1
+#define KERNAL_VISIBLE 2
+#define CHAR_ROM_VISIBLE 4
+#define IO_VISIBLE 8
+
+int bank_visibility[8] =
+{
+  0,//000
+  CHAR_ROM_VISIBLE,//001
+  CHAR_ROM_VISIBLE,//010
+  BASIC_VISIBLE | KERNAL_VISIBLE | CHAR_ROM_VISIBLE,//011
+  0,//100
+  IO_VISIBLE,//101
+  IO_VISIBLE,//110
+  BASIC_VISIBLE | KERNAL_VISIBLE | IO_VISIBLE//111
+};
+
 jchar my_program[] = {
 };
 
 jchar mainMem[65536];
 jchar charRom[4096];
+jchar basicROM[8192];
+jchar kernalROM[8192];
 jchar* g_buffer;
 jbyte* keyboardMatrix;
 
@@ -147,20 +166,36 @@ void write_port_1(jchar value) {
   setMotorOn(&tape_timer, motorStatus);
 }
 
+inline int kernalROMEnabled() {
+  int bankBits = mainMem[1] & 7;
+  return (bank_visibility[bankBits] & KERNAL_VISIBLE) ? 1 : 0;
+}
+
+inline int basicROMEnabled() {
+  int bankBits = mainMem[1] & 7;
+  return (bank_visibility[bankBits] & BASIC_VISIBLE) ? 1 : 0;
+}
+
 
 jchar memory_read(int address) {
-  if (address == 1)
+  if ((address >=0xa000) && (address < 0xc000) && basicROMEnabled())
+    return basicROM[address & 0x1fff];
+  else if ((address >=0xe000) && (address < 0x10000) && kernalROMEnabled())
+    return kernalROM[address & 0x1fff];
+  else if (address == 1)
     return read_port_1();
-  else if ((address >=0xdc00) & (address < 0xdc10))
+  else if ((address >=0xdc00) && (address < 0xdc10))
     return cia1_read(address);
   else
     return mainMem[address];
 }
 
+
+
 void memory_write(int address, jchar value) {
-  if (((address >= 0xa000) && (address < 0xc000)) |
-       ((address >= 0xe000) && (address < 0x10000)))
-    return;
+  //if (((address >= 0xa000) && (address < 0xc000)) |
+  //     ((address >= 0xe000) && (address < 0x10000)))
+  //  return;
 
   if (address == 1)
     write_port_1(value);
@@ -182,6 +217,7 @@ Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
   video_timer = getVideoInstance();
   add_timer_to_list(&video_timer);
   initialise_video();
+  mainMem[1] = 7;
 }
 
 
@@ -229,16 +265,16 @@ void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, 
   uint8_t buffer[8192];
   AAsset_read(assetF, buffer, 8192);
   int i;
-  for (i = 0xa000; i < 0xc000; i++) {
-    mainMem[i] = buffer[i & 0x1fff];
+  for (i = 0x0; i < 0x2000; i++) {
+    basicROM[i] = buffer[i];
   }
   AAsset_close(assetF);
 
   assetF = AAssetManager_open(assetManager, "kernal.bin", AASSET_MODE_UNKNOWN);
   AAsset_read(assetF, buffer, 8192);
 
-  for (i = 0xe000; i < 0x10000; i++) {
-    mainMem[i] = buffer[i & 0x1fff];
+  for (i = 0x0; i < 0x2000; i++) {
+    kernalROM[i] = buffer[i];
   }
   AAsset_close(assetF);
 

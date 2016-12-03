@@ -49,9 +49,7 @@ void initialise_video() {
     int red = colors_RGB_888[i][0] >> 3;
     int green = colors_RGB_888[i][1] >> 2;
     int blue = colors_RGB_888[i][2] >> 3;
-    colors_RGB_565[i] =  red << 11;
-    colors_RGB_565[i] =  green << 5;
-    colors_RGB_565[i] =  blue << 0;
+    colors_RGB_565[i] =  (red << 11) | (green << 5) | (blue << 0);
   }
 }
 
