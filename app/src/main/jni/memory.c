@@ -20,11 +20,11 @@ int bank_visibility[8] =
 {
   0,//000
   CHAR_ROM_VISIBLE,//001
-  CHAR_ROM_VISIBLE,//010
+  CHAR_ROM_VISIBLE | KERNAL_VISIBLE,//010
   BASIC_VISIBLE | KERNAL_VISIBLE | CHAR_ROM_VISIBLE,//011
   0,//100
   IO_VISIBLE,//101
-  IO_VISIBLE,//110
+  IO_VISIBLE | KERNAL_VISIBLE,//110
   BASIC_VISIBLE | KERNAL_VISIBLE | IO_VISIBLE//111
 };
 
@@ -176,6 +176,11 @@ inline int basicROMEnabled() {
   return (bank_visibility[bankBits] & BASIC_VISIBLE) ? 1 : 0;
 }
 
+inline int IOEnabled() {
+  int bankBits = mainMem[1] & 7;
+  return (bank_visibility[bankBits] & IO_VISIBLE) ? 1 : 0;
+}
+
 
 jchar memory_read(int address) {
   if ((address >=0xa000) && (address < 0xc000) && basicROMEnabled())
@@ -184,7 +189,7 @@ jchar memory_read(int address) {
     return kernalROM[address & 0x1fff];
   else if (address == 1)
     return read_port_1();
-  else if ((address >=0xdc00) && (address < 0xdc10))
+  else if ((address >=0xdc00) && (address < 0xdc10) & IOEnabled())
     return cia1_read(address);
   else
     return mainMem[address];
@@ -204,7 +209,7 @@ void memory_write(int address, jchar value) {
 
   if (address == 1)
     write_port_1(value);
-  else if ((address >=0xdc00) & (address < 0xdc10))
+  else if ((address >=0xdc00) & (address < 0xdc10) & IOEnabled())
     cia1_write(address, value);
   else
     mainMem[address] = value;
