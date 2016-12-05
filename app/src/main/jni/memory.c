@@ -37,6 +37,7 @@ jchar basicROM[8192];
 jchar kernalROM[8192];
 jchar* g_buffer;
 jbyte* keyboardMatrix;
+extern int line_count;
 
 struct timer_struct timerA;
 struct timer_struct timerB;
@@ -189,8 +190,14 @@ jchar memory_read(int address) {
     return kernalROM[address & 0x1fff];
   else if (address == 1)
     return read_port_1();
-  else if ((address >=0xdc00) && (address < 0xdc10) & IOEnabled())
-    return cia1_read(address);
+  else if ((address >=0xd000) && (address < 0xe000) && IOEnabled()) {
+    if ((address >=0xdc00) && (address < 0xdc10))
+      return cia1_read(address);
+    else if (address == 0xd012)
+      return line_count & 0xff;
+    else
+      return mainMem[address];
+  }
   else
     return mainMem[address];
 }

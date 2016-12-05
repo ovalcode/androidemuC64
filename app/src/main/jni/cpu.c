@@ -1393,7 +1393,7 @@ int runBatch(int address) {
       break;
     }
     processAlarms();
-    memory_write(0xd012, (remainingCycles < 50) ? 0 : 1);
+    //memory_write(0xd012, (remainingCycles < 50) ? 0 : 1);
   }
 
   return lastResult;
