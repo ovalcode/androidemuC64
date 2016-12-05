@@ -38,12 +38,6 @@ jchar colors_RGB_565[16];
 
 int line_in_visible;
 
-int inBorderArea(int line_num, int charPos) {
-  //if
-  //return false;
-  //if
-}
-
 void initialise_video() {
   int i;
   for (i=0; i < 16; i++) {
@@ -81,13 +75,13 @@ inline void updatelineCharPos() {
     posInCharMem = posInCharMem + 40;
 }
 
-inline void drawScreenLine() {
+static inline void drawScreenLine() {
   int i;
   int batchCharMem[40];
   int batchColorMem[40];
   int backgroundColor = memory_read(0xd021) & 0xf;
   memory_read_batch(batchCharMem, 1024 + posInCharMem, 40);
-  memory_read_batch(batchColorMem, 0xd800 + posInCharMem, 40);
+  memory_read_batch_io_unclaimed(batchColorMem, 0xd800 + posInCharMem, 40);
   for (i = 0; i < 40; i++) {
     jchar charcode = batchCharMem[i];//memory_read(1024 + i + posInCharMem);
     int bitmapDataRow = charRom[(charcode << 3) | (line_in_visible & 7)];
@@ -107,7 +101,7 @@ inline void drawScreenLine() {
   }
 }
 
-inline void processLine() {
+static inline void processLine() {
   if (line_count > 299)
     return;
 

@@ -8,3 +8,4 @@
 #endif //MY_APPLICATION_VIDEO_H
 
 struct timer_struct getVideoInstance();
+void initialise_video();

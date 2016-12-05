@@ -35,6 +35,7 @@ jchar mainMem[65536];
 jchar charRom[4096];
 jchar basicROM[8192];
 jchar kernalROM[8192];
+jchar IOUnclaimed[4096];
 jchar* g_buffer;
 jbyte* keyboardMatrix;
 extern int line_count;
@@ -60,6 +61,7 @@ jchar cia1_read(int address) {
   jchar result = 0;
   switch (address) {
     case 0xdc00:
+      result = 0xff;
     break;
 
     case 0xdc01:
@@ -196,7 +198,7 @@ jchar memory_read(int address) {
     else if (address == 0xd012)
       return line_count & 0xff;
     else
-      return mainMem[address];
+      return IOUnclaimed[address & 0xfff];
   }
   else
     return mainMem[address];
@@ -209,6 +211,15 @@ void memory_read_batch(int *batch, int address, int count) {
   }
 }
 
+void memory_read_batch_io_unclaimed(int *batch, int address, int count) {
+  int i;
+  address = address & 0xfff;
+  for (i = 0; i < count; i++) {
+    batch[i] = IOUnclaimed[address + i];
+  }
+}
+
+
 void memory_write(int address, jchar value) {
   //if (((address >= 0xa000) && (address < 0xc000)) |
   //     ((address >= 0xe000) && (address < 0x10000)))
@@ -216,8 +227,12 @@ void memory_write(int address, jchar value) {
 
   if (address == 1)
     write_port_1(value);
-  else if ((address >=0xdc00) & (address < 0xdc10) & IOEnabled())
-    cia1_write(address, value);
+  else if ((address >=0xd000) && (address < 0xe000) && IOEnabled()) {
+    if((address >=0xdc00) & (address < 0xdc10))
+      cia1_write(address, value);
+    else
+      IOUnclaimed[address & 0xfff] = value;
+  }
   else
     mainMem[address] = value;
 }
