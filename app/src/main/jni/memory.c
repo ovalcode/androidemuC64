@@ -184,6 +184,10 @@ inline int IOEnabled() {
   return (bank_visibility[bankBits] & IO_VISIBLE) ? 1 : 0;
 }
 
+jchar memory_unclaimed_io_read(int address) {
+  address = address & 0xfff;
+  return IOUnclaimed[address];
+}
 
 jchar memory_read(int address) {
   if ((address >=0xa000) && (address < 0xc000) && basicROMEnabled())
@@ -210,6 +214,8 @@ void memory_read_batch(int *batch, int address, int count) {
     batch[i] = mainMem[address + i];
   }
 }
+
+
 
 void memory_read_batch_io_unclaimed(int *batch, int address, int count) {
   int i;

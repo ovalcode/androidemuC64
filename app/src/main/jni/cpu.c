@@ -2,8 +2,9 @@
 // Created by johan on 2016/08/30.
 //
 
-#include <memory.h>
 #include <jni.h>
+#include <memory.h>
+
 #include <interrupts.h>
 #include <stddef.h>
 #include <stdlib.h>

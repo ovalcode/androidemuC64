@@ -79,7 +79,7 @@ static inline void drawScreenLine() {
   int i;
   int batchCharMem[40];
   int batchColorMem[40];
-  int backgroundColor = memory_read(0xd021) & 0xf;
+  int backgroundColor = memory_unclaimed_io_read(0xd021) & 0xf;
   memory_read_batch(batchCharMem, 1024 + posInCharMem, 40);
   memory_read_batch_io_unclaimed(batchColorMem, 0xd800 + posInCharMem, 40);
   for (i = 0; i < 40; i++) {
@@ -106,14 +106,14 @@ static inline void processLine() {
     return;
 
   updatelineCharPos();
-  fillColor(24, memory_read(0xd020) & 0xf);
-  int screenEnabled = (memory_read(0xd011) & 0x10) ? 1 : 0;
+  fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);
+  int screenEnabled = (memory_unclaimed_io_read(0xd011) & 0x10) ? 1 : 0;
   if (screenLineRegion && screenEnabled) {
     drawScreenLine();
   } else {
-    fillColor(320, memory_read(0xd020) & 0xf);
+    fillColor(320, memory_unclaimed_io_read(0xd020) & 0xf);
   }
-  fillColor(24, memory_read(0xd020) & 0xf);
+  fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);
 }
 
 
