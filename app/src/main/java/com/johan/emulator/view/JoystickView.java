@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+
 /**
  * Created by johan on 2016/12/08.
  */
@@ -22,15 +24,26 @@ public class JoystickView extends View {
     private static float INNER_RADIUS;
     private static float OUTER_RADIUS;
 
-    boolean imageDown = false;
+    int imageDownNumber;
+    //boolean imageDown = false;
     Bitmap mBitmap;
     Canvas mCanvas;
     Paint mPaint;
 
+
+
     private long lastProcessed = System.currentTimeMillis();
+
+    private ArrayList<Segment> segmentList = new ArrayList<Segment>();
 
     public JoystickView(Context c, AttributeSet attrs) {
         super(c, attrs);
+        imageDownNumber = -1;
+        float startAngle = (float) (90+22.5);
+        for (int i = 0; i < 8; i++) {
+            segmentList.add(new Segment(startAngle + 5, 45 - 5 -5));
+            startAngle = (float) startAngle - 45;
+        }
     }
 
     @Override
@@ -146,6 +159,19 @@ public class JoystickView extends View {
         path.arcTo(rectf, (float)beginAngle, (float)sweepAngle);
     }
 
+    private int getCurrentNumberDown(int x, int y) {
+        float xTranslated = x - OUTER_RADIUS;
+        float yTranslated = -y + OUTER_RADIUS;
+
+        double calculatedRadius = Math.sqrt(xTranslated * xTranslated + yTranslated * yTranslated);
+        double angleInRadians = Math.acos(xTranslated / calculatedRadius);
+        float angleInDegrees =  
+        for (Segment segment : segmentList) {
+            float startAngle = segment.startAngle;
+            float endAngle = segment.endAngle;
+        }
+    }
+
     void drawAttempt(Canvas canvas) {
 
         Paint mPaint = new Paint();
@@ -184,9 +210,9 @@ public class JoystickView extends View {
         if (((currentTime - lastProcessed) < 200) && (action != event.ACTION_UP))
             return true;
         lastProcessed = currentTime;
-
-        if ((action ==event.ACTION_UP) && (imageDown)) {
-            imageDown = false;
+        event.getX();
+        if ((action ==event.ACTION_UP)) {
+            imageDownNumber = -1;
             invalidate();
         } else if ((action !=event.ACTION_UP) && (!imageDown)) {
             imageDown = true;
@@ -229,34 +255,36 @@ public class JoystickView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        //canvas.c
-        float startAngle = (float) (90+22.5);
-        if (imageDown)
-          mPaint.setStyle(Paint.Style.FILL);
-        else
-            mPaint.setStyle(Paint.Style.STROKE);
-        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
-        mPaint.setStyle(Paint.Style.STROKE);
-        startAngle = (float) startAngle - 45;
-        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
-        startAngle = (float) startAngle - 45;
-        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
-        startAngle = (float) startAngle - 45;
-        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
-        startAngle = (float) startAngle - 45;
-        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
-        startAngle = (float) startAngle - 45;
-        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
-        startAngle = (float) startAngle - 45;
-        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
-        startAngle = (float) startAngle - 45;
-        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+
+        for (Segment segment : segmentList) {
+            drawSegment(canvas, segment.startAngle, segment.sweepAngle);
+        }
 
 
-        //drawAttempt(canvas);
-        //drawArcPath(canvas);
-        //start angle
-        //stop angle
+    }
+
+    private class Segment {
+        private float startAngle;
+        private float sweepAngle;
+        private float endAngle;
+
+        Segment (float startAngle, float sweepAngle) {
+            this.startAngle = startAngle;
+            this.sweepAngle = sweepAngle;
+            this.endAngle = startAngle + sweepAngle;
+        }
+
+        public float getStartAngle() {
+            return this.startAngle;
+        }
+
+        public float getSweepAngle() {
+            return this.sweepAngle;
+        }
+
+        public float getEndAngle() {
+            return this.endAngle;
+        }
     }
 
 }
