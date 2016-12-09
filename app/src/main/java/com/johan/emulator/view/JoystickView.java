@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -16,8 +17,17 @@ import android.view.View;
 
 public class JoystickView extends View {
 
+    private static float OFFSET_X;
+    private static float OFFSET_Y;
+    private static float INNER_RADIUS;
+    private static float OUTER_RADIUS;
+
+    boolean imageDown = false;
     Bitmap mBitmap;
     Canvas mCanvas;
+    Paint mPaint;
+
+    private long lastProcessed = System.currentTimeMillis();
 
     public JoystickView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -28,6 +38,18 @@ public class JoystickView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mBitmap = Bitmap.createBitmap(w,h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+        int totalRadius = w / 2;
+        OUTER_RADIUS = totalRadius / 2;
+        INNER_RADIUS = (int)(OUTER_RADIUS * 0.6);
+        OFFSET_X = OUTER_RADIUS;
+        OFFSET_Y = OUTER_RADIUS;
+
+        mPaint = new Paint();
+        mPaint.setColor(Color.RED);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeWidth(4f);
+
     }
 
     protected void drawArcCanvas(Canvas canvas) {
@@ -64,11 +86,6 @@ public class JoystickView extends View {
         int arcWidth = arcHeight;
         int arcLeftPos = (canvasWidth - arcWidth) /2;
 
-        Paint mPaint = new Paint();
-        mPaint.setColor(Color.RED);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeWidth(4f);
 
 
         Path s = new Path();
@@ -94,15 +111,15 @@ public class JoystickView extends View {
     }
 
     void movePathTo(Path path, double x, double y) {
-        x = x + 200;
-        y = y - 200;
+        x = x + OFFSET_X;
+        y = y - OFFSET_Y;
 
         path.moveTo((float)x, (float)-y);
     }
 
     void linePathTo(Path path, double x, double y) {
-        x = x + 200;
-        y = y - 200;
+        x = x + OFFSET_X;
+        y = y - OFFSET_Y;
 
         path.lineTo((float)x, (float)-y);
     }
@@ -114,10 +131,10 @@ public class JoystickView extends View {
         double right = radius;
         double bottom = -radius;
 
-        left = left + 200;
-        top = top - 200;
-        right = right + 200;
-        bottom = bottom - 200;
+        left = left + OFFSET_X;
+        top = top - OFFSET_Y;
+        right = right + OFFSET_X;
+        bottom = bottom - OFFSET_Y;
 
         RectF rectf = new RectF((float) left,
                 (float)-top,
@@ -160,9 +177,86 @@ public class JoystickView extends View {
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+//        event.eve
+        long currentTime = System.currentTimeMillis();
+        int action = event.getAction();
+        if (((currentTime - lastProcessed) < 200) && (action != event.ACTION_UP))
+            return true;
+        lastProcessed = currentTime;
+
+        if ((action ==event.ACTION_UP) && (imageDown)) {
+            imageDown = false;
+            invalidate();
+        } else if ((action !=event.ACTION_UP) && (!imageDown)) {
+            imageDown = true;
+            invalidate();
+        }
+        return true;
+    }
+
+    void drawSegment(Canvas canvas, double startAngle, double sweepAngle) {
+
+        //Paint mPaint = new Paint();
+        //mPaint.setColor(Color.RED);
+        //mPaint.setStyle(Paint.Style.STROKE);
+        //mPaint.setStrokeJoin(Paint.Join.ROUND);
+        //mPaint.setStrokeWidth(10f);
+
+
+        Path path = new Path();
+        double x = INNER_RADIUS * Math.cos(Math.PI * startAngle / 180);
+        double y = INNER_RADIUS * Math.sin(Math.PI * startAngle / 180);
+
+        movePathTo(path, x, y);
+
+        drawArcTo(path, INNER_RADIUS, -startAngle, sweepAngle);
+
+        x = OUTER_RADIUS * Math.cos(Math.PI * (startAngle - sweepAngle) / 180);
+        y = OUTER_RADIUS * Math.sin(Math.PI * (startAngle - sweepAngle) / 180);
+
+        linePathTo(path, x, y);
+        drawArcTo(path, OUTER_RADIUS, -startAngle+sweepAngle, -sweepAngle);
+
+        path.close();
+
+        canvas.drawPath(path, mPaint);
+        //move to arc first
+        //to arc
+        return;
+    }
+
+
+    @Override
     protected void onDraw(Canvas canvas) {
-        drawAttempt(canvas);
+        //canvas.c
+        float startAngle = (float) (90+22.5);
+        if (imageDown)
+          mPaint.setStyle(Paint.Style.FILL);
+        else
+            mPaint.setStyle(Paint.Style.STROKE);
+        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+        mPaint.setStyle(Paint.Style.STROKE);
+        startAngle = (float) startAngle - 45;
+        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+        startAngle = (float) startAngle - 45;
+        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+        startAngle = (float) startAngle - 45;
+        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+        startAngle = (float) startAngle - 45;
+        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+        startAngle = (float) startAngle - 45;
+        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+        startAngle = (float) startAngle - 45;
+        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+        startAngle = (float) startAngle - 45;
+        drawSegment(canvas,startAngle + 5, 45 - 5 -5);
+
+
+        //drawAttempt(canvas);
         //drawArcPath(canvas);
+        //start angle
+        //stop angle
     }
 
 }
