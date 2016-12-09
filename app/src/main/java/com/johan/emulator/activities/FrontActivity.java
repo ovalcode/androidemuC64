@@ -212,6 +212,9 @@ public class FrontActivity extends AppCompatActivity {
             return true;
         } else if(id == R.id.action_play) {
             emuInstance.togglePlay();
+        } else if(id == R.id.action_test) {
+            KeyboardView mKeyboardView= (KeyboardView)findViewById(R.id.keyboardview);
+            mKeyboardView.setVisibility(View.GONE);
         }
 
         return super.onOptionsItemSelected(item);

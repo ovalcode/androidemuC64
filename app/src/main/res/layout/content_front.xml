@@ -18,6 +18,12 @@
         android:layout_width="410px"
         android:layout_height="330px" />
 
+    <com.johan.emulator.view.JoystickView
+        android:layout_width="match_parent"
+        android:layout_height="330px"
+        android:layout_below="@id/Video"
+        />
+
     <android.inputmethodservice.KeyboardView
         android:id="@+id/keyboardview"
         android:layout_width="fill_parent"
@@ -26,6 +32,6 @@
         android:layout_centerHorizontal="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
 </RelativeLayout>
