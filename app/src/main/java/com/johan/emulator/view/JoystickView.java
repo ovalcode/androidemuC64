@@ -164,12 +164,37 @@ public class JoystickView extends View {
         float yTranslated = -y + OUTER_RADIUS;
 
         double calculatedRadius = Math.sqrt(xTranslated * xTranslated + yTranslated * yTranslated);
+        if (calculatedRadius > OUTER_RADIUS)
+            return -1;
         double angleInRadians = Math.acos(xTranslated / calculatedRadius);
-        float angleInDegrees =  
+        float angleInDegrees = (float) (angleInRadians * 180 / Math.PI);
+        angleInDegrees = Math.abs(angleInDegrees);
+        if (angleInDegrees > 90)
+            angleInDegrees = 180 - angleInDegrees;
+        if (xTranslated < 0 && yTranslated >=0)
+            angleInDegrees = 180 - angleInDegrees;
+        else if (xTranslated < 0 && yTranslated < 0)
+            angleInDegrees = 180 + angleInDegrees;
+        else if (xTranslated >= 0 && yTranslated < 0)
+            angleInDegrees = 360 - angleInDegrees;
+
+        if (angleInDegrees > segmentList.get(0).startAngle)
+            angleInDegrees = angleInDegrees -360;
+        int i = 0;
         for (Segment segment : segmentList) {
             float startAngle = segment.startAngle;
+//            if (startAngle < 0)
+//                startAngle = 360 - startAngle;
             float endAngle = segment.endAngle;
+//            if (endAngle < 0)
+//                endAngle = 360 - endAngle;
+            if (angleInDegrees <= startAngle && angleInDegrees >= endAngle) {
+                return i;
+            }
+            i++;
         }
+
+        return -1;
     }
 
     void drawAttempt(Canvas canvas) {
@@ -210,12 +235,12 @@ public class JoystickView extends View {
         if (((currentTime - lastProcessed) < 200) && (action != event.ACTION_UP))
             return true;
         lastProcessed = currentTime;
-        event.getX();
+        int currentNum = getCurrentNumberDown((int)event.getX(),(int) event.getY());
         if ((action ==event.ACTION_UP)) {
             imageDownNumber = -1;
             invalidate();
-        } else if ((action !=event.ACTION_UP) && (!imageDown)) {
-            imageDown = true;
+        } else if ((action !=event.ACTION_UP) && (imageDownNumber != currentNum)) {
+            imageDownNumber = currentNum;
             invalidate();
         }
         return true;
@@ -255,9 +280,14 @@ public class JoystickView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-
+        int i = 0;
         for (Segment segment : segmentList) {
+            if (imageDownNumber == i)
+                mPaint.setStyle(Paint.Style.FILL);
+            else
+                mPaint.setStyle(Paint.Style.STROKE);
             drawSegment(canvas, segment.startAngle, segment.sweepAngle);
+            i++;
         }
 
 
@@ -271,7 +301,7 @@ public class JoystickView extends View {
         Segment (float startAngle, float sweepAngle) {
             this.startAngle = startAngle;
             this.sweepAngle = sweepAngle;
-            this.endAngle = startAngle + sweepAngle;
+            this.endAngle = startAngle - sweepAngle;
         }
 
         public float getStartAngle() {
