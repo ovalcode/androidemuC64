@@ -227,20 +227,52 @@ public class JoystickView extends View {
         return;
     }
 
+    public boolean isActionUp(int action) {
+        return (action == MotionEvent.ACTION_UP) || (action == MotionEvent.ACTION_POINTER_UP) || (action == MotionEvent.ACTION_POINTER_2_UP) || (action == MotionEvent.ACTION_POINTER_1_UP);
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 //        event.eve
+        //System.out.print("Number of points: " + event.getPointerCount());
+        //for (int i = 0; i < event.getPointerCount(); i++) {
+        //    System.out.print(" Point: " + i + " X="+event.getX(i) + " Y=" + event.getY(i));
+        //    System.out.println();
+        //}
+        //System.out.println(event.getX() + " " + event.getY() + " " + event.getActionIndex());
+
         long currentTime = System.currentTimeMillis();
         int action = event.getAction();
-        if (((currentTime - lastProcessed) < 200) && (action != event.ACTION_UP))
+        if (action != 2)
+          System.out.println(action + " " + event.getActionIndex());
+        if (((currentTime - lastProcessed) < 200) && !isActionUp(action))
             return true;
         lastProcessed = currentTime;
-        int currentNum = getCurrentNumberDown((int)event.getX(),(int) event.getY());
-        if ((action ==event.ACTION_UP)) {
-            imageDownNumber = -1;
-            invalidate();
-        } else if ((action !=event.ACTION_UP) && (imageDownNumber != currentNum)) {
-            imageDownNumber = currentNum;
+        int currentNumDown = -1;
+        int upActionIndex = -1;
+        if (isActionUp(action)) {
+            upActionIndex = event.getActionIndex();
+        }
+        boolean found = false;
+        int eventX = 0;
+        int eventY = 0;
+        for (int i = 0; i < event.getPointerCount(); i++) {
+            if (i == upActionIndex)
+                continue;
+            if ((event.getX(i) <= OUTER_RADIUS * 2 + 10) && (event.getY(i) <= OUTER_RADIUS * 2 + 10)) {
+                found = true;
+                eventX = (int)event.getX(i);
+                eventY = (int)event.getY(i);
+            }
+
+        }
+
+        if (found) {
+            currentNumDown = getCurrentNumberDown((int)eventX,(int) eventY);
+        }
+
+        if (currentNumDown != imageDownNumber) {
+            imageDownNumber = currentNumDown;
             invalidate();
         }
         return true;
