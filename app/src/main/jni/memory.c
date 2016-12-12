@@ -16,6 +16,11 @@
 #define CHAR_ROM_VISIBLE 4
 #define IO_VISIBLE 8
 
+#define JOYSTICK_UP 1
+#define JOYSTICK_DOWN 2
+#define JOYSTICK_LEFT 4
+#define JOYSTICK_RIGHT 8
+
 int bank_visibility[8] =
 {
   0,//000
@@ -30,6 +35,8 @@ int bank_visibility[8] =
 
 jchar my_program[] = {
 };
+
+int joystickStatus = 0;
 
 jchar mainMem[65536];
 jchar charRom[4096];
@@ -268,6 +275,19 @@ void Java_com_johan_emulator_engine_Emu6502_setFrameBuffer(JNIEnv* pEnv, jobject
   g_buffer = (jchar *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
 
 }
+
+void Java_com_johan_emulator_engine_Emu6502_setFireButton(JNIEnv* pEnv, jobject pObj, jint fireButtonStatus) {
+  if (fireButtonStatus)
+    joystickStatus = joystickStatus | 16;
+  else
+    joystickStatus = joystickStatus & 0xef;
+}
+
+void Java_com_johan_emulator_engine_Emu6502_setJoystickDirectionButton(JNIEnv* pEnv, jobject pObj, jint fireButtonStatus) {
+  //start at north, then goes clockwise till again at north
+}
+
+
 
 void Java_com_johan_emulator_engine_Emu6502_populateFrame(JNIEnv* pEnv, jobject pObj) {
   int currentLine;
