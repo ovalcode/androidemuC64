@@ -25,6 +25,7 @@ import android.view.View;
 import com.johan.emulator.R;
 import com.johan.emulator.engine.Emu6502;
 import com.johan.emulator.view.C64SurfaceView;
+import com.johan.emulator.view.JoystickView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -214,7 +215,16 @@ public class FrontActivity extends AppCompatActivity {
             emuInstance.togglePlay();
         } else if(id == R.id.action_test) {
             KeyboardView mKeyboardView= (KeyboardView)findViewById(R.id.keyboardview);
-            mKeyboardView.setVisibility(View.GONE);
+            JoystickView mJoystickView = (JoystickView) findViewById(R.id.joystickView);
+            if (mKeyboardView.getVisibility() == View.GONE) {
+                mJoystickView.setVisibility(View.GONE);
+                mKeyboardView.setVisibility(View.VISIBLE);
+            } else {
+                mJoystickView.setVisibility(View.VISIBLE);
+                mKeyboardView.setVisibility(View.GONE);
+
+            }
+            //mKeyboardView.setVisibility(View.GONE);
         }
 
         return super.onOptionsItemSelected(item);

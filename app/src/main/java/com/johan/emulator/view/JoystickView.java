@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.johan.emulator.engine.Emu6502;
+
 import java.util.ArrayList;
 
 /**
@@ -26,6 +28,7 @@ public class JoystickView extends View {
     private float CENTER_FIRE_X;
     private float CENTER_FIRE_Y;
     private float FIRE_RADIUS;
+    //private Emu6502 emuInstance;
 
     int imageDownNumber;
     boolean fireDown;
@@ -42,6 +45,7 @@ public class JoystickView extends View {
 
     public JoystickView(Context c, AttributeSet attrs) {
         super(c, attrs);
+        //emuInstance = Emu6502.getInstance();
         imageDownNumber = -1;
         fireDown = false;
         float startAngle = (float) (90+22.5);
@@ -295,6 +299,8 @@ public class JoystickView extends View {
         if ((currentNumDown != imageDownNumber) || (currentFireDown != fireDown)){
             imageDownNumber = currentNumDown;
             fireDown = currentFireDown;
+            Emu6502.setFireButton(fireDown ? 1 : 0);
+            Emu6502.setJoystickDirectionButton(imageDownNumber);
             invalidate();
         }
         return true;

@@ -68,7 +68,7 @@ jchar cia1_read(int address) {
   jchar result = 0;
   switch (address) {
     case 0xdc00:
-      result = 0xff;
+      result =  ~joystickStatus & 0xff ;
     break;
 
     case 0xdc01:
@@ -285,6 +285,44 @@ void Java_com_johan_emulator_engine_Emu6502_setFireButton(JNIEnv* pEnv, jobject 
 
 void Java_com_johan_emulator_engine_Emu6502_setJoystickDirectionButton(JNIEnv* pEnv, jobject pObj, jint fireButtonStatus) {
   //start at north, then goes clockwise till again at north
+  joystickStatus = joystickStatus & 0xf8;
+  switch (fireButtonStatus) {
+    case 0: //North
+      joystickStatus = joystickStatus | JOYSTICK_UP;
+    break;
+
+    case 1: //North East
+      joystickStatus = joystickStatus | JOYSTICK_UP | JOYSTICK_RIGHT;
+    break;
+
+    case 2: //East
+      joystickStatus = joystickStatus | JOYSTICK_RIGHT;
+    break;
+
+    case 3: //South East
+      joystickStatus = joystickStatus | JOYSTICK_DOWN | JOYSTICK_RIGHT;
+    break;
+
+    case 4: //South
+      joystickStatus = joystickStatus | JOYSTICK_DOWN;
+    break;
+
+    case 5: //South West
+      joystickStatus = joystickStatus | JOYSTICK_DOWN | JOYSTICK_LEFT;
+    break;
+
+    case 6: //West
+      joystickStatus = joystickStatus | JOYSTICK_LEFT;
+    break;
+
+    case 7: //North West
+      joystickStatus = joystickStatus | JOYSTICK_LEFT | JOYSTICK_UP;
+    break;
+
+    default:
+    break;
+
+  }
 }
 
 

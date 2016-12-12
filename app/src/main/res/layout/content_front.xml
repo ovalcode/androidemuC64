@@ -28,6 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_below="@id/Video"
+        android:visibility="gone"
         android:id="@+id/joystickView" />
 
     <android.inputmethodservice.KeyboardView
@@ -38,6 +39,6 @@
         android:layout_centerHorizontal="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:visibility="gone"/>
+        />
 
 </RelativeLayout>

@@ -250,6 +250,8 @@ public class Emu6502 {
     private native char getSP();
     private native char getPc();
     public static native void resetCpu();
+    public static native void setFireButton(int fireButtonStatus);
+    public static native void setJoystickDirectionButton(int directionStatus);
 
     private native char getZeroFlag();
     private native char getNegativeFlag();
