@@ -23,8 +23,12 @@ public class JoystickView extends View {
     private static float OFFSET_Y;
     private static float INNER_RADIUS;
     private static float OUTER_RADIUS;
+    private float CENTER_FIRE_X;
+    private float CENTER_FIRE_Y;
+    private float FIRE_RADIUS;
 
     int imageDownNumber;
+    boolean fireDown;
     //boolean imageDown = false;
     Bitmap mBitmap;
     Canvas mCanvas;
@@ -39,6 +43,7 @@ public class JoystickView extends View {
     public JoystickView(Context c, AttributeSet attrs) {
         super(c, attrs);
         imageDownNumber = -1;
+        fireDown = false;
         float startAngle = (float) (90+22.5);
         for (int i = 0; i < 8; i++) {
             segmentList.add(new Segment(startAngle + 5, 45 - 5 -5));
@@ -56,6 +61,10 @@ public class JoystickView extends View {
         INNER_RADIUS = (int)(OUTER_RADIUS * 0.6);
         OFFSET_X = OUTER_RADIUS;
         OFFSET_Y = OUTER_RADIUS;
+
+        CENTER_FIRE_X = (float) (w * 0.75);
+        CENTER_FIRE_Y = OUTER_RADIUS;
+        FIRE_RADIUS = OUTER_RADIUS / 2;
 
         mPaint = new Paint();
         mPaint.setColor(Color.RED);
@@ -249,6 +258,7 @@ public class JoystickView extends View {
             return true;
         lastProcessed = currentTime;
         int currentNumDown = -1;
+        boolean currentFireDown = false;
         int upActionIndex = -1;
         if (isActionUp(action)) {
             upActionIndex = event.getActionIndex();
@@ -271,8 +281,20 @@ public class JoystickView extends View {
             currentNumDown = getCurrentNumberDown((int)eventX,(int) eventY);
         }
 
-        if (currentNumDown != imageDownNumber) {
+        for (int i = 0; i < event.getPointerCount(); i++) {
+            if (i == upActionIndex)
+                continue;
+            if ((event.getX(i) >= CENTER_FIRE_X - FIRE_RADIUS) && (event.getX(i) <= CENTER_FIRE_X + FIRE_RADIUS)
+                    && (event.getY(i) >= CENTER_FIRE_Y - FIRE_RADIUS)
+                    && (event.getY(i) <= CENTER_FIRE_Y + FIRE_RADIUS)) {
+                currentFireDown = true;
+            }
+
+        }
+
+        if ((currentNumDown != imageDownNumber) || (currentFireDown != fireDown)){
             imageDownNumber = currentNumDown;
+            fireDown = currentFireDown;
             invalidate();
         }
         return true;
@@ -321,7 +343,11 @@ public class JoystickView extends View {
             drawSegment(canvas, segment.startAngle, segment.sweepAngle);
             i++;
         }
-
+        if (fireDown)
+           mPaint.setStyle(Paint.Style.FILL);
+        else
+            mPaint.setStyle(Paint.Style.STROKE);
+        canvas.drawCircle(CENTER_FIRE_X, CENTER_FIRE_Y, FIRE_RADIUS, mPaint);
 
     }
 
