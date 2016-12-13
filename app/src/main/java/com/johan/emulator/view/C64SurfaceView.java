@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -35,6 +36,13 @@ public class C64SurfaceView extends SurfaceView {
         super(context, attrs, defStyleAttr);
         init();
     }
+
+    //@Override
+    //public void onMeasure(int width, int height) {
+        //Display display = getWindowManager
+      //  setMeasuredDimension(368, 300);
+//        super.onMeasure(368, 300);
+    //}
 
     private void init() {
         surfaceHolder= getHolder();

@@ -16,11 +16,14 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.johan.emulator.R;
 import com.johan.emulator.engine.Emu6502;
@@ -53,6 +56,9 @@ public class FrontActivity extends AppCompatActivity {
     private Paint paint;
     private DrawFilter filter;
 
+    int screenWidth;
+    float scale;
+
     private boolean running = false;
     private boolean switchToDebug = false;
     final Handler handler = new Handler();
@@ -63,6 +69,12 @@ public class FrontActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_front);
+        C64SurfaceView surfaceView = (C64SurfaceView) findViewById(R.id.Video);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        screenWidth = displayMetrics.widthPixels;
+        surfaceView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,(int)(300.0*screenWidth/368.0)));
+        scale = (float)(screenWidth / 368.0);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
@@ -272,7 +284,7 @@ public class FrontActivity extends AppCompatActivity {
                     mByteBuffer.rewind();
                     mBitmap.copyPixelsFromBuffer(mByteBuffer);
                     canvas.save();
-                    canvas.scale(1.1f, 1.1f);
+                    canvas.scale(scale, scale);
                     //canvas.setDrawFilter(filter);
                     canvas.drawBitmap(mBitmap,0,0, paint);
                     canvas.restore();
