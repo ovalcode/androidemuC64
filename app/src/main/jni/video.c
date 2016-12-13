@@ -79,12 +79,17 @@ static inline void drawScreenLine() {
   int i;
   int batchCharMem[40];
   int batchColorMem[40];
+  int memPointer = memory_unclaimed_io_read(0xd018);
+  int videoMemoryBase = memPointer & 0xf0;
+  videoMemoryBase = videoMemoryBase << 6;
+  int charROMBase = memPointer & 0xe;
+  charROMBase = charROMBase << 10;
   int backgroundColor = memory_unclaimed_io_read(0xd021) & 0xf;
-  memory_read_batch(batchCharMem, 1024 + posInCharMem, 40);
+  memory_read_batch(batchCharMem, videoMemoryBase + posInCharMem, 40);
   memory_read_batch_io_unclaimed(batchColorMem, 0xd800 + posInCharMem, 40);
   for (i = 0; i < 40; i++) {
     jchar charcode = batchCharMem[i];//memory_read(1024 + i + posInCharMem);
-    int bitmapDataRow = charRom[(charcode << 3) | (line_in_visible & 7)];
+    int bitmapDataRow = memory_read_vic_model(((charcode << 3) | (line_in_visible & 7)) + charROMBase);
     int j;
     int foregroundColor = batchColorMem[i] & 0xf;//memory_read(0xd800 + i + posInCharMem) & 0xf;
 

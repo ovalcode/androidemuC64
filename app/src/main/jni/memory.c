@@ -216,12 +216,24 @@ jchar memory_read(int address) {
 }
 
 void memory_read_batch(int *batch, int address, int count) {
+  address = ((~IOUnclaimed[0xd00] & 3) << 14) | address;
   int i;
   for (i = 0; i < count; i++) {
-    batch[i] = mainMem[address + i];
+    if ((address >= 0x1000 && address < 0x2000) || (address >= 0x9000 && address < 0xa000))
+      batch[i] = charRom[address & 0xfff];
+    else
+      batch[i] = mainMem[address + i];
   }
 }
 
+jchar memory_read_vic_model(int address) {
+  address = ((~IOUnclaimed[0xd00] & 3) << 14) | address;
+  if ((address >= 0x1000 && address < 0x2000) || (address >= 0x9000 && address < 0xa000))
+    return charRom[address & 0xfff];
+  else
+    return mainMem[address];
+
+}
 
 
 void memory_read_batch_io_unclaimed(int *batch, int address, int count) {
