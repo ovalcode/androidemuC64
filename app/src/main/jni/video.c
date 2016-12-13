@@ -106,6 +106,60 @@ static inline void drawScreenLineNormalText() {
   }
 }
 
+static inline void drawScreenLineMultiColorText() {
+  int i;
+  int batchCharMem[40];
+  int batchColorMem[40];
+  int color_tablet[4];
+  int memPointer = memory_unclaimed_io_read(0xd018);
+  int videoMemoryBase = memPointer & 0xf0;
+  videoMemoryBase = videoMemoryBase << 6;
+  int charROMBase = memPointer & 0xe;
+  charROMBase = charROMBase << 10;
+
+  int backgroundColor = memory_unclaimed_io_read(0xd021) & 0xf;
+  memory_read_batch(batchCharMem, videoMemoryBase + posInCharMem, 40);
+  memory_read_batch_io_unclaimed(batchColorMem, 0xd800 + posInCharMem, 40);
+  for (i = 0; i < 40; i++) {
+    jchar charcode = batchCharMem[i];//memory_read(1024 + i + posInCharMem);
+    int bitmapDataRow = memory_read_vic_model(((charcode << 3) | (line_in_visible & 7)) + charROMBase);
+    int j;
+    int foregroundColor = batchColorMem[i] & 0xf;//memory_read(0xd800 + i + posInCharMem) & 0xf;
+    if (foregroundColor & 8) {
+      foregroundColor = foregroundColor & 7;
+      color_tablet[0] = backgroundColor;
+      color_tablet[1] = memory_unclaimed_io_read(0xd022) & 0xf;
+      color_tablet[2] = memory_unclaimed_io_read(0xd023) & 0xf;
+      color_tablet[3] = foregroundColor;
+          for (j = 0; j < 4; j++) {
+            int pixelSet = bitmapDataRow & 0xc0;
+            pixelSet = pixelSet >> 6;
+
+            g_buffer[posInBuffer] = colors_RGB_565[color_tablet[pixelSet]];
+            posInBuffer++;
+
+            g_buffer[posInBuffer] = colors_RGB_565[color_tablet[pixelSet]];
+            posInBuffer++;
+
+            bitmapDataRow = bitmapDataRow << 2;
+          }
+
+    } else {
+      for (j = 0; j < 8; j++) {
+        foregroundColor = foregroundColor & 7;
+        int pixelSet = bitmapDataRow & 0x80;
+        if (pixelSet) {
+          g_buffer[posInBuffer] = colors_RGB_565[foregroundColor];
+        } else {
+          g_buffer[posInBuffer] = colors_RGB_565[backgroundColor];
+        }
+        posInBuffer++;
+        bitmapDataRow = bitmapDataRow << 1;
+      }
+    }
+  }
+}
+
 static inline void drawScreenLineMultiColorBitmap() {
   int i;
   int batchCharMem[40];
@@ -162,6 +216,7 @@ static inline void processLine() {
       break;
 
       case 1: //Multi color text mode
+        drawScreenLineMultiColorText();
       break;
 
       case 2: //Standard bitmap mode
