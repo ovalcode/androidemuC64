@@ -75,7 +75,7 @@ inline void updatelineCharPos() {
     posInCharMem = posInCharMem + 40;
 }
 
-static inline void drawScreenLine() {
+static inline void drawScreenLineNormalText() {
   int i;
   int batchCharMem[40];
   int batchColorMem[40];
@@ -106,6 +106,45 @@ static inline void drawScreenLine() {
   }
 }
 
+static inline void drawScreenLineMultiColorBitmap() {
+  int i;
+  int batchCharMem[40];
+  int batchColorMem[40];
+  int memPointer = memory_unclaimed_io_read(0xd018);
+  int videoMemoryBase = memPointer & 0xf0;
+  videoMemoryBase = videoMemoryBase << 6;
+  int charROMBase = memPointer & 0xe;
+  charROMBase = charROMBase << 10;
+  int color_tablet[4];
+  color_tablet[0] = memory_unclaimed_io_read(0xd021) & 0xf;
+  //int backgroundColor = memory_unclaimed_io_read(0xd021) & 0xf;
+  memory_read_batch(batchCharMem, videoMemoryBase + posInCharMem, 40);
+  memory_read_batch_io_unclaimed(batchColorMem, 0xd800 + posInCharMem, 40);
+  for (i = 0; i < 40; i++) {
+    jchar charcode = batchCharMem[i];//memory_read(1024 + i + posInCharMem);
+    color_tablet[1] = charcode >> 4;
+    color_tablet[2] = charcode & 0xf;
+    color_tablet[3] = batchColorMem[i] & 0xf;
+    int bitmapDataRow = memory_read_vic_model((((posInCharMem + i) << 3) | (line_in_visible & 7)) + charROMBase);
+    int j;
+    //int foregroundColor = batchColorMem[i] & 0xf;//memory_read(0xd800 + i + posInCharMem) & 0xf;
+
+    for (j = 0; j < 4; j++) {
+      int pixelSet = bitmapDataRow & 0xc0;
+      pixelSet = pixelSet >> 6;
+
+      g_buffer[posInBuffer] = colors_RGB_565[color_tablet[pixelSet]];
+      posInBuffer++;
+
+      g_buffer[posInBuffer] = colors_RGB_565[color_tablet[pixelSet]];
+      posInBuffer++;
+
+      bitmapDataRow = bitmapDataRow << 2;
+    }
+  }
+}
+
+
 static inline void processLine() {
   if (line_count > 299)
     return;
@@ -114,7 +153,25 @@ static inline void processLine() {
   fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);
   int screenEnabled = (memory_unclaimed_io_read(0xd011) & 0x10) ? 1 : 0;
   if (screenLineRegion && screenEnabled) {
-    drawScreenLine();
+    jchar bitmapMode = (memory_unclaimed_io_read(0xd011) & 0x20) ? 1 : 0;
+    jchar multiColorMode = (memory_unclaimed_io_read(0xd016) & 0x10) ? 1 : 0;
+    jchar screenMode = (bitmapMode << 1) | (multiColorMode);
+    switch (screenMode) {
+      case 0: //Normal texmode
+        drawScreenLineNormalText();
+      break;
+
+      case 1: //Multi color text mode
+      break;
+
+      case 2: //Standard bitmap mode
+      break;
+
+      case 3: //Multicolor bitmap
+        drawScreenLineMultiColorBitmap();
+      break;
+    }
+
   } else {
     fillColor(320, memory_unclaimed_io_read(0xd020) & 0xf);
   }
