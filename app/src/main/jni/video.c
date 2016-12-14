@@ -247,13 +247,15 @@ void video_line_expired(struct timer_struct *tdev) {
   jchar RST_0_7 = memory_unclaimed_io_read(0xd012);
   jchar RST_8 = (memory_unclaimed_io_read(0xd011) & 0x80) << 1;
   int targetRasterLine = RST_8 | RST_0_7;
-  if ((targetRasterLine == line_count) && raster_int_enabled())
-    vic_interrupt = vic_interrupt | 1 | 128;
   if (line_count > 310) {
     line_count = 0;
     frameFinished = 1;
     posInBuffer = 0;
   }
+
+    if ((targetRasterLine == line_count) && raster_int_enabled())
+      vic_interrupt = vic_interrupt | 1 | 128;
+
 }
 
 int vic_raster_int_occured() {
