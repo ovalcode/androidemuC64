@@ -36,6 +36,8 @@ jchar colors_RGB_888[16][3] = {
 
 jchar colors_RGB_565[16];
 
+jchar vic_interrupt = 0;
+
 int line_in_visible;
 
 void initialise_video() {
@@ -233,16 +235,40 @@ static inline void processLine() {
   fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);
 }
 
+int raster_int_enabled() {
+  return (memory_unclaimed_io_read(0xd01a) & 1) ? 1 : 0;
+}
+
 
 void video_line_expired(struct timer_struct *tdev) {
   tdev->remainingCycles = 63;
   processLine();
   line_count++;
+  jchar RST_0_7 = memory_unclaimed_io_read(0xd012);
+  jchar RST_8 = (memory_unclaimed_io_read(0xd011) & 0x80) << 1;
+  int targetRasterLine = RST_8 | RST_0_7;
+  if ((targetRasterLine == line_count) && raster_int_enabled())
+    vic_interrupt = vic_interrupt | 1 | 128;
   if (line_count > 310) {
     line_count = 0;
     frameFinished = 1;
     posInBuffer = 0;
   }
+}
+
+int vic_raster_int_occured() {
+  return (vic_interrupt > 128) ? 1 : 0;
+}
+
+int read_vic_int_reg () {
+  return vic_interrupt;
+}
+
+void write_vic_int_reg(jchar value) {
+  value = ~value & 0x7f;
+  vic_interrupt = vic_interrupt & value;
+  if (vic_interrupt > 0)
+    vic_interrupt = vic_interrupt | 128;
 }
 
 struct timer_struct getVideoInstance() {

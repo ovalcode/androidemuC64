@@ -6,6 +6,7 @@
 #include <memory.h>
 
 #include <interrupts.h>
+#include <video.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <alarm.h>
@@ -331,7 +332,7 @@ unsigned char sbcDecimal(unsigned char operand) {
   void process_interrupts() {
     if (interruptFlag == 1)
       return;
-    if (trigger_irq() == 0)
+    if ((trigger_irq() == 0) && (vic_raster_int_occured() == 0))
       return;
     pushWord(pc);
     breakFlag = 0;

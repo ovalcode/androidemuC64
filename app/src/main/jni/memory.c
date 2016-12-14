@@ -208,6 +208,8 @@ jchar memory_read(int address) {
       return cia1_read(address);
     else if (address == 0xd012)
       return line_count & 0xff;
+    else if (address == 0xd019)
+      return read_vic_int_reg();
     else
       return IOUnclaimed[address & 0xfff];
   }
@@ -255,6 +257,8 @@ void memory_write(int address, jchar value) {
   else if ((address >=0xd000) && (address < 0xe000) && IOEnabled()) {
     if((address >=0xdc00) & (address < 0xdc10))
       cia1_write(address, value);
+    else if (address == 0xd019)
+      write_vic_int_reg(value);
     else
       IOUnclaimed[address & 0xfff] = value;
   }
