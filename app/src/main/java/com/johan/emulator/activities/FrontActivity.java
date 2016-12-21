@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.PaintFlagsDrawFilter;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -69,11 +70,20 @@ public class FrontActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_front);
-        C64SurfaceView surfaceView = (C64SurfaceView) findViewById(R.id.Video);
+
+        GLSurfaceView mGLSurfaceView = (GLSurfaceView) findViewById(R.id.Video);
+        //C64SurfaceView surfaceView = (GLSurfaceView) findViewById(R.id.Video);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         screenWidth = displayMetrics.widthPixels;
-        surfaceView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,(int)(300.0*screenWidth/368.0)));
+        mGLSurfaceView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,(int)(300.0*screenWidth/368.0)));
+        mGLSurfaceView.setEGLContextClientVersion(2);
+        mGLSurfaceView.setEGLContextClientVersion(2);
+        MyGL20Renderer myRenderer = new MyGL20Renderer(this);
+        mGLSurfaceView.setRenderer(myRenderer);
+
+
+
         scale = (float)(screenWidth / 368.0);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -81,6 +91,8 @@ public class FrontActivity extends AppCompatActivity {
         mByteBuffer = ByteBuffer.allocateDirect(368*300*2);
         keyBoardMatrix = ByteBuffer.allocateDirect(8);
         emuInstance.setKeyboardMatrix(keyBoardMatrix);
+        myRenderer.setEmuInstance(emuInstance);
+        myRenderer.setByteBuffer(mByteBuffer);
         mBitmap = Bitmap.createBitmap(368,300, Bitmap.Config.RGB_565);
         filter = new PaintFlagsDrawFilter(Paint.ANTI_ALIAS_FLAG, 0);
         paint = new Paint();
@@ -256,71 +268,6 @@ public class FrontActivity extends AppCompatActivity {
         timer = new Timer();
         //breakAddress = getBreakAddress();
 
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                long startTime = System.currentTimeMillis();
-                final int result = emuInstance.runBatch(0);
-                long endTime = System.currentTimeMillis();
-                runningTotal = runningTotal + (endTime - startTime);
-                numSamples++;
-                if (numSamples == 120) {
-                    double avg = runningTotal / 120.0;
-                    runningTotal = 0;
-                    numSamples = 0;
-                    System.out.println("Times: "+avg);
-                }
-                //emuInstance.interruptCpu();
-                C64SurfaceView surfaceView = (C64SurfaceView) findViewById(R.id.Video);
-                SurfaceHolder holder = surfaceView.getCreatedHolder();
-                Canvas canvas = null;
-                if (holder != null)
-                    canvas = holder.lockCanvas();
-                if (canvas != null) {
-                    //Paint paint = new Paint();
-                    //paint.setStyle(Paint.Style.FILL);
-                    //paint.setColor(Color.RED);
-                    //emuInstance.populateFrame();
-                    mByteBuffer.rewind();
-                    mBitmap.copyPixelsFromBuffer(mByteBuffer);
-                    canvas.save();
-                    canvas.scale(scale, scale);
-                    //canvas.setDrawFilter(filter);
-                    canvas.drawBitmap(mBitmap,0,0, paint);
-                    canvas.restore();
-                    holder.unlockCanvasAndPost(canvas);
-                }
-                if (result > 0) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            timer.cancel();
-                            doAlert(result);
-                        }
-                    });
-                } else if (!running | (result < 0) | switchToDebug) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            timer.cancel();
-                            running = false;
-                            //Intent i = new Intent(FrontActivity.this, DebugActivity.class);
-                            //FrontActivity.this.startActivity(i);
-
-                            //NB!! jump to debug activity
-                        }
-                    });
-
-                }
-                if (switchToDebug) {
-                    Intent i = new Intent(FrontActivity.this, DebugActivity.class);
-                    //startActivityForResult(i, 1);
-                    FrontActivity.this.startActivity(i);
-                }
-            }
-        };
-
-        timer.schedule(timerTask, 20, 20);
 
     }
 
