@@ -8,14 +8,18 @@
 #include <memory.h>
 
 int line_count = 0;
-int posInBuffer = 0;
+int startOfLineTxtBuffer = 0;
+int posInFrontBuffer = 0;
+int posInBackgroundBuffer = 0;
 int posInCharMem = 0;
 int screenLineRegion = 0;
 extern jchar charRom[4096];
 extern jchar* g_buffer;
 extern int frameFinished;
 
-jchar colors_RGB_888[16][3] = {
+#define STRIDE 368 + 300
+
+jchar colors_RGB_8888[16][3] = {
 {0, 0, 0},
                   {255, 255, 255},
                   {136, 0, 0},
@@ -36,6 +40,8 @@ jchar colors_RGB_888[16][3] = {
 
 jchar colors_RGB_565[16];
 
+jint colors_RGB_8888[16];
+
 jchar vic_interrupt = 0;
 
 int line_in_visible;
@@ -48,13 +54,17 @@ void initialise_video() {
     int blue = colors_RGB_888[i][2] >> 3;
     colors_RGB_565[i] =  (red << 11) | (green << 5) | (blue << 0);
   }
+
+  for (i=0; i < 16; i++) {
+    colors_RGB_8888[i] = (255 << 24) | (colors_RGB_888[i][0] << 16) | (colors_RGB_888[i][1] << 8) | (colors_RGB_888[i][2] << 0);
+  }
 }
 
 inline void fillColor(int count, int colorEntryNumber) {
   int currentPos;
   for (currentPos = 0; currentPos < count; currentPos++) {
-    g_buffer[posInBuffer] = colors_RGB_565[colorEntryNumber];
-    posInBuffer++;
+    g_buffer[posInFrontBuffer] = colors_RGB_8888[colorEntryNumber];
+    posInFrontBuffer++;
   }
 }
 
@@ -95,14 +105,16 @@ static inline void drawScreenLineNormalText() {
     int j;
     int foregroundColor = batchColorMem[i] & 0xf;//memory_read(0xd800 + i + posInCharMem) & 0xf;
 
+
     for (j = 0; j < 8; j++) {
       int pixelSet = bitmapDataRow & 0x80;
       if (pixelSet) {
-        g_buffer[posInBuffer] = colors_RGB_565[foregroundColor];
+        g_buffer[posInFrontBuffer] = colors_RGB_8888[foregroundColor];
       } else {
-        g_buffer[posInBuffer] = colors_RGB_565[backgroundColor];
+        g_buffer[posInBackgroundBuffer] = colors_RGB_8888[backgroundColor];
       }
-      posInBuffer++;
+      posInFrontBuffer++;
+      posInBackgroundBuffer++;
       bitmapDataRow = bitmapDataRow << 1;
     }
   }
@@ -205,6 +217,9 @@ static inline void processLine() {
   if (line_count > 299)
     return;
 
+  posInFrontBuffer = startOfLineTxtBuffer;
+  posInBackgroundBuffer = startOfLineTxtBuffer + 368;
+
   updatelineCharPos();
   fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);
   int screenEnabled = (memory_unclaimed_io_read(0xd011) & 0x10) ? 1 : 0;
@@ -233,6 +248,8 @@ static inline void processLine() {
     fillColor(320, memory_unclaimed_io_read(0xd020) & 0xf);
   }
   fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);
+
+  startOfLineTxtBuffer = startOfLineTxtBuffer + STRIDE;
 }
 
 int raster_int_enabled() {
@@ -250,7 +267,7 @@ void video_line_expired(struct timer_struct *tdev) {
   if (line_count > 310) {
     line_count = 0;
     frameFinished = 1;
-    posInBuffer = 0;
+    startOfLineTxtBuffer = 0;
   }
 
     if ((targetRasterLine == line_count) && raster_int_enabled())
