@@ -149,11 +149,15 @@ static inline void drawScreenLineMultiColorText() {
             int pixelSet = bitmapDataRow & 0xc0;
             pixelSet = pixelSet >> 6;
 
-            g_buffer[posInBuffer] = colors_RGB_565[color_tablet[pixelSet]];
-            posInBuffer++;
+            g_buffer[posInFrontBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
+            posInFrontBuffer++;
+            posInBackgroundBuffer++;
 
-            g_buffer[posInBuffer] = colors_RGB_565[color_tablet[pixelSet]];
-            posInBuffer++;
+
+            g_buffer[posInFrontBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
+            posInFrontBuffer++;
+            posInBackgroundBuffer++;
+
 
             bitmapDataRow = bitmapDataRow << 2;
           }
@@ -163,11 +167,13 @@ static inline void drawScreenLineMultiColorText() {
         foregroundColor = foregroundColor & 7;
         int pixelSet = bitmapDataRow & 0x80;
         if (pixelSet) {
-          g_buffer[posInBuffer] = colors_RGB_565[foregroundColor];
+          g_buffer[posInFrontBuffer] = colors_RGB_8888[foregroundColor];
         } else {
-          g_buffer[posInBuffer] = colors_RGB_565[backgroundColor];
+          g_buffer[posInBackgroundBuffer] = colors_RGB_8888[backgroundColor];
         }
-        posInBuffer++;
+            posInFrontBuffer++;
+            posInBackgroundBuffer++;
+
         bitmapDataRow = bitmapDataRow << 1;
       }
     }
@@ -201,11 +207,14 @@ static inline void drawScreenLineMultiColorBitmap() {
       int pixelSet = bitmapDataRow & 0xc0;
       pixelSet = pixelSet >> 6;
 
-      g_buffer[posInBuffer] = colors_RGB_565[color_tablet[pixelSet]];
-      posInBuffer++;
+      g_buffer[posInFrontBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
+      posInFrontBuffer++;
+      posInBackgroundBuffer++;
 
-      g_buffer[posInBuffer] = colors_RGB_565[color_tablet[pixelSet]];
-      posInBuffer++;
+      g_buffer[posInFrontBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
+      posInFrontBuffer++;
+      posInBackgroundBuffer++;
+
 
       bitmapDataRow = bitmapDataRow << 2;
     }
