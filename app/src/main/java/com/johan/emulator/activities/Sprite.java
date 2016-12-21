@@ -29,6 +29,8 @@ public class Sprite
     private final int mTextureCoordinateDataSize = 2;
     private int mTextureDataHandle;
 
+    private static int[] textureHandle;
+
     //static Bitmap c64bitmap = Bitmap.createBitmap(368,300,Bitmap.Config.RGB_565);
 
     private final String vertexShaderCode =
@@ -200,9 +202,11 @@ float color[] = { 1f, 0f, 0f, 1.0f };
 
     public static int loadTextureFromByteBuffer(ByteBuffer buffer)
     {
-        final int[] textureHandle = new int[1];
-
-        GLES20.glGenTextures(1, textureHandle, 0);
+        //final int[] textureHandle = new int[1];
+        if (textureHandle == null) {
+            textureHandle = new int[1];
+            GLES20.glGenTextures(1, textureHandle, 0);
+        }
 
         if (textureHandle[0] != 0)
         {
