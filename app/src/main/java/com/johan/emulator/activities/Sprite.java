@@ -67,11 +67,13 @@ public class Sprite
     private int mMVPMatrixHandle;
 
     // number of coordinates per vertex in this array
-    static final int COORDS_PER_VERTEX = 2;
+    static final int COORDS_PER_VERTEX = 3;
     static float spriteCoords[] = { -1.22666f,  1f,   // top left
             -1.22666f, -1f,   // bottom left
             1.22666f, -1f,   // bottom right
-            1.22666f,  1f }; //top right
+            1.22666f,  1f
+    //TODO: Add background coords + change to three value coordinates
+    }; //top right
 
     private short drawOrder[] = { 0, 1, 2, 0, 3, 2, 0 }; //Order to draw vertices
     private final int vertexStride = COORDS_PER_VERTEX * 4; //Bytes per vertex
@@ -118,13 +120,14 @@ float color[] = { 1f, 0f, 0f, 1.0f };
                         0.0f, 1.0f,
                         1.0f, 1.0f,
                         1.0f, 0.0f
-
+//TODO
                 };
 
         mCubeTextureCoordinates = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         mCubeTextureCoordinates.put(cubeTextureCoordinateData).position(0);
 
         //Initialize byte buffer for the draw list
+        //??? Check this out
         ByteBuffer dlb = ByteBuffer.allocateDirect(spriteCoords.length * 2);
         dlb.order(ByteOrder.nativeOrder());
         drawListBuffer = dlb.asShortBuffer();
@@ -182,6 +185,7 @@ float color[] = { 1f, 0f, 0f, 1.0f };
         GLES20.glUniform1i(mTextureUniformHandle, 0);
 
         //Pass in the texture coordinate information
+        //NB!! move to end call these three lines again
         mCubeTextureCoordinates.position(0);
         GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mCubeTextureCoordinates);
         GLES20.glEnableVertexAttribArray(mTextureCoordinateHandle);
