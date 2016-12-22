@@ -62,20 +62,31 @@ public class Sprite
     private final int shaderProgram;
     private final FloatBuffer vertexBuffer;
     private final ShortBuffer drawListBuffer;
+    private final ShortBuffer drawListBuffer2;
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
 
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
-    static float spriteCoords[] = { -1.22666f,  1f,   // top left
-            -1.22666f, -1f,   // bottom left
-            1.22666f, -1f,   // bottom right
-            1.22666f,  1f
-    //TODO: Add background coords + change to three value coordinates
+    static float spriteCoords[] = {
+            //Foreground
+            -1.22666f,  1f, 0f,  // top left
+            -1.22666f, -1f, 0f,   // bottom left
+            1.22666f, -1f, 0f,  // bottom right
+            1.22666f,  1f, 0f,
+
+            //Background
+            -1.06666f,  0.6666f, -1f,  // top left
+            -1.06666f, -0.6666f, -1f,   // bottom left
+            1.06666f, -0.6666f, -1f,  // bottom right
+            1.06666f,  0.6666f, -1f,
+
+            //TODO: Add background coords + change to three value coordinates
     }; //top right
 
     private short drawOrder[] = { 0, 1, 2, 0, 3, 2, 0 }; //Order to draw vertices
+    private short drawOrder2[] = { 0 + 4, 1 + 4, 2 + 4, 0 + 4, 3 + 4, 2 + 4, 0 + 4 }; //Order to draw vertices
     private final int vertexStride = COORDS_PER_VERTEX * 4; //Bytes per vertex
 
     // Set color with red, green, blue and alpha (opacity) values
@@ -116,10 +127,19 @@ float color[] = { 1f, 0f, 0f, 1.0f };
 //                        0.5f, -0.5f,
 //                        0.5f,  0.5f
 
+                        //0.534883721 -> x fore
+                        //Foreground
                         0.0f, 0.0f,
                         0.0f, 1.0f,
-                        1.0f, 1.0f,
+                        0.53488f, 1.0f,
+                        0.53488f, 0.0f,
+
+                        //Background
+                        0.53488f, 0.0f,
+                        0.53488f, 0.6666f,
+                        1.0f, 0.6666f,
                         1.0f, 0.0f
+
 //TODO
                 };
 
@@ -133,6 +153,13 @@ float color[] = { 1f, 0f, 0f, 1.0f };
         drawListBuffer = dlb.asShortBuffer();
         drawListBuffer.put(drawOrder);
         drawListBuffer.position(0);
+
+        ByteBuffer dlb2 = ByteBuffer.allocateDirect(spriteCoords.length * 2);
+        dlb.order(ByteOrder.nativeOrder());
+        drawListBuffer2 = dlb2.asShortBuffer();
+        drawListBuffer2.put(drawOrder2);
+        drawListBuffer2.position(0);
+
 
         int vertexShader = MyGL20Renderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = MyGL20Renderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -198,6 +225,10 @@ float color[] = { 1f, 0f, 0f, 1.0f };
 
         //Draw the triangle
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
+
+        //Draw another triangle
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder2.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer2);
+
 
         //Disable Vertex Array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
