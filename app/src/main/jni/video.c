@@ -19,7 +19,7 @@ extern int frameFinished;
 
 #define STRIDE 368 + 300
 
-jchar colors_RGB_8888[16][3] = {
+jchar colors_RGB_888[16][3] = {
 {0, 0, 0},
                   {255, 255, 255},
                   {136, 0, 0},

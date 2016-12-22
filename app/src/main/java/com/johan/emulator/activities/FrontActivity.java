@@ -88,7 +88,7 @@ public class FrontActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
-        mByteBuffer = ByteBuffer.allocateDirect(((368*300) + (320 * 200)) * 4);
+        mByteBuffer = ByteBuffer.allocateDirect((368 + 320) * (300) * 4);
         keyBoardMatrix = ByteBuffer.allocateDirect(8);
         emuInstance.setKeyboardMatrix(keyBoardMatrix);
         myRenderer.setEmuInstance(emuInstance);

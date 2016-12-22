@@ -253,7 +253,7 @@ float color[] = { 1f, 0f, 0f, 1.0f };
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
             buffer.rewind();
-            Bitmap c64bitmap = Bitmap.createBitmap(368+320,300+200,Bitmap.Config.ARGB_8888);
+            Bitmap c64bitmap = Bitmap.createBitmap(368+320,300,Bitmap.Config.ARGB_8888);
              c64bitmap.copyPixelsFromBuffer(buffer);
             // Load the bitmap into the bound texture.
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, c64bitmap, 0);
