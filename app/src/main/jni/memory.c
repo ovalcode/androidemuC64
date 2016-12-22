@@ -43,7 +43,7 @@ jchar charRom[4096];
 jchar basicROM[8192];
 jchar kernalROM[8192];
 jchar IOUnclaimed[4096];
-jchar* g_buffer;
+jint* g_buffer;
 jbyte* keyboardMatrix;
 extern int line_count;
 
@@ -293,7 +293,7 @@ void Java_com_johan_emulator_engine_Emu6502_setKeyboardMatrix(JNIEnv* pEnv, jobj
 
 
 void Java_com_johan_emulator_engine_Emu6502_setFrameBuffer(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
-  g_buffer = (jchar *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
+  g_buffer = (jint *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
 
 }
 

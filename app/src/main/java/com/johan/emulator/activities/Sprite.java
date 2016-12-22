@@ -77,10 +77,10 @@ public class Sprite
             1.22666f,  1f, 0f,
 
             //Background
-            -1.06666f,  0.6666f, -1f,  // top left
-            -1.06666f, -0.6666f, -1f,   // bottom left
-            1.06666f, -0.6666f, -1f,  // bottom right
-            1.06666f,  0.6666f, -1f,
+            -1.06666f,  0.6666f, -4f,  // top left
+            -1.06666f, -0.6666f, -4f,   // bottom left
+            1.06666f, -0.6666f, -4f,  // bottom right
+            1.06666f,  0.6666f, -4f,
 
             //TODO: Add background coords + change to three value coordinates
     }; //top right
@@ -155,7 +155,7 @@ float color[] = { 1f, 0f, 0f, 1.0f };
         drawListBuffer.position(0);
 
         ByteBuffer dlb2 = ByteBuffer.allocateDirect(spriteCoords.length * 2);
-        dlb.order(ByteOrder.nativeOrder());
+        dlb2.order(ByteOrder.nativeOrder());
         drawListBuffer2 = dlb2.asShortBuffer();
         drawListBuffer2.put(drawOrder2);
         drawListBuffer2.position(0);
@@ -179,6 +179,7 @@ float color[] = { 1f, 0f, 0f, 1.0f };
 
     public void Draw(float[] mvpMatrix, ByteBuffer imgBuffer)
     {
+        //System.out.println("In SPrite Draw");
         //Add program to OpenGL ES Environment
         GLES20.glUseProgram(shaderProgram);
 
@@ -189,10 +190,12 @@ float color[] = { 1f, 0f, 0f, 1.0f };
         GLES20.glEnableVertexAttribArray(mPositionHandle);
 
         //Prepare the triangle coordinate data
-        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
+        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, true, vertexStride, vertexBuffer);
 
         //Get Handle to Fragment Shader's vColor member
         mColorHandle = GLES20.glGetUniformLocation(shaderProgram, "v_Color");
+
+        //System.out.println("In SPrite Draw 2");
 
         //Set the Color for drawing the triangle
         GLES20.glUniform4fv(mColorHandle, 1, color, 0);
@@ -214,24 +217,39 @@ float color[] = { 1f, 0f, 0f, 1.0f };
         //Pass in the texture coordinate information
         //NB!! move to end call these three lines again
         mCubeTextureCoordinates.position(0);
-        GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mCubeTextureCoordinates);
+        GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, true, 0, mCubeTextureCoordinates);
         GLES20.glEnableVertexAttribArray(mTextureCoordinateHandle);
+
 
         //Get Handle to Shape's Transformation Matrix
         mMVPMatrixHandle = GLES20.glGetUniformLocation(shaderProgram, "uMVPMatrix");
+
+
 
         //Apply the projection and view transformation
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
         //Draw the triangle
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder2.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer2);
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
 
+
+
+
         //Draw another triangle
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder2.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer2);
+
 
 
         //Disable Vertex Array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
+
+        //System.out.println("In SPrite Draw 3");
+
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
 

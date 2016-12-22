@@ -36,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.Timer;
@@ -53,7 +54,7 @@ public class FrontActivity extends AppCompatActivity {
     private ByteBuffer mTape;
     private ByteBuffer keyBoardMatrix;
     private Keyboard.Key shiftKey;
-    private Bitmap mBitmap;
+//    private Bitmap mBitmap;
     private Paint paint;
     private DrawFilter filter;
 
@@ -89,11 +90,12 @@ public class FrontActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         emuInstance = Emu6502.getInstance(getResources().getAssets());
         mByteBuffer = ByteBuffer.allocateDirect((368 + 320) * (300) * 4);
+        //mByteBuffer.order(ByteOrder.nativeOrder());
         keyBoardMatrix = ByteBuffer.allocateDirect(8);
         emuInstance.setKeyboardMatrix(keyBoardMatrix);
         myRenderer.setEmuInstance(emuInstance);
         myRenderer.setByteBuffer(mByteBuffer);
-        mBitmap = Bitmap.createBitmap(368,300, Bitmap.Config.RGB_565);
+        //mBitmap = Bitmap.createBitmap(368,300, Bitmap.Config.RGB_565);
         filter = new PaintFlagsDrawFilter(Paint.ANTI_ALIAS_FLAG, 0);
         paint = new Paint();
         paint.setAntiAlias(false);

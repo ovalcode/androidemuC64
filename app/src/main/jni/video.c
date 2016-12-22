@@ -14,10 +14,10 @@ int posInBackgroundBuffer = 0;
 int posInCharMem = 0;
 int screenLineRegion = 0;
 extern jchar charRom[4096];
-extern jchar* g_buffer;
+extern jint* g_buffer;
 extern int frameFinished;
 
-#define STRIDE 368 + 300
+#define STRIDE 368 + 320
 
 jchar colors_RGB_888[16][3] = {
 {0, 0, 0},
@@ -56,7 +56,8 @@ void initialise_video() {
   }
 
   for (i=0; i < 16; i++) {
-    colors_RGB_8888[i] = (255 << 24) | (colors_RGB_888[i][0] << 16) | (colors_RGB_888[i][1] << 8) | (colors_RGB_888[i][2] << 0);
+    colors_RGB_8888[i] = (255 << 24) | (colors_RGB_888[i][2] << 16) | (colors_RGB_888[i][1] << 8) | (colors_RGB_888[i][0] << 0);
+    //colors_RGB_8888[i] = (255);
   }
 }
 

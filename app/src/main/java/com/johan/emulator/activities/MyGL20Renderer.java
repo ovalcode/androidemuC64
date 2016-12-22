@@ -60,12 +60,28 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer
 
     public void onDrawFrame(GL10 unused)
     {
-        try {
-            Thread.sleep(20);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(20);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+//        try {
+//            Thread.sleep(30);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+//        System.out.println("Draw frame hit");
+//        System.out.println("Draw frame hit");
         //Redraw background color
+        // Draw objects back to front
+        GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
+        GLES20.glDepthMask(false);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         //Set the camera position (View Matrix)
@@ -79,11 +95,25 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer
 
         //Combine the rotation matrix with the projection and camera view
         Matrix.multiplyMM(mMVPMatrix, 0, mRotationMatrix, 0, mMVPMatrix, 0);
+        GLES20.glEnable(GLES20.GL_BLEND);
 
         //Draw Shape
         //triangle.Draw(mMVPMatrix);
+//        System.out.println("progress");
+        byteBuffer.rewind();
+        for (int i = 0; i < byteBuffer.limit(); i++) {
+            byteBuffer.put((byte) 0);
+        }
+        byteBuffer.rewind();
         emuInstance.runBatch(0);
+//        System.out.println("after batch");
         sprite.Draw(mMVPMatrix, byteBuffer);
+        //GLES20.glFinish();
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void onSurfaceChanged(GL10 unused, int width, int height)
