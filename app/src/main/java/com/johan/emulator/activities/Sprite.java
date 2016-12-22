@@ -77,10 +77,10 @@ public class Sprite
             1.22666f,  1f, 0f,
 
             //Background
-            -1.06666f,  0.6666f, -4f,  // top left
-            -1.06666f, -0.6666f, -4f,   // bottom left
-            1.06666f, -0.6666f, -4f,  // bottom right
-            1.06666f,  0.6666f, -4f,
+            -1.06666f,  1.4f, 0f,  // top left
+            -1.06666f, -0.5f, 0f,   // bottom left
+            1.06666f, -0.5f, 0f,  // bottom right
+            1.06666f,  1.4f, 0f,
 
             //TODO: Add background coords + change to three value coordinates
     }; //top right
@@ -231,7 +231,7 @@ float color[] = { 1f, 0f, 0f, 1.0f };
 
         //Draw the triangle
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder2.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer2);
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
+        //GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
 
 
 
