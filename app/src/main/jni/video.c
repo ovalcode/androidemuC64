@@ -17,7 +17,8 @@ extern jchar charRom[4096];
 extern jint* g_buffer;
 extern int frameFinished;
 
-#define STRIDE 368 + 320
+#define STRIDE 368 + 368 + 368 + 320
+
 
 jchar colors_RGB_888[16][3] = {
 {0, 0, 0},
@@ -227,8 +228,8 @@ static inline void processLine() {
   if (line_count > 299)
     return;
 
-  posInFrontBuffer = startOfLineTxtBuffer;
-  posInBackgroundBuffer = startOfLineTxtBuffer + 368;
+  posInFrontBuffer = startOfLineTxtBuffer + 368;
+  posInBackgroundBuffer = startOfLineTxtBuffer + 368 + 368 + 368;
 
   updatelineCharPos();
   fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);

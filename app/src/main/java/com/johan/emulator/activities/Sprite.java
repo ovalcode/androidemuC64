@@ -63,6 +63,9 @@ public class Sprite
     private final FloatBuffer vertexBuffer;
     private final ShortBuffer drawListBuffer;
     private final ShortBuffer drawListBuffer2;
+    private final ShortBuffer drawListBuffer3;
+    private final ShortBuffer drawListBuffer4;
+
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
@@ -70,11 +73,24 @@ public class Sprite
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
     static float spriteCoords[] = {
-            //Foreground
+            //Sprite Foreground
             -1.22666f,  1f, 0f,  // top left
             -1.22666f, -1f, 0f,   // bottom left
             1.22666f, -1f, 0f,  // bottom right
             1.22666f,  1f, 0f,
+
+            //Foreground
+            -1.22666f,  1f, -1f,  // top left
+            -1.22666f, -1f, -1f,   // bottom left
+            1.22666f, -1f, -1f,  // bottom right
+            1.22666f,  1f, -1f,
+
+            //Sprite background
+            -1.22666f,  1f, -2f,  // top left
+            -1.22666f, -1f, -2f,   // bottom left
+            1.22666f, -1f, -2f,  // bottom right
+            1.22666f,  1f, -2f,
+
 
             //Background
             -1.06666f,  0.6666f, -4f,  // top left
@@ -87,6 +103,9 @@ public class Sprite
 
     private short drawOrder[] = { 0, 1, 2, 0, 3, 2, 0 }; //Order to draw vertices
     private short drawOrder2[] = { 0 + 4, 1 + 4, 2 + 4, 0 + 4, 3 + 4, 2 + 4, 0 + 4 }; //Order to draw vertices
+    private short drawOrder3[] = { 0 + 8, 1 + 8, 2 + 8, 0 + 8, 3 + 8, 2 + 8, 0 + 8 }; //Order to draw vertices
+    private short drawOrder4[] = { 0 + 16, 1 + 16, 2 + 16, 0 + 16, 3 + 16, 2 + 16, 0 + 16 }; //Order to draw vertices
+
     private final int vertexStride = COORDS_PER_VERTEX * 4; //Bytes per vertex
 
     // Set color with red, green, blue and alpha (opacity) values
@@ -127,18 +146,38 @@ float color[] = { 1f, 0f, 0f, 1.0f };
 //                        0.5f, -0.5f,
 //                        0.5f,  0.5f
 
+//                        -1.22666f,  1f, 0f,  // top left
+//                        -1.22666f, -1f, 0f,   // bottom left
+//                        1.22666f, -1f, 0f,  // bottom right
+//                        1.22666f,  1f, 0f,
+
+//368 + 368 + 368 + 320
+// 0.258426966 + 0.258426966 + 0.258426966 + 0.224719101
                         //0.534883721 -> x fore
+                        //Sprite Foreground
+                        0.0f, 0.0f, // top left
+                        0.0f, 1.0f, // bottom left
+                        0.258426966f, 1.0f, // bottom right
+                        0.258426966f, 0.0f, //top right
+
                         //Foreground
-                        0.0f, 0.0f,
-                        0.0f, 1.0f,
-                        0.53488f, 1.0f,
-                        0.53488f, 0.0f,
+                        0.258426966f, 0.0f, // top left
+                        0.258426966f, 1.0f, // bottom left
+                        0.516853932f, 1.0f, // bottom right
+                        0.516853932f, 0.0f, //top right
+
+                        //Sprite Background
+                        0.516853932f, 0.0f, // top left
+                        0.516853932f, 1.0f, // bottom left
+                        0.775280898f, 1.0f, // bottom right
+                        0.775280898f, 0.0f, //top right
+
 
                         //Background
-                        0.53488f, 0.166666f,
-                        0.53488f, 0.833333f,
-                        1.0f, 0.833333f,
-                        1.0f, 0.166666f
+                        0.775280898f, 0.166666f, // top left
+                        0.775280898f, 0.833333f, // bottom left
+                        1.0f, 0.833333f, // bottom right
+                        1.0f, 0.166666f //top right
 
 //TODO
                 };
@@ -159,6 +198,18 @@ float color[] = { 1f, 0f, 0f, 1.0f };
         drawListBuffer2 = dlb2.asShortBuffer();
         drawListBuffer2.put(drawOrder2);
         drawListBuffer2.position(0);
+
+        ByteBuffer dlb3 = ByteBuffer.allocateDirect(spriteCoords.length * 2);
+        dlb3.order(ByteOrder.nativeOrder());
+        drawListBuffer3 = dlb3.asShortBuffer();
+        drawListBuffer3.put(drawOrder3);
+        drawListBuffer3.position(0);
+
+        ByteBuffer dlb4 = ByteBuffer.allocateDirect(spriteCoords.length * 2);
+        dlb4.order(ByteOrder.nativeOrder());
+        drawListBuffer4 = dlb4.asShortBuffer();
+        drawListBuffer4.put(drawOrder4);
+        drawListBuffer4.position(0);
 
 
         int vertexShader = MyGL20Renderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
@@ -230,6 +281,8 @@ float color[] = { 1f, 0f, 0f, 1.0f };
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
         //Draw the triangle
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder4.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer4);
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder3.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer3);
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder2.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer2);
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
 
@@ -271,7 +324,7 @@ float color[] = { 1f, 0f, 0f, 1.0f };
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
             buffer.rewind();
-            Bitmap c64bitmap = Bitmap.createBitmap(368+320,300,Bitmap.Config.ARGB_8888);
+            Bitmap c64bitmap = Bitmap.createBitmap(368+368+368+320,300,Bitmap.Config.ARGB_8888);
              c64bitmap.copyPixelsFromBuffer(buffer);
             // Load the bitmap into the bound texture.
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, c64bitmap, 0);
