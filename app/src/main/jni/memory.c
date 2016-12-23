@@ -411,6 +411,13 @@ void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject 
   attachNewTape(tape_image, &tape_timer);
 }
 
+void Java_com_johan_emulator_engine_Emu6502_clearDisplayBuffer(JNIEnv* env, jobject pObj) {
+  int i;
+  for (i = 0; i < 206400; i++) {
+    g_buffer[i] = 0;
+  }
+}
+
 
 jcharArray
 Java_com_johan_emulator_engine_Emu6502_dump(JNIEnv* pEnv, jobject pObj)

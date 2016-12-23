@@ -60,6 +60,7 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer
 
     public void onDrawFrame(GL10 unused)
     {
+        //System.out.println(System.currentTimeMillis());
 //        try {
 //            Thread.sleep(20);
 //        } catch (InterruptedException e) {
@@ -100,11 +101,11 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer
         //Draw Shape
         //triangle.Draw(mMVPMatrix);
 //        System.out.println("progress");
-        byteBuffer.rewind();
-        for (int i = 0; i < byteBuffer.limit(); i++) {
-            byteBuffer.put((byte) 0);
-        }
-        byteBuffer.rewind();
+//        long timeStart = System.currentTimeMillis();
+        emuInstance.clearDisplayBuffer();
+//        long timeEnd = System.currentTimeMillis();
+//        long duration = timeEnd - timeStart;
+//        System.out.println("Duration: " + duration);
         emuInstance.runBatch(0);
 //        System.out.println("after batch");
         sprite.Draw(mMVPMatrix, byteBuffer);
