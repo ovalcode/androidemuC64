@@ -104,7 +104,7 @@ public class Sprite
     private short drawOrder[] = { 0, 1, 2, 0, 3, 2, 0 }; //Order to draw vertices
     private short drawOrder2[] = { 0 + 4, 1 + 4, 2 + 4, 0 + 4, 3 + 4, 2 + 4, 0 + 4 }; //Order to draw vertices
     private short drawOrder3[] = { 0 + 8, 1 + 8, 2 + 8, 0 + 8, 3 + 8, 2 + 8, 0 + 8 }; //Order to draw vertices
-    private short drawOrder4[] = { 0 + 16, 1 + 16, 2 + 16, 0 + 16, 3 + 16, 2 + 16, 0 + 16 }; //Order to draw vertices
+    private short drawOrder4[] = { 0 + 12, 1 + 12, 2 + 12, 0 + 12, 3 + 12, 2 + 12, 0 + 12 }; //Order to draw vertices
 
     private final int vertexStride = COORDS_PER_VERTEX * 4; //Bytes per vertex
 
