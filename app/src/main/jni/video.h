@@ -7,6 +7,16 @@
 
 #endif //MY_APPLICATION_VIDEO_H
 
+struct sprite_data_struct {
+    int sprite_data;
+    int sprite_type; //bit 1: xExpanded bit 0: multicolor
+    int isForegroundSprite;
+    int color_tablet[4];
+    int sprite_x_pos;
+    int number_pixels_to_draw;   
+};
+
+
 struct timer_struct getVideoInstance();
 void initialise_video();
 int read_vic_int_reg ();

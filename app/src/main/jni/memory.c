@@ -428,4 +428,45 @@ Java_com_johan_emulator_engine_Emu6502_dump(JNIEnv* pEnv, jobject pObj)
   return result;
 }
 
+int processSprite(int spriteNum, int lineNumber) {
+  if (!(IOUnclaimed[0x15] & (1 << spriteNum)))
+    return 0;
+
+  int spriteY = IOUnclaimed[(spriteNum << 1) | 1];
+  int yExpanded = IOUnclaimed[0x15] & (1 << spriteNum);
+  int ySpriteDimension = yExpanded ? 42 : 21;
+  int spriteYMax = spriteY + ySpriteDimension;
+
+  if (!((lineNumber >= spriteY) && (lineNumber < spriteYMax)))
+    return 0;
+
+  int spriteX = (IOUnclaimed[spriteNum << 1] & 0xff) ;
+  if (IOUnclaimed[0x10] & (1 << spriteNum))
+    spriteX = 256 | spriteX;
+
+  if (spriteX > 367)
+    return 0;
+
+  int xExpanded = IOUnclaimed[0x1d] & (1 << spriteNum);
+  int xSpriteDimension = xExpanded ? 48 : 24;
+  int spriteXMax = spriteX + xSpriteDimension;
+  spriteXMax = (spriteXMax > 367) ? 367 : spriteXMax;
+  //d027 -> color sprite 0
+  //multi color
+  //00 transparent
+  //01 use color in d025
+  //10 use sprite color
+  //11 use color in d026
+
+  //return three byte sprite data
+  //return 2 bit number -> first bit whether x expanded
+   //       -> second bit whether sprite multicolor
+  //whether foreground or background sprite
+  //return four color tablet
+  //return range to populate
+  //NB!! for multicolor check even vs uneven
+  //  multicolor -> align two pixels
+  // multi color expanded -> align four pixels
+}
+
 
