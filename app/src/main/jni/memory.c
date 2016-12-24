@@ -428,7 +428,7 @@ Java_com_johan_emulator_engine_Emu6502_dump(JNIEnv* pEnv, jobject pObj)
   return result;
 }
 
-int processSprite(int spriteNum, int lineNumber) {
+int processSprite(int spriteNum, int lineNumber, struct sprite_data_struct * sprite_data) {
   if (!(IOUnclaimed[0x15] & (1 << spriteNum)))
     return 0;
 
@@ -440,7 +440,7 @@ int processSprite(int spriteNum, int lineNumber) {
   if (!((lineNumber >= spriteY) && (lineNumber < spriteYMax)))
     return 0;
 
-  int spriteX = (IOUnclaimed[spriteNum << 1] & 0xff) ;
+  int spriteX = (IOUnclaimed[spriteNum << 1] & 0xff);
   if (IOUnclaimed[0x10] & (1 << spriteNum))
     spriteX = 256 | spriteX;
 
@@ -450,7 +450,45 @@ int processSprite(int spriteNum, int lineNumber) {
   int xExpanded = IOUnclaimed[0x1d] & (1 << spriteNum);
   int xSpriteDimension = xExpanded ? 48 : 24;
   int spriteXMax = spriteX + xSpriteDimension;
-  spriteXMax = (spriteXMax > 367) ? 367 : spriteXMax;
+
+  if (spriteXMax > 367)
+    xSpriteDimension = 368 - spriteX;
+
+  sprite_data->sprite_x_pos = spriteX;
+  sprite_data->number_pixels_to_draw = xSpriteDimension;
+  sprite_data->sprite_type = 0;
+  if (xExpanded)
+    sprite_data->sprite_type = sprite_data->sprite_type | 2;
+
+  if (IOUnclaimed[0x1c] & (1 << spriteNum)) {
+    sprite_data->sprite_type = sprite_data->sprite_type | 1;
+    sprite_data->color_tablet[1] = IOUnclaimed[0x25] & 0xf;
+    sprite_data->color_tablet[2] = IOUnclaimed[0x27 + spriteNum] & 0xf;
+    sprite_data->color_tablet[3] = IOUnclaimed[0x26] & 0xf;
+  } else {
+    sprite_data->color_tablet[1] = IOUnclaimed[0x27 + spriteNum] & 0xf;
+  }
+
+  if (IOUnclaimed[0x1b] & (1 << spriteNum))
+    sprite_data->isForegroundSprite = IOUnclaimed[0x1b] & (1 << spriteNum) ? 0 : 1;
+
+  int memPointer = IOUnclaimed[0x18];
+  int spritePointerAddress = memPointer & 0xf0;
+  spritePointerAddress = spritePointerAddress << 6;
+
+  spritePointerAddress = ((~IOUnclaimed[0xd00] & 3) << 14) | spritePointerAddress;
+  spritePointerAddress = spritePointerAddress + 0x400 -8 + spriteNum;
+  int spriteBaseAddress = mainMem[spritePointerAddress] << 6;
+
+
+  int spriteLineNumber = lineNumber - spriteY;
+
+  if (yExpanded)
+    spriteLineNumber = spriteLineNumber >> 1;
+
+  int posInSpriteData = (spriteLineNumber << 1) + (spriteLineNumber);
+  sprite_data->sprite_data = (mainMem[posInSpriteData + 0] << 16) | (mainMem[posInSpriteData + 1] << 8)
+          | (mainMem[posInSpriteData + 2] << 0);
   //d027 -> color sprite 0
   //multi color
   //00 transparent

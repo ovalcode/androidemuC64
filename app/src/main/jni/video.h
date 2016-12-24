@@ -13,7 +13,7 @@ struct sprite_data_struct {
     int isForegroundSprite;
     int color_tablet[4];
     int sprite_x_pos;
-    int number_pixels_to_draw;   
+    int number_pixels_to_draw;
 };
 
 
