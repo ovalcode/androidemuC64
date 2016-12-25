@@ -223,6 +223,17 @@ static inline void drawScreenLineMultiColorBitmap() {
   }
 }
 
+void processSprites() {
+  int i;
+  struct sprite_data_struct currentSpriteData;
+  for (i = 0; i < 8; i++) {
+    int currentSpriteNum = 7 - i;
+    if (processSprite(currentSpriteNum, line_count, currentSpriteData)) {
+
+    }
+  }
+}
+
 
 static inline void processLine() {
   if (line_count > 299)

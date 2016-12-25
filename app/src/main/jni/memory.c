@@ -489,6 +489,8 @@ int processSprite(int spriteNum, int lineNumber, struct sprite_data_struct * spr
   int posInSpriteData = (spriteLineNumber << 1) + (spriteLineNumber);
   sprite_data->sprite_data = (mainMem[posInSpriteData + 0] << 16) | (mainMem[posInSpriteData + 1] << 8)
           | (mainMem[posInSpriteData + 2] << 0);
+
+  return 1;
   //d027 -> color sprite 0
   //multi color
   //00 transparent
