@@ -166,15 +166,23 @@ static inline void drawScreenLineMultiColorText() {
             int pixelSet = bitmapDataRow & 0xc0;
             pixelSet = pixelSet >> 6;
 
-            g_buffer[posInFrontBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
-            posInFrontBuffer++;
-            posInBackgroundBuffer++;
+            if (pixelSet > 1) {
+              g_buffer[posInFrontBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
+              posInFrontBuffer++;
+              posInBackgroundBuffer++;
 
+              g_buffer[posInFrontBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
+              posInFrontBuffer++;
+              posInBackgroundBuffer++;
+            } else {
+              g_buffer[posInBackgroundBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
+              posInFrontBuffer++;
+              posInBackgroundBuffer++;
 
-            g_buffer[posInFrontBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
-            posInFrontBuffer++;
-            posInBackgroundBuffer++;
-
+              g_buffer[posInBackgroundBuffer] = colors_RGB_8888[color_tablet[pixelSet]];
+              posInFrontBuffer++;
+              posInBackgroundBuffer++;
+            }
 
             bitmapDataRow = bitmapDataRow << 2;
           }
@@ -346,6 +354,7 @@ static inline void processLine() {
   fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);
   int screenEnabled = (memory_unclaimed_io_read(0xd011) & 0x10) ? 1 : 0;
   if (screenLineRegion && screenEnabled) {
+    processSprites();
     jchar bitmapMode = (memory_unclaimed_io_read(0xd011) & 0x20) ? 1 : 0;
     jchar multiColorMode = (memory_unclaimed_io_read(0xd016) & 0x10) ? 1 : 0;
     jchar screenMode = (bitmapMode << 1) | (multiColorMode);
