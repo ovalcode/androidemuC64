@@ -6,9 +6,12 @@
 #include <jni.h>
 #include <alarm.h>
 #include <memory.h>
+#include <video.h>
 
 int line_count = 0;
 int startOfLineTxtBuffer = 0;
+int startOfFrontSpriteBuffer = 0;
+int startOfBackgroundSpriteBuffer = 0;
 int posInFrontBuffer = 0;
 int posInBackgroundBuffer = 0;
 int posInCharMem = 0;
@@ -16,6 +19,13 @@ int screenLineRegion = 0;
 extern jchar charRom[4096];
 extern jint* g_buffer;
 extern int frameFinished;
+
+void (*spriteFunctions[4]) (struct sprite_data_struct spriteData);
+
+void drawExpandedMulticolorSpriteLine(struct sprite_data_struct spriteData);
+void drawUnExpandedMulticolorSpriteLine(struct sprite_data_struct spriteData);
+void drawExpandedNormalSpriteLine(struct sprite_data_struct spriteData);
+void drawUnExpandedNormalSpriteLine(struct sprite_data_struct spriteData);
 
 #define STRIDE 368 + 368 + 368 + 320
 
@@ -60,6 +70,11 @@ void initialise_video() {
     colors_RGB_8888[i] = (255 << 24) | (colors_RGB_888[i][2] << 16) | (colors_RGB_888[i][1] << 8) | (colors_RGB_888[i][0] << 0);
     //colors_RGB_8888[i] = (255);
   }
+
+  spriteFunctions[0] = &drawUnExpandedNormalSpriteLine;
+  spriteFunctions[1] = &drawUnExpandedMulticolorSpriteLine;
+  spriteFunctions[2] = &drawExpandedNormalSpriteLine;
+  spriteFunctions[3] = &drawExpandedMulticolorSpriteLine;
 }
 
 inline void fillColor(int count, int colorEntryNumber) {
@@ -223,13 +238,95 @@ static inline void drawScreenLineMultiColorBitmap() {
   }
 }
 
+void drawUnExpandedNormalSpriteLine(struct sprite_data_struct currentSpriteData) {
+      int currentPosInSpriteBuffer;
+      if (currentSpriteData.isForegroundSprite)
+        currentPosInSpriteBuffer = startOfFrontSpriteBuffer;
+      else
+        currentPosInSpriteBuffer = startOfBackgroundSpriteBuffer;
+      currentPosInSpriteBuffer = currentPosInSpriteBuffer + currentSpriteData.sprite_x_pos;
+      int j;
+      int spriteData = currentSpriteData.sprite_data;
+      for (j = currentPosInSpriteBuffer; j < (currentPosInSpriteBuffer + currentSpriteData.number_pixels_to_draw); j++) {
+        if (spriteData & 0x800000) {
+          g_buffer[currentPosInSpriteBuffer] = colors_RGB_8888[currentSpriteData.color_tablet[1]];
+        }
+        spriteData = (spriteData << 1) & 0xffffff;
+      }
+
+}
+
+void drawExpandedNormalSpriteLine(struct sprite_data_struct currentSpriteData) {
+      int currentPosInSpriteBuffer;
+      if (currentSpriteData.isForegroundSprite)
+        currentPosInSpriteBuffer = startOfFrontSpriteBuffer;
+      else
+        currentPosInSpriteBuffer = startOfBackgroundSpriteBuffer;
+      currentPosInSpriteBuffer = currentPosInSpriteBuffer + currentSpriteData.sprite_x_pos;
+      int j;
+      int spriteData = currentSpriteData.sprite_data;
+      for (j = 0; j < (currentSpriteData.number_pixels_to_draw >> 1); j++) {
+        if (spriteData & 0x800000) {
+          g_buffer[currentPosInSpriteBuffer + 0] = colors_RGB_8888[currentSpriteData.color_tablet[1]];
+          g_buffer[currentPosInSpriteBuffer + 1] = colors_RGB_8888[currentSpriteData.color_tablet[1]];
+        }
+        currentPosInSpriteBuffer = currentPosInSpriteBuffer + 2;
+        spriteData = (spriteData << 1) & 0xffffff;
+      }
+
+}
+
+void drawUnExpandedMulticolorSpriteLine(struct sprite_data_struct currentSpriteData) {
+      int currentPosInSpriteBuffer;
+      if (currentSpriteData.isForegroundSprite)
+        currentPosInSpriteBuffer = startOfFrontSpriteBuffer;
+      else
+        currentPosInSpriteBuffer = startOfBackgroundSpriteBuffer;
+      currentPosInSpriteBuffer = currentPosInSpriteBuffer + currentSpriteData.sprite_x_pos;
+      int j;
+      int spriteData = currentSpriteData.sprite_data;
+      for (j = 0; j < (currentSpriteData.number_pixels_to_draw >> 1); j++) {
+        int pixels = (spriteData & 0xC00000) >> 22;
+        if (pixels > 0) {
+          g_buffer[currentPosInSpriteBuffer + 0] = colors_RGB_8888[currentSpriteData.color_tablet[pixels]];
+          g_buffer[currentPosInSpriteBuffer + 1] = colors_RGB_8888[currentSpriteData.color_tablet[pixels]];
+        }
+        currentPosInSpriteBuffer = currentPosInSpriteBuffer + 2;
+        spriteData = (spriteData << 2) & 0xffffff;
+      }
+
+}
+
+void drawExpandedMulticolorSpriteLine(struct sprite_data_struct currentSpriteData) {
+      int currentPosInSpriteBuffer;
+      if (currentSpriteData.isForegroundSprite)
+        currentPosInSpriteBuffer = startOfFrontSpriteBuffer;
+      else
+        currentPosInSpriteBuffer = startOfBackgroundSpriteBuffer;
+      currentPosInSpriteBuffer = currentPosInSpriteBuffer + currentSpriteData.sprite_x_pos;
+      int j;
+      int spriteData = currentSpriteData.sprite_data;
+      for (j = 0; j < (currentSpriteData.number_pixels_to_draw >> 2); j++) {
+        int pixels = (spriteData & 0xC00000) >> 22;
+        if (pixels > 0) {
+          g_buffer[currentPosInSpriteBuffer + 0] = colors_RGB_8888[currentSpriteData.color_tablet[pixels]];
+          g_buffer[currentPosInSpriteBuffer + 1] = colors_RGB_8888[currentSpriteData.color_tablet[pixels]];
+          g_buffer[currentPosInSpriteBuffer + 2] = colors_RGB_8888[currentSpriteData.color_tablet[pixels]];
+          g_buffer[currentPosInSpriteBuffer + 3] = colors_RGB_8888[currentSpriteData.color_tablet[pixels]];
+        }
+        currentPosInSpriteBuffer = currentPosInSpriteBuffer + 4;
+        spriteData = (spriteData << 2) & 0xffffff;
+      }
+
+}
+
 void processSprites() {
   int i;
   struct sprite_data_struct currentSpriteData;
   for (i = 0; i < 8; i++) {
     int currentSpriteNum = 7 - i;
-    if (processSprite(currentSpriteNum, line_count, currentSpriteData)) {
-
+    if (processSprite(currentSpriteNum, line_count, &currentSpriteData)) {
+      spriteFunctions[currentSpriteData.sprite_type] (currentSpriteData);
     }
   }
 }
@@ -241,6 +338,9 @@ static inline void processLine() {
 
   posInFrontBuffer = startOfLineTxtBuffer + 368;
   posInBackgroundBuffer = startOfLineTxtBuffer + 368 + 368 + 368;
+
+  startOfFrontSpriteBuffer = startOfLineTxtBuffer;
+  startOfBackgroundSpriteBuffer = startOfLineTxtBuffer + 368 + 368;
 
   updatelineCharPos();
   fillColor(24, memory_unclaimed_io_read(0xd020) & 0xf);
