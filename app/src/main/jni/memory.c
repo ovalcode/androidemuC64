@@ -306,7 +306,7 @@ void Java_com_johan_emulator_engine_Emu6502_setFireButton(JNIEnv* pEnv, jobject 
 
 void Java_com_johan_emulator_engine_Emu6502_setJoystickDirectionButton(JNIEnv* pEnv, jobject pObj, jint fireButtonStatus) {
   //start at north, then goes clockwise till again at north
-  joystickStatus = joystickStatus & 0xf8;
+  joystickStatus = joystickStatus & 0xf0;
   switch (fireButtonStatus) {
     case 0: //North
       joystickStatus = joystickStatus | JOYSTICK_UP;
@@ -433,7 +433,7 @@ int processSprite(int spriteNum, int lineNumber, struct sprite_data_struct * spr
     return 0;
 
   int spriteY = IOUnclaimed[(spriteNum << 1) | 1];
-  int yExpanded = IOUnclaimed[0x15] & (1 << spriteNum);
+  int yExpanded = IOUnclaimed[0x17] & (1 << spriteNum);
   int ySpriteDimension = yExpanded ? 42 : 21;
   int spriteYMax = spriteY + ySpriteDimension;
 
@@ -486,7 +486,7 @@ int processSprite(int spriteNum, int lineNumber, struct sprite_data_struct * spr
   if (yExpanded)
     spriteLineNumber = spriteLineNumber >> 1;
 
-  int posInSpriteData = (spriteLineNumber << 1) + (spriteLineNumber);
+  int posInSpriteData = (spriteLineNumber << 1) + (spriteLineNumber) + spriteBaseAddress;
   sprite_data->sprite_data = (mainMem[posInSpriteData + 0] << 16) | (mainMem[posInSpriteData + 1] << 8)
           | (mainMem[posInSpriteData + 2] << 0);
 

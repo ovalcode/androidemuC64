@@ -255,11 +255,13 @@ void drawUnExpandedNormalSpriteLine(struct sprite_data_struct currentSpriteData)
       currentPosInSpriteBuffer = currentPosInSpriteBuffer + currentSpriteData.sprite_x_pos;
       int j;
       int spriteData = currentSpriteData.sprite_data;
-      for (j = currentPosInSpriteBuffer; j < (currentPosInSpriteBuffer + currentSpriteData.number_pixels_to_draw); j++) {
+      int upperLimit = currentPosInSpriteBuffer + currentSpriteData.number_pixels_to_draw;
+      for (j = currentPosInSpriteBuffer; j < (upperLimit); j++) {
         if (spriteData & 0x800000) {
           g_buffer[currentPosInSpriteBuffer] = colors_RGB_8888[currentSpriteData.color_tablet[1]];
         }
         spriteData = (spriteData << 1) & 0xffffff;
+        currentPosInSpriteBuffer++;
       }
 
 }
