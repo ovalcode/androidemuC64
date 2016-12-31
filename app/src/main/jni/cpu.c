@@ -3,10 +3,10 @@
 //
 
 #include <jni.h>
+#include <video.h>
 #include <memory.h>
 
 #include <interrupts.h>
-#include <video.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <alarm.h>

@@ -5,8 +5,9 @@
 #include <stdbool.h>
 #include <jni.h>
 #include <alarm.h>
-#include <memory.h>
 #include <video.h>
+#include <memory.h>
+
 
 int line_count = 0;
 int startOfLineTxtBuffer = 0;

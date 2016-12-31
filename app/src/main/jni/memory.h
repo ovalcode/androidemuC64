@@ -13,3 +13,4 @@ void memory_read_batch(int *batch, int address, int count);
 void memory_read_batch_io_unclaimed(int *batch, int address, int count);
 jchar memory_unclaimed_io_read(int address);
 jchar memory_read_vic_model(int address);
+int processSprite(int spriteNum, int lineNumber, struct sprite_data_struct * sprite_data);
