@@ -38,6 +38,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -54,6 +55,7 @@ public class FrontActivity extends AppCompatActivity {
     private ByteBuffer mTape;
     private ByteBuffer keyBoardMatrix;
     private Keyboard.Key shiftKey;
+    private ArrayList<String> sidActivity;
 //    private Bitmap mBitmap;
     private Paint paint;
     private DrawFilter filter;
@@ -97,6 +99,7 @@ public class FrontActivity extends AppCompatActivity {
 
                  ) * (300) * 4);
         //mByteBuffer.order(ByteOrder.nativeOrder());
+        emuInstance.setsidLogger(this);
         keyBoardMatrix = ByteBuffer.allocateDirect(8);
         emuInstance.setKeyboardMatrix(keyBoardMatrix);
         myRenderer.setEmuInstance(emuInstance);
@@ -219,6 +222,10 @@ public class FrontActivity extends AppCompatActivity {
                 .setMessage(result+"")
                 .setPositiveButton("Yes",null)
                 .show();
+    }
+
+    public void addSIDActivity(int number, int number2) {
+        System.out.println(number +" " + number2);
     }
 
     @Override

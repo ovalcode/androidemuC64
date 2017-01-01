@@ -45,6 +45,11 @@ jchar kernalROM[8192];
 jchar IOUnclaimed[4096];
 jint* g_buffer;
 jbyte* keyboardMatrix;
+jobject currentActivity;
+JNIEnv* global_env = NULL;
+//JNIEnv* env;
+
+JavaVM* gJavaVM = NULL;
 extern int line_count;
 
 struct timer_struct timerA;
@@ -257,6 +262,17 @@ void memory_write(int address, jchar value) {
   //     ((address >= 0xe000) && (address < 0x10000)))
   //  return;
 
+  //JNIEnv *env;
+  if (global_env == NULL) {
+    (*gJavaVM)->AttachCurrentThread (gJavaVM, &global_env, NULL);
+  }
+  jclass thisClass = (*global_env)->GetObjectClass(global_env,currentActivity);
+  jmethodID callAddSid = (*global_env)->GetMethodID(global_env, thisClass, "addSIDActivity", "(II)V");
+  (*global_env)->CallVoidMethod(global_env, currentActivity, callAddSid,11,2);
+
+  (*global_env)->DeleteLocalRef(global_env, thisClass);
+
+  //(*gJavaVM)->DetachCurrentThread(gJavaVM);
   if (address == 1)
     write_port_1(value);
   else if ((address >=0xd000) && (address < 0xe000) && IOEnabled()) {
@@ -373,6 +389,19 @@ void Java_com_johan_emulator_engine_Emu6502_populateFrame(JNIEnv* pEnv, jobject 
     }
     posInBuffer = posInBuffer + 320;
   }
+}
+
+jint JNI_OnLoad(JavaVM* aVm, void* aReserved) {
+  gJavaVM = aVm;
+
+  //JNIEnv* env;
+  //aVm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
+  return JNI_VERSION_1_6;
+}
+
+void Java_com_johan_emulator_engine_Emu6502_setsidLogger(JNIEnv* env, jobject pObj, jobject activity) {
+
+  currentActivity = (*env)->NewGlobalRef(env,activity);
 }
 
 

@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import android.widget.EditText;
 
 import com.johan.emulator.R;
+import com.johan.emulator.activities.FrontActivity;
 
 /**
  * Created by johan on 2016/10/15.
@@ -252,6 +253,7 @@ public class Emu6502 {
     public static native void resetCpu();
     public static native void setFireButton(int fireButtonStatus);
     public static native void setJoystickDirectionButton(int directionStatus);
+    public static native void setsidLogger(FrontActivity activity);
 
     private native char getZeroFlag();
     private native char getNegativeFlag();
