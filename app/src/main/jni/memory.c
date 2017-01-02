@@ -51,6 +51,8 @@ JNIEnv* global_env = NULL;
 
 JavaVM* gJavaVM = NULL;
 extern int line_count;
+extern int cyclesInFrame;
+extern int numberFrames;
 
 struct timer_struct timerA;
 struct timer_struct timerB;
@@ -206,8 +208,8 @@ void logSID (int type, int address, int value) {
     (*gJavaVM)->AttachCurrentThread (gJavaVM, &global_env, NULL);
   }
   jclass thisClass = (*global_env)->GetObjectClass(global_env,currentActivity);
-  jmethodID callAddSid = (*global_env)->GetMethodID(global_env, thisClass, "addSIDActivity", "(III)V");
-  (*global_env)->CallVoidMethod(global_env, currentActivity, callAddSid,type, address, value);
+  jmethodID callAddSid = (*global_env)->GetMethodID(global_env, thisClass, "addSIDActivity", "(IIIII)V");
+  (*global_env)->CallVoidMethod(global_env, currentActivity, callAddSid,numberFrames, cyclesInFrame, type, address, value);
 
   (*global_env)->DeleteLocalRef(global_env, thisClass);
 

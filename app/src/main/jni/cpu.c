@@ -102,8 +102,9 @@
     int breakFlag = 1;
     int interruptFlag = 0;
     int decimalFlag = 0;
-    int remainingCycles;
+    int cyclesInFrame;
     int currentCycles;
+    int numberFrames = 0;
 
 void updateFlags(jchar value) {
     zeroFlag = (value == 0) ? 1 : 0;
@@ -351,7 +352,7 @@ unsigned char sbcDecimal(unsigned char operand) {
       process_interrupts();
       opcode = memory_read(pc);
       currentCycles = instructionCycles[opcode];
-      remainingCycles -= currentCycles;
+      cyclesInFrame += currentCycles;
       pc = pc + 1;
       int iLen = instructionLengths[opcode];
       arg1 = 0;
@@ -1383,7 +1384,7 @@ void processAlarms() {
 }
 
 int runBatch(int address) {
-  //remainingCycles = 20000;
+  cyclesInFrame = 0;
   frameFinished = 0;
   int lastResult = 0;
   while ((!frameFinished) && (lastResult == 0)) {
@@ -1398,6 +1399,7 @@ int runBatch(int address) {
     //memory_write(0xd012, (remainingCycles < 50) ? 0 : 1);
   }
 
+  numberFrames++;
   return lastResult;
 }
 
