@@ -224,8 +224,11 @@ public class FrontActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void addSIDActivity(int number, int number2) {
-        System.out.println(number +" " + number2);
+    public void addSIDActivity(int number, int number2, int number3) {
+//        System.out.println(number +" " + number2 + " " + number3);
+        if (sidActivity == null)
+            sidActivity = new ArrayList<String>();
+        sidActivity.add(number +" " + number2 + " " + number3);
     }
 
     @Override

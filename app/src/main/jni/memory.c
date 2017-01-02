@@ -201,6 +201,20 @@ jchar memory_unclaimed_io_read(int address) {
   return IOUnclaimed[address];
 }
 
+void logSID (int type, int address, int value) {
+  if (global_env == NULL) {
+    (*gJavaVM)->AttachCurrentThread (gJavaVM, &global_env, NULL);
+  }
+  jclass thisClass = (*global_env)->GetObjectClass(global_env,currentActivity);
+  jmethodID callAddSid = (*global_env)->GetMethodID(global_env, thisClass, "addSIDActivity", "(III)V");
+  (*global_env)->CallVoidMethod(global_env, currentActivity, callAddSid,type, address, value);
+
+  (*global_env)->DeleteLocalRef(global_env, thisClass);
+
+  //(*gJavaVM)->DetachCurrentThread(gJavaVM);
+
+}
+
 jchar memory_read(int address) {
   if ((address >=0xa000) && (address < 0xc000) && basicROMEnabled())
     return basicROM[address & 0x1fff];
@@ -220,6 +234,11 @@ jchar memory_read(int address) {
       return line_count & 0xff;
     else if (address == 0xd019)
       return read_vic_int_reg();
+    else if ((address >=0xd400) & (address < 0xd800)) {
+      logSID(0, address, 0);
+      return IOUnclaimed[address & 0xfff];
+    }
+
     else
       return IOUnclaimed[address & 0xfff];
   }
@@ -263,16 +282,6 @@ void memory_write(int address, jchar value) {
   //  return;
 
   //JNIEnv *env;
-  if (global_env == NULL) {
-    (*gJavaVM)->AttachCurrentThread (gJavaVM, &global_env, NULL);
-  }
-  jclass thisClass = (*global_env)->GetObjectClass(global_env,currentActivity);
-  jmethodID callAddSid = (*global_env)->GetMethodID(global_env, thisClass, "addSIDActivity", "(II)V");
-  (*global_env)->CallVoidMethod(global_env, currentActivity, callAddSid,11,2);
-
-  (*global_env)->DeleteLocalRef(global_env, thisClass);
-
-  //(*gJavaVM)->DetachCurrentThread(gJavaVM);
   if (address == 1)
     write_port_1(value);
   else if ((address >=0xd000) && (address < 0xe000) && IOEnabled()) {
@@ -280,6 +289,10 @@ void memory_write(int address, jchar value) {
       cia1_write(address, value);
     else if (address == 0xd019)
       write_vic_int_reg(value);
+    else if ((address >=0xd400) & (address < 0xd800)) {
+      IOUnclaimed[address & 0xfff] = value;
+      logSID(1, address, value);
+    }
     else
       IOUnclaimed[address & 0xfff] = value;
   }
