@@ -25,13 +25,8 @@
  *  - Lots of empirically determined constants in the filter calculations
  */
 
-#include "sysdeps.h"
 #include <math.h>
-
-#include "SID.h"
-#include "Prefs.h"
-#include "C64.h"
-
+#include <stdint.h>
 
 
 #ifdef USE_FIXPOINT_MATHS
@@ -59,18 +54,18 @@
  *  Random number generator for noise waveform
  */
 
-static uint8 sid_random(void);
-static uint8 sid_random(void)
+static uint8_t sid_random(void);
+static uint8_t sid_random(void)
 {
-	static uint32 seed = 1;
+	static uint32_t seed = 1;
 	seed = seed * 1103515245 + 12345;
 	return seed >> 16;
 }
 
-const uint32 SAMPLE_FREQ = 44100;	// Sample output frequency in Hz
-const uint32 SID_FREQ = 985248;		// SID frequency in Hz
-const uint32 CALC_FREQ = 50;			// Frequency at which calc_buffer is called in Hz (should be 50Hz)
-const uint32 SID_CYCLES = SID_FREQ/SAMPLE_FREQ;	// # of SID clocks per sample frame
+const uint32_t SAMPLE_FREQ = 44100;	// Sample output frequency in Hz
+const uint32_t SID_FREQ = 985248;		// SID frequency in Hz
+const uint32_t CALC_FREQ = 50;			// Frequency at which calc_buffer is called in Hz (should be 50Hz)
+const uint32_t SID_CYCLES = SID_FREQ/SAMPLE_FREQ;	// # of SID clocks per sample frame
 const int SAMPLE_BUF_SIZE = 0x138*2;// Size of buffer for sampled voice (double buffered)
 
 // SID waveforms (some of them :-)
@@ -110,22 +105,22 @@ enum {
 struct DRVoice {
 	int wave;		// Selected waveform
 	int eg_state;	// Current state of EG
-	DRVoice *mod_by;	// Voice that modulates this one
-	DRVoice *mod_to;	// Voice that is modulated by this one
+	struct DRVoice *mod_by;	// Voice that modulates this one
+	struct DRVoice *mod_to;	// Voice that is modulated by this one
 
-	uint32 count;	// Counter for waveform generator, 8.16 fixed
-	uint32 add;		// Added to counter in every frame
+	uint32_t count;	// Counter for waveform generator, 8.16 fixed
+	uint32_t add;		// Added to counter in every frame
 
-	uint16 freq;		// SID frequency value
-	uint16 pw;		// SID pulse-width value
+	uint16_t freq;		// SID frequency value
+	uint16_t pw;		// SID pulse-width value
 
-	uint32 a_add;	// EG parameters
-	uint32 d_sub;
-	uint32 s_level;
-	uint32 r_sub;
-	uint32 eg_level;	// Current EG level, 8.16 fixed
+	uint32_t a_add;	// EG parameters
+	uint32_t d_sub;
+	uint32_t s_level;
+	uint32_t r_sub;
+	uint32_t eg_level;	// Current EG level, 8.16 fixed
 
-	uint32 noise;	// Last noise generator output value
+	uint32_t noise;	// Last noise generator output value
 
 	bool gate;		// EG gate bit
 	bool ring;		// Ring modulation bit
