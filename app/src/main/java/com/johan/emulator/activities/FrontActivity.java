@@ -129,6 +129,7 @@ public class FrontActivity extends AppCompatActivity {
         paint.setFilterBitmap(false);
 
         emuInstance.setFrameBuffer(mByteBuffer);
+        emuInstance.setMainActivityObject(this);
 
         // Create the Keyboard
         Keyboard mKeyboard= new Keyboard(this,R.xml.kbd);

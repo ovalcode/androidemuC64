@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import android.widget.EditText;
 
 import com.johan.emulator.R;
+import com.johan.emulator.activities.FrontActivity;
 
 /**
  * Created by johan on 2016/10/15.
@@ -243,6 +244,7 @@ public class Emu6502 {
     private static native void loadROMS (AssetManager pAssetManager);
     public native void attachNewTape(ByteBuffer buf);
     public native void togglePlay();
+    public native void setMainActivityObject(FrontActivity activity);
 
     private native char getAcc();
     private native char getXreg();

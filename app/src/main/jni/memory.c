@@ -52,6 +52,8 @@ JNIEnv* global_env = NULL;
 JavaVM* gJavaVM = NULL;
 extern int line_count;
 
+void WriteRegister(uint16_t adr, uint8_t byte);
+
 struct timer_struct timerA;
 struct timer_struct timerB;
 struct timer_struct tape_timer;
@@ -271,6 +273,10 @@ void memory_write(int address, jchar value) {
       cia1_write(address, value);
     else if (address == 0xd019)
       write_vic_int_reg(value);
+    else if ((address >=0xd400) & (address < 0xd800)) {
+      IOUnclaimed[address & 0xfff] = value;
+      WriteRegister(address & 0x1f, value & 0xff);
+    }
     else
       IOUnclaimed[address & 0xfff] = value;
   }
