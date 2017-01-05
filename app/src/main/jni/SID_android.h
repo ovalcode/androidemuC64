@@ -23,7 +23,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <jni.h>
-
+#include <android/log.h>
 
 /*
  *  Initialization
@@ -105,12 +105,15 @@ void EmulateLine()
 		to_output -= datalen;
 		calc_buffer(sound_buffer + buffer_pos, datalen*2);
 		
-		
+		__android_log_print(ANDROID_LOG_DEBUG, "Before array", "Before array");
 		if (!audioarray)
 		{
-			audioarray = (*global_env)->NewShortArray(global_env, sndbufsize*loop_n);
-		}
+		    jshortArray tempArrayRef =  (*global_env)->NewShortArray(global_env, sndbufsize*loop_n);
+		    __android_log_print(ANDROID_LOG_DEBUG, "In if statement", "In if statement");
 
+			audioarray = (*global_env)->NewGlobalRef(global_env,tempArrayRef);
+		}
+        __android_log_print(ANDROID_LOG_DEBUG, "hhhhhhhh", "aaaaaaaaa");
 		(*global_env)->SetShortArrayRegion(global_env, audioarray, loop_c*sndbufsize, sndbufsize, sound_buffer);
 		loop_c++;
 		if (loop_c == loop_n)

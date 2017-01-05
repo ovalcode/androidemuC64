@@ -53,6 +53,7 @@ JavaVM* gJavaVM = NULL;
 extern int line_count;
 
 void WriteRegister(uint16_t adr, uint8_t byte);
+void init_sound();
 
 struct timer_struct timerA;
 struct timer_struct timerB;
@@ -299,6 +300,7 @@ Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
   mainMem[1] = 7;
   init_sid();
   Reset();
+  init_sound();
 }
 
 
