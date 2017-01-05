@@ -8,6 +8,7 @@
 #include <video.h>
 #include <memory.h>
 
+void EmulateLine();
 
 int line_count = 0;
 int startOfLineTxtBuffer = 0;
@@ -344,6 +345,7 @@ void processSprites() {
 
 
 static inline void processLine() {
+  EmulateLine();
   if (line_count > 299)
     return;
 

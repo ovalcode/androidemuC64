@@ -399,7 +399,7 @@ void init_sid() {
  *  Reset emulation
  */
 
-void Reset(void)
+void Reset()
 {
 	volume = 0;
 
