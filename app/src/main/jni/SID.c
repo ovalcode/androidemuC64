@@ -713,23 +713,23 @@ void calc_buffer(int16_t *buf, long count)
 
 	count >>= 1;	// 16 bit mono output, count is in bytes
 
-	int16 y;
-	static int16 yy;
+	int16_t y;
+	static int16_t yy;
 	static int similar_count;
 	while (count--) {
 		// Get current master volume from sample buffer,
 		// calculate sampled voice
-		uint8 master_volume = sample_buf[(sample_count >> 16) % SAMPLE_BUF_SIZE];
+		uint8_t master_volume = sample_buf[(sample_count >> 16) % SAMPLE_BUF_SIZE];
 		sample_count += ((0x138 * 50) << 16) / SAMPLE_FREQ;
-		int32 sum_output = SampleTab[master_volume] << 8;
-		int32 sum_output_filter = 0;
+		int32_t sum_output = SampleTab[master_volume] << 8;
+		int32_t sum_output_filter = 0;
 
 		// Loop for all three voices
 		for (int j=0; j<3; j++) {
-			DRVoice *v = &voice[j];
+			struct DRVoice *v = &voice[j];
 
 			// Envelope generators
-			uint16 envelope;
+			uint16_t envelope;
 
 			switch (v->eg_state) {
 				case EG_ATTACK:
@@ -764,7 +764,7 @@ void calc_buffer(int16_t *buf, long count)
 			// Waveform generator
 			if (v->mute)
 				continue;
-			uint16 output;
+			uint16_t output;
 
 			if (!v->test)
 				v->count += v->add;
@@ -785,7 +785,7 @@ void calc_buffer(int16_t *buf, long count)
 					output = v->count >> 8;
 					break;
 				case WAVE_RECT:
-					if (v->count > (uint32)(v->pw << 12))
+					if (v->count > (uint32_t)(v->pw << 12))
 						output = 0xffff;
 					else
 						output = 0;
@@ -794,19 +794,19 @@ void calc_buffer(int16_t *buf, long count)
 					output = TriSawTable[v->count >> 16];
 					break;
 				case WAVE_TRIRECT:
-					if (v->count > (uint32)(v->pw << 12))
+					if (v->count > (uint32_t)(v->pw << 12))
 						output = TriRectTable[v->count >> 16];
 					else
 						output = 0;
 					break;
 				case WAVE_SAWRECT:
-					if (v->count > (uint32)(v->pw << 12))
+					if (v->count > (uint32_t)(v->pw << 12))
 						output = SawRectTable[v->count >> 16];
 					else
 						output = 0;
 					break;
 				case WAVE_TRISAWRECT:
-					if (v->count > (uint32)(v->pw << 12))
+					if (v->count > (uint32_t)(v->pw << 12))
 						output = TriSawRectTable[v->count >> 16];
 					else
 						output = 0;
@@ -823,16 +823,16 @@ void calc_buffer(int16_t *buf, long count)
 					break;
 			}
 			if (v->filter)
-				sum_output_filter += (int16)(output ^ 0x8000) * envelope;
+				sum_output_filter += (int16_t)(output ^ 0x8000) * envelope;
 			else
-				sum_output += (int16)(output ^ 0x8000) * envelope;
+				sum_output += (int16_t)(output ^ 0x8000) * envelope;
 		}
 
 		// Filter
 		if (ThePrefs.SIDFilters) {
 #ifdef USE_FIXPOINT_MATHS
-			int32 xn = cf_ampl.imul(sum_output_filter);
-			int32 yn = xn+cd1.imul(xn1)+cd2.imul(xn2)-cg1.imul(yn1)-cg2.imul(yn2);
+			int32_t xn = cf_ampl.imul(sum_output_filter);
+			int32_t yn = xn+cd1.imul(xn1)+cd2.imul(xn2)-cg1.imul(yn1)-cg2.imul(yn2);
 			yn2 = yn1; yn1 = yn; xn2 = xn1; xn1 = xn;
 			sum_output_filter = yn;
 #else
