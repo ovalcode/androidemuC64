@@ -511,8 +511,8 @@ void WriteRegister(uint16_t adr, uint8_t byte)
 		case 22:
 			if (byte != f_freq) {
 				f_freq = byte;
-				if (ThePrefs.SIDFilters)
-					calc_filter();
+				//if (ThePrefs.SIDFilters)
+				//	calc_filter();
 			}
 			break;
 
@@ -522,8 +522,8 @@ void WriteRegister(uint16_t adr, uint8_t byte)
 			voice[2].filter = byte & 4;
 			if ((byte >> 4) != f_res) {
 				f_res = byte >> 4;
-				if (ThePrefs.SIDFilters)
-					calc_filter();
+				//if (ThePrefs.SIDFilters)
+				//	calc_filter();
 			}
 			break;
 
@@ -537,8 +537,8 @@ void WriteRegister(uint16_t adr, uint8_t byte)
 #else
 				xn1 = xn2 = yn1 = yn2 = 0.0;
 #endif
-				if (ThePrefs.SIDFilters)
-					calc_filter();
+				//if (ThePrefs.SIDFilters)
+				//	calc_filter();
 			}
 			break;
 	}
@@ -652,10 +652,10 @@ void calc_filter(void)
 
 	// Stabilize filter
 	if (fabs(g1) >= g2 + 1.0)
-		if (g1 > 0.0)
+		{if (g1 > 0.0)
 			g1 = g2 + 0.99;
 		else
-			g1 = -(g2 + 0.99);
+			g1 = -(g2 + 0.99); }
 
 	// Calculate roots (filter characteristic) and input attenuation
 	switch (f_type) {
@@ -694,7 +694,7 @@ void calc_filter(void)
  *  Fill one audio buffer with calculated SID sound
  */
 
-void calc_buffer(int16 *buf, long count)
+void calc_buffer(int16_t *buf, long count)
 
 {
 	// Get filter coefficients, so the emulator won't change
@@ -709,7 +709,7 @@ void calc_buffer(int16 *buf, long count)
 
 
 	// Index in sample_buf for reading, 16.16 fixed
-	uint32 sample_count = (sample_in_ptr + SAMPLE_BUF_SIZE/2) << 16;
+	uint32_t sample_count = (sample_in_ptr + SAMPLE_BUF_SIZE/2) << 16;
 
 	count >>= 1;	// 16 bit mono output, count is in bytes
 
