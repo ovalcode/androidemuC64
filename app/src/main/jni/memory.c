@@ -45,6 +45,11 @@ jchar kernalROM[8192];
 jchar IOUnclaimed[4096];
 jint* g_buffer;
 jbyte* keyboardMatrix;
+jobject currentActivity;
+jmethodID initAudio;
+jmethodID sendAudio;
+JNIEnv* global_env = NULL;
+JavaVM* gJavaVM = NULL;
 extern int line_count;
 
 struct timer_struct timerA;
@@ -375,6 +380,13 @@ void Java_com_johan_emulator_engine_Emu6502_populateFrame(JNIEnv* pEnv, jobject 
   }
 }
 
+jint JNI_OnLoad(JavaVM* aVm, void* aReserved) {
+  gJavaVM = aVm;
+
+  //JNIEnv* env;
+  //aVm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
+  return JNI_VERSION_1_6;
+}
 
 void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, jobject pAssetManager) {
   AAssetManager* assetManager = AAssetManager_fromJava(env, pAssetManager);
@@ -418,6 +430,17 @@ void Java_com_johan_emulator_engine_Emu6502_clearDisplayBuffer(JNIEnv* env, jobj
   }
 }
 
+void Java_com_johan_emulator_engine_Emu6502_setMainActivityObject(JNIEnv* env, jobject pObj, jobject activity) {
+
+  currentActivity = (*env)->NewGlobalRef(env,activity);
+
+  jclass thisClass = (*env)->GetObjectClass(env,currentActivity);
+
+  initAudio = (*env)->GetMethodID(env, thisClass, "initAudio", "(III)V");
+  sendAudio = (*env)->GetMethodID(env, thisClass, "sendAudio", "([S)V");
+
+
+}
 
 jcharArray
 Java_com_johan_emulator_engine_Emu6502_dump(JNIEnv* pEnv, jobject pObj)

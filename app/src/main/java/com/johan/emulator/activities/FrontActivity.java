@@ -9,6 +9,9 @@ import android.graphics.Paint;
 import android.graphics.PaintFlagsDrawFilter;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,6 +60,7 @@ public class FrontActivity extends AppCompatActivity {
 //    private Bitmap mBitmap;
     private Paint paint;
     private DrawFilter filter;
+    private AudioTrack audio;
 
     int screenWidth;
     float scale;
@@ -66,6 +70,22 @@ public class FrontActivity extends AppCompatActivity {
     final Handler handler = new Handler();
     private Emu6502 emuInstance; //Emu6502.getInstance(getResources().getAssets());
 
+    public void initAudio(int freq, int bits, int sound_packet_length) {
+        if (audio == null) {
+            audio = new AudioTrack(AudioManager.STREAM_MUSIC, freq, AudioFormat.CHANNEL_CONFIGURATION_MONO, bits == 8?AudioFormat.ENCODING_PCM_8BIT: AudioFormat.ENCODING_PCM_16BIT, freq==44100?32*1024:16*1024, AudioTrack.MODE_STREAM);
+            //soundThread = new SoundThread(freq);
+            //sound_copy = new byte [sound_packet_length*((bits==8)?1:2)];
+            audio.play();
+        }
+    }
+
+    public void sendAudio(short data []) {
+        if (audio != null) {
+            //Log.i("frodoc64", ">>>");
+            audio.write(data, 0, data.length);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +103,7 @@ public class FrontActivity extends AppCompatActivity {
         MyGL20Renderer myRenderer = new MyGL20Renderer(this);
         mGLSurfaceView.setRenderer(myRenderer);
 
-
+        initAudio(44100, 16, 512);
 
         scale = (float)(screenWidth / 368.0);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

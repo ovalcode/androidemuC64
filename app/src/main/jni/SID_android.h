@@ -21,8 +21,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-
-
+#include <stdint.h>
+#include <jni.h>
 
 
 /*
@@ -31,8 +31,14 @@
 
  int sound_present = 0;
 
+ extern JNIEnv* global_env;
+ extern JavaVM* gJavaVM;
+ extern jobject currentActivity;
+ extern jmethodID initAudio;
+ extern jmethodID sendAudio;
 
-FILE *f;
+
+//FILE *f;
 
 void init_sound()
 {
@@ -52,9 +58,9 @@ void init_sound()
 	
 	//ioctl(devfd, SNDCTL_DSP_GETBLKSIZE, &sndbufsize);
 	sndbufsize = 512;
-	sound_buffer = new int16[sndbufsize];
+	sound_buffer = (int16_t *)malloc(sizeof(int16_t) * sndbufsize);//int16_t[sndbufsize];
         //JJS: Double check
-	(android_env)->CallVoidMethod(android_callback, initAudio, SAMPLE_FREQ, 16, sndbufsize);
+	//(android_env)->CallVoidMethod(android_callback, initAudio, SAMPLE_FREQ, 16, sndbufsize);
 	ready = true;
 
 	//f = fopen("/sdcard/audio.raw", "w");
@@ -79,13 +85,17 @@ void EmulateLine()
 	if (!ready)
 		return;
 
+  if (global_env == NULL) {
+       (*gJavaVM)->AttachCurrentThread (gJavaVM, &global_env, NULL);
+  }
+
 	sample_buf[sample_in_ptr] = volume;
 	sample_in_ptr = (sample_in_ptr + 1) % SAMPLE_BUF_SIZE;
 
 	// Now see how many samples have to be added for this line
 	divisor += SAMPLE_FREQ;
 	while (divisor >= 0)
-		divisor -= TOTAL_RASTERS*SCREEN_FREQ, to_output++;
+		divisor -= 312*50, to_output++;
 
 	// Calculate the sound data only when we have enough to fill
 	// the buffer entirely
@@ -98,14 +108,14 @@ void EmulateLine()
 		
 		if (!audioarray)
 		{
-			audioarray = (android_env)->NewShortArray(sndbufsize*loop_n);
+			audioarray = (*global_env)->NewShortArray(global_env, sndbufsize*loop_n);
 		}
 
-		(android_env)->SetShortArrayRegion(audioarray, loop_c*sndbufsize, sndbufsize, sound_buffer);
+		(*global_env)->SetShortArrayRegion(global_env, audioarray, loop_c*sndbufsize, sndbufsize, sound_buffer);
 		loop_c++;
 		if (loop_c == loop_n)
 		{
-			(android_env)->CallVoidMethod(android_callback, sendAudio, audioarray);
+			(*global_env)->CallVoidMethod(global_env, currentActivity, sendAudio, audioarray);
 			loop_c = 0;
 		}
 		
