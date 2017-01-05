@@ -27,7 +27,8 @@
 
 #include <math.h>
 #include <stdint.h>
-
+#include <stdbool.h>
+#include <string.h>
 
 #ifdef USE_FIXPOINT_MATHS
 #include "FixPoint.h"
@@ -135,24 +136,24 @@ struct DRVoice {
 
 	void init_sound();
 	void calc_filter();
-	void calc_buffer(int16 *buf, long count);
+	void calc_buffer(int16_t *buf, long count);
 	bool ready;						// Flag: Renderer has initialized and is ready
-	uint8 volume;					// Master volume
+	uint8_t volume;					// Master volume
 
-	static uint16 TriTable[0x1000*2];	// Tables for certain waveforms
-	static const uint16 TriSawTable[0x100];
-	static const uint16 TriRectTable[0x100];
-	static const uint16 SawRectTable[0x100];
-	static const uint16 TriSawRectTable[0x100];
-	static const uint32 EGTable[16];	// Increment/decrement values for all A/D/R settings
-	static const uint8 EGDRShift[256]; // For exponential approximation of D/R
-	static const int16 SampleTab[16]; // Table for sampled voice
+	static uint16_t TriTable[0x1000*2];	// Tables for certain waveforms
+	//static const uint16_t TriSawTable[0x100];
+	//static const uint16_t TriRectTable[0x100];
+	//static const uint16_t SawRectTable[0x100];
+	//static const uint16_t TriSawRectTable[0x100];
+	//static const uint32_t EGTable[16];	// Increment/decrement values for all A/D/R settings
+	//static const uint8_t EGDRShift[256]; // For exponential approximation of D/R
+	//static const int16_t SampleTab[16]; // Table for sampled voice
 
-	DRVoice voice[3];				// Data for 3 voices
+	struct DRVoice voice[3];				// Data for 3 voices
 
-	uint8 f_type;					// Filter type
-	uint8 f_freq;					// SID filter frequency (upper 8 bits)
-	uint8 f_res;					// Filter resonance (0..15)
+	uint8_t f_type;					// Filter type
+	uint8_t f_freq;					// SID filter frequency (upper 8 bits)
+	uint8_t f_res;					// Filter resonance (0..15)
 #ifdef USE_FIXPOINT_MATHS
 	FixPoint f_ampl;
 	FixPoint d1, d2, g1, g2;
@@ -172,12 +173,12 @@ struct DRVoice {
 #endif
 #endif
 
-	uint8 sample_buf[SAMPLE_BUF_SIZE]; // Buffer for sampled voice
+	uint8_t sample_buf[SAMPLE_BUF_SIZE]; // Buffer for sampled voice
 	int sample_in_ptr;				// Index in sample_buf for writing
 	int devfd, sndbufsize, buffer_rate;
-	int16 *sound_buffer;
+	int16_t *sound_buffer;
 
-const uint16 TriSawTable[0x100] = {
+const uint16_t TriSawTable[0x100] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -212,7 +213,7 @@ const uint16 TriSawTable[0x100] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x1010, 0x3C3C
 };
 
-const uint16 TriRectTable[0x100] = {
+const uint16_t TriRectTable[0x100] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -247,7 +248,7 @@ const uint16 TriRectTable[0x100] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
 };
 
-const uint16 SawRectTable[0x100] = {
+const uint16_t SawRectTable[0x100] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -282,7 +283,7 @@ const uint16 SawRectTable[0x100] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x7878
 };
 
-const uint16 TriSawRectTable[0x100] = {
+const uint16_t TriSawRectTable[0x100] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -317,7 +318,7 @@ const uint16 TriSawRectTable[0x100] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
 };
 
-const uint32 EGTable[16] = {
+const uint32_t EGTable[16] = {
 	(SID_CYCLES << 16) / 9, (SID_CYCLES << 16) / 32,
 	(SID_CYCLES << 16) / 63, (SID_CYCLES << 16) / 95,
 	(SID_CYCLES << 16) / 149, (SID_CYCLES << 16) / 220,
@@ -328,7 +329,7 @@ const uint32 EGTable[16] = {
 	(SID_CYCLES << 16) / 19531, (SID_CYCLES << 16) / 31251
 };
 
-const uint8 EGDRShift[256] = {
+const uint8_t EGDRShift[256] = {
 	5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,
 	3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,
 	2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
@@ -347,7 +348,7 @@ const uint8 EGDRShift[256] = {
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-const int16 SampleTab[16] = {
+const int16_t SampleTab[16] = {
 	0x8000, 0x9111, 0xa222, 0xb333, 0xc444, 0xd555, 0xe666, 0xf777,
 	0x0888, 0x1999, 0x2aaa, 0x3bbb, 0x4ccc, 0x5ddd, 0x6eee, 0x7fff,
 };
@@ -356,6 +357,8 @@ const int16 SampleTab[16] = {
 /*
  *  Constructor
  */
+
+void init_sid() {
 
 	// Link voices together
 	voice[0].mod_by = &voice[2];
@@ -389,7 +392,7 @@ const int16 SampleTab[16] = {
 	}
 #endif
 #endif
-
+}
 
 
 /*
@@ -432,7 +435,7 @@ void Reset(void)
  *  Write to register
  */
 
-void WriteRegister(uint16 adr, uint8 byte)
+void WriteRegister(uint16_t adr, uint8_t byte)
 {
 	if (!ready)
 		return;
@@ -447,7 +450,7 @@ void WriteRegister(uint16 adr, uint8 byte)
 #ifdef USE_FIXPOINT_MATHS
 			voice[v].add = sidquot.imul((int)voice[v].freq);
 #else
-			voice[v].add = (uint32)((float)voice[v].freq * SID_FREQ / SAMPLE_FREQ);
+			voice[v].add = (uint32_t)((float)voice[v].freq * SID_FREQ / SAMPLE_FREQ);
 #endif
 			break;
 
@@ -458,7 +461,7 @@ void WriteRegister(uint16 adr, uint8 byte)
 #ifdef USE_FIXPOINT_MATHS
 			voice[v].add = sidquot.imul((int)voice[v].freq);
 #else
-			voice[v].add = (uint32)((float)voice[v].freq * SID_FREQ / SAMPLE_FREQ);
+			voice[v].add = (uint32_t)((float)voice[v].freq * SID_FREQ / SAMPLE_FREQ);
 #endif
 			break;
 
@@ -479,11 +482,11 @@ void WriteRegister(uint16 adr, uint8 byte)
 		case 18:
 			voice[v].wave = (byte >> 4) & 0xf;
 			if ((byte & 1) != voice[v].gate)
-				if (byte & 1)	// Gate turned on
+			{	if (byte & 1)	// Gate turned on
 					voice[v].eg_state = EG_ATTACK;
 				else			// Gate turned off
 					if (voice[v].eg_state != EG_IDLE)
-						voice[v].eg_state = EG_RELEASE;
+						voice[v].eg_state = EG_RELEASE; }
 			voice[v].gate = byte & 1;
 			voice[v].mod_by->sync = byte & 2;
 			voice[v].ring = byte & 4;
