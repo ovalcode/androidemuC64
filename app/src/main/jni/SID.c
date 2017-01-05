@@ -828,20 +828,6 @@ void calc_buffer(int16_t *buf, long count)
 				sum_output += (int16_t)(output ^ 0x8000) * envelope;
 		}
 
-		// Filter
-		if (ThePrefs.SIDFilters) {
-#ifdef USE_FIXPOINT_MATHS
-			int32_t xn = cf_ampl.imul(sum_output_filter);
-			int32_t yn = xn+cd1.imul(xn1)+cd2.imul(xn2)-cg1.imul(yn1)-cg2.imul(yn2);
-			yn2 = yn1; yn1 = yn; xn2 = xn1; xn1 = xn;
-			sum_output_filter = yn;
-#else
-			float xn = (float)sum_output_filter * cf_ampl;
-			float yn = xn + cd1 * xn1 + cd2 * xn2 - cg1 * yn1 - cg2 * yn2;
-			yn2 = yn1; yn1 = yn; xn2 = xn1; xn1 = xn;
-			sum_output_filter = (int32)yn;
-#endif
-		}
 
 		// Write to buffer
 #if defined(__riscos__)	// lookup in 8k (13bit) translation table
