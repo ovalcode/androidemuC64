@@ -72,7 +72,7 @@ public class FrontActivity extends AppCompatActivity {
 
     public void initAudio(int freq, int bits, int sound_packet_length) {
         if (audio == null) {
-            audio = new AudioTrack(AudioManager.STREAM_MUSIC, freq, AudioFormat.CHANNEL_CONFIGURATION_MONO, bits == 8?AudioFormat.ENCODING_PCM_8BIT: AudioFormat.ENCODING_PCM_16BIT, freq==44100?32*1024:16*1024, AudioTrack.MODE_STREAM);
+            audio = new AudioTrack(AudioManager.STREAM_MUSIC, freq, AudioFormat.CHANNEL_CONFIGURATION_MONO, bits == 8?AudioFormat.ENCODING_PCM_8BIT: AudioFormat.ENCODING_PCM_16BIT, 2048, AudioTrack.MODE_STREAM);
             //soundThread = new SoundThread(freq);
             //sound_copy = new byte [sound_packet_length*((bits==8)?1:2)];
             audio.play();
@@ -82,7 +82,10 @@ public class FrontActivity extends AppCompatActivity {
     public void sendAudio(short data []) {
         if (audio != null) {
             //Log.i("frodoc64", ">>>");
+            long startTime = System.currentTimeMillis();
             audio.write(data, 0, data.length);
+            long endTime = System.currentTimeMillis();
+            System.out.println(endTime - startTime);
 
         }
     }
