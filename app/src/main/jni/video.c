@@ -79,7 +79,7 @@ void initialise_video() {
   spriteFunctions[3] = &drawExpandedMulticolorSpriteLine;
 }
 
-inline void fillColor(int count, int colorEntryNumber) {
+static inline void fillColor(int count, int colorEntryNumber) {
   int currentPos;
   for (currentPos = 0; currentPos < count; currentPos++) {
     g_buffer[posInFrontBuffer] = colors_RGB_8888[colorEntryNumber];
@@ -87,7 +87,7 @@ inline void fillColor(int count, int colorEntryNumber) {
   }
 }
 
-inline void updatelineCharPos() {
+static inline void updatelineCharPos() {
   if ((line_count < 50) || (line_count > (49 + 200))) {
     screenLineRegion = false;
     return;

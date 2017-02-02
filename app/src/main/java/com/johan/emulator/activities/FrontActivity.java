@@ -85,7 +85,7 @@ public class FrontActivity extends AppCompatActivity {
             long startTime = System.currentTimeMillis();
             audio.write(data, 0, data.length);
             long endTime = System.currentTimeMillis();
-            System.out.println(endTime - startTime);
+//            System.out.println(endTime - startTime);
 
         }
     }
