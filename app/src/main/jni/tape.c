@@ -7,6 +7,7 @@
 
 int playDown = 0;
 jbyte* tape_image;
+int buffer_len;
 int posInTape;
 
 void update_remaining(struct timer_struct *tdev) {
@@ -21,14 +22,20 @@ void update_remaining(struct timer_struct *tdev) {
   }
 }
 
-void attachNewTape(jbyte* buffer, struct timer_struct *tdev) {
+void attachNewTape(jbyte* buffer, int buf_len, struct timer_struct *tdev) {
   tape_image = buffer;
+  buffer_len = buf_len;
   posInTape = 0x14;
   update_remaining(tdev);
 }
 
 void tape_pulse_expired(struct timer_struct *tdev) {
-  update_remaining(tdev);
+  if (posInTape < buffer_len)
+    update_remaining(tdev);
+  else {
+    tdev->remainingCycles = 120000000;
+  }
+
   interrupt_flag();
 }
 

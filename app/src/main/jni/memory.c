@@ -430,9 +430,9 @@ void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, 
 
 }
 
-void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
+void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject pObj, jint len, jobject oBuf) {
   jbyte * tape_image = (jbyte *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
-  attachNewTape(tape_image, &tape_timer);
+  attachNewTape(tape_image, len, &tape_timer);
 }
 
 void Java_com_johan_emulator_engine_Emu6502_clearDisplayBuffer(JNIEnv* env, jobject pObj) {

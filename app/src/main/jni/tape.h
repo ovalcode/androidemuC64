@@ -11,4 +11,4 @@ int getMotorOnBit(struct timer_struct *tdev);
 int isPlayDownBit();
 void setMotorOn(struct timer_struct *tdev, int motorBit);
 struct timer_struct getTapeInstance();
-void attachNewTape(jbyte* buffer, struct timer_struct *tdev);
+void attachNewTape(jbyte* buffer, int len, struct timer_struct *tdev);
