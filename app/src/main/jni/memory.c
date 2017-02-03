@@ -78,7 +78,7 @@ jchar cia1_read(int address) {
   jchar result = 0;
   switch (address) {
     case 0xdc00:
-      result =  ~joystickStatus & 0xff ;
+      result =  ~joystickStatus & 0xff & mainMem[0xdc00];
     break;
 
     case 0xdc01:
@@ -186,17 +186,17 @@ void write_port_1(jchar value) {
   setMotorOn(&tape_timer, motorStatus);
 }
 
-inline int kernalROMEnabled() {
+inline static int kernalROMEnabled() {
   int bankBits = mainMem[1] & 7;
   return (bank_visibility[bankBits] & KERNAL_VISIBLE) ? 1 : 0;
 }
 
-inline int basicROMEnabled() {
+inline static int basicROMEnabled() {
   int bankBits = mainMem[1] & 7;
   return (bank_visibility[bankBits] & BASIC_VISIBLE) ? 1 : 0;
 }
 
-inline int IOEnabled() {
+static inline int IOEnabled() {
   int bankBits = mainMem[1] & 7;
   return (bank_visibility[bankBits] & IO_VISIBLE) ? 1 : 0;
 }
@@ -430,9 +430,9 @@ void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, 
 
 }
 
-void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject pObj, jobject oBuf) {
+void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject pObj, jint len, jobject oBuf) {
   jbyte * tape_image = (jbyte *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
-  attachNewTape(tape_image, &tape_timer);
+  attachNewTape(tape_image, len, &tape_timer);
 }
 
 void Java_com_johan_emulator_engine_Emu6502_clearDisplayBuffer(JNIEnv* env, jobject pObj) {
@@ -508,13 +508,12 @@ int processSprite(int spriteNum, int lineNumber, struct sprite_data_struct * spr
     sprite_data->isForegroundSprite = IOUnclaimed[0x1b] & (1 << spriteNum) ? 0 : 1;
 
   int memPointer = IOUnclaimed[0x18];
-  int spritePointerAddress = memPointer & 0xf0;
-  spritePointerAddress = spritePointerAddress << 6;
-
-  spritePointerAddress = ((~IOUnclaimed[0xd00] & 3) << 14) | spritePointerAddress;
-  spritePointerAddress = spritePointerAddress + 0x400 -8 + spriteNum;
-  int spriteBaseAddress = mainMem[spritePointerAddress] << 6;
-
+  int screenBaseAddress = memPointer & 0xf0;
+  screenBaseAddress = screenBaseAddress << 6;
+  int vicBaseAddress = (~IOUnclaimed[0xd00] & 3) << 14;
+  screenBaseAddress = vicBaseAddress | screenBaseAddress;
+  int spritePointerAddress = screenBaseAddress + 0x400 -8 + spriteNum;
+  int spriteBaseAddress = (mainMem[spritePointerAddress] << 6) | vicBaseAddress;
 
   int spriteLineNumber = lineNumber - spriteY;
 
