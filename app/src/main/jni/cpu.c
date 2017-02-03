@@ -1330,6 +1330,7 @@ unsigned char sbcDecimal(unsigned char operand) {
         break;
         default:
           result = (opcode << 16) | pc;
+          __android_log_print(ANDROID_LOG_DEBUG, "Error happened", "Error happened %d", result);
         break;
 
 /*CLI  Clear Interrupt Disable Bit

@@ -78,7 +78,7 @@ jchar cia1_read(int address) {
   jchar result = 0;
   switch (address) {
     case 0xdc00:
-      result =  ~joystickStatus & 0xff ;
+      result =  ~joystickStatus & 0xff & mainMem[0xdc00];
     break;
 
     case 0xdc01:
