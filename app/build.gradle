@@ -21,6 +21,9 @@ model {
 
         ndk {
             moduleName "native_emu"
+            toolchain "clang"
+            CFlags.add("-I${project.rootDir}/app/src/main/jni".toString())
+            ldLibs.addAll(["android", "log"])
         }
     }
 }
