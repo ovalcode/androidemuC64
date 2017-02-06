@@ -63,11 +63,11 @@ static uint8_t sid_random(void)
 	return seed >> 16;
 }
 
-#define SAMPLE_FREQ 44100	// Sample output frequency in Hz
-#define SID_FREQ 985248		// SID frequency in Hz
-#define CALC_FREQ 50			// Frequency at which calc_buffer is called in Hz (should be 50Hz)
-#define SID_CYCLES SID_FREQ/SAMPLE_FREQ	// # of SID clocks per sample frame
-#define SAMPLE_BUF_SIZE 0x138*2// Size of buffer for sampled voice (double buffered)
+const uint32_t SAMPLE_FREQ = 44100;	// Sample output frequency in Hz
+const uint32_t SID_FREQ = 985248;		// SID frequency in Hz
+const uint32_t CALC_FREQ = 50;			// Frequency at which calc_buffer is called in Hz (should be 50Hz)
+const uint32_t SID_CYCLES = SID_FREQ/SAMPLE_FREQ;	// # of SID clocks per sample frame
+const int SAMPLE_BUF_SIZE = 0x138*2;// Size of buffer for sampled voice (double buffered)
 
 // SID waveforms (some of them :-)
 enum {
@@ -368,9 +368,8 @@ void init_sid() {
 	voice[1].mod_to = &voice[2];
 	voice[2].mod_to = &voice[0];
 
-    int i;
 	// Calculate triangle table
-	for (i=0; i<0x1000; i++) {
+	for (int i=0; i<0x1000; i++) {
 		TriTable[i] = (i << 4) | (i >> 8);
 		TriTable[0x1fff-i] = (i << 4) | (i >> 8);
 	}
@@ -378,7 +377,7 @@ void init_sid() {
 #ifdef PRECOMPUTE_RESONANCE
 #ifdef USE_FIXPOINT_MATHS
 	// slow floating point doesn't matter much on startup!
-	for (i=0; i<256; i++) {
+	for (int i=0; i<256; i++) {
 	  resonanceLP[i] = FixNo(CALC_RESONANCE_LP(i));
 	  resonanceHP[i] = FixNo(CALC_RESONANCE_HP(i));
 	}
@@ -387,7 +386,7 @@ void init_sid() {
 	// compute lookup table for sin and cos
 	InitFixSinTab();
 #else
-	for (i=0; i<256; i++) {
+	for (int i=0; i<256; i++) {
 	  resonanceLP[i] = CALC_RESONANCE_LP(i);
 	  resonanceHP[i] = CALC_RESONANCE_HP(i);
 	}
@@ -404,9 +403,7 @@ void Reset()
 {
 	volume = 0;
 
-    int v;
-
-	for (v=0; v<3; v++) {
+	for (int v=0; v<3; v++) {
 		voice[v].wave = WAVE_NONE;
 		voice[v].eg_state = EG_IDLE;
 		voice[v].count = voice[v].add = 0;
@@ -727,9 +724,8 @@ void calc_buffer(int16_t *buf, long count)
 		int32_t sum_output = SampleTab[master_volume] << 8;
 		int32_t sum_output_filter = 0;
 
-        int j;
 		// Loop for all three voices
-		for (j=0; j<3; j++) {
+		for (int j=0; j<3; j++) {
 			struct DRVoice *v = &voice[j];
 
 			// Envelope generators
