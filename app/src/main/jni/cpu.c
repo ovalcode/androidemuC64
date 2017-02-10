@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <alarm.h>
 #include <android/log.h>
+#include <stdio.h>
 
 
   #define ADDRESS_MODE_ACCUMULATOR 0
@@ -344,9 +345,100 @@ unsigned char sbcDecimal(unsigned char operand) {
 
   }
 
+  const char* getDisassembled(int opCode, int argByte1, int argByte2, int efectiveAddress) {
+    int mode = addressModes[opCode];
+    int numArgs = instructionLengths[opCode] - 1;
+    char dissembledString[160];
+    int ff = 0x57;
+    sprintf(dissembledString, "%05x", ff);
+    return dissembledString;
+
+    /*String addrStr = "";
+
+     char str[80];
+strcpy(str, "these ");
+strcat(str, "strings ");
+strcat(str, "are ");
+strcat(str, "concatenated.");
+
+
+    String result = getAsFourDigit(getPc());
+    result = result + " " + opCodeDesc[opCode] + " ";
+    switch (mode) {
+      case ADDRESS_MODE_ACCUMULATOR: result = result + " A";
+            break;
+
+      case ADDRESS_MODE_ABSOLUTE: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+            result = result + "$" + addrStr;
+            break;
+
+      case ADDRESS_MODE_ABSOLUTE_X_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+            result = result + "$" + addrStr + ",X";
+
+            break;
+
+      case ADDRESS_MODE_ABSOLUTE_Y_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+            result = result + "$" + addrStr + ",Y";
+
+            break;
+
+      case ADDRESS_MODE_IMMEDIATE: addrStr = getAsTwoDigit(argbyte1);
+            result = result + "#$" + addrStr;
+
+            break;
+
+      case ADDRESS_MODE_IMPLIED:
+        //return result;
+        break;
+
+            //case ADDRESS_MODE_INDIRECT:
+            //    tempAddress = (argbyte2 * 256 + argbyte1);
+            //    return (localMem.readMem(tempAddress + 1) * 256 + localMem.readMem(tempAddress));
+            //break;
+
+      case ADDRESS_MODE_X_INDEXED_INDIRECT:
+        addrStr = getAsTwoDigit(argbyte2 * 256 + argbyte1);
+            result = result + "($" + addrStr + ",X)";
+            break;
+
+      case ADDRESS_MODE_INDIRECT_Y_INDEXED:
+        addrStr = getAsTwoDigit(argbyte1);
+            result = result + "($" + addrStr + "),Y";
+
+            break;
+
+      case ADDRESS_MODE_RELATIVE:
+        addrStr = getAsFourDigit(((argbyte1 > 127) ? (argbyte1 - 256) : argbyte1) + getPc() + 2);
+            result = result + "$" + addrStr;
+            break;
+
+      case ADDRESS_MODE_ZERO_PAGE:
+        addrStr = getAsTwoDigit(argbyte1);
+            result = result + "$" + addrStr;
+            //return result;
+            break;
+
+      case ADDRESS_MODE_ZERO_PAGE_X_INDEXED:
+        addrStr = getAsTwoDigit(argbyte1);
+            result = result + "$" + addrStr + ",X";
+            //return result;
+            break;
+
+      case ADDRESS_MODE_ZERO_PAGE_Y_INDEXED:
+        addrStr = getAsTwoDigit(argbyte1);
+            result = result + "$" + addrStr + ",Y";
+            // return result;
+            break;
+
+    }
+    return result; */
+}
+
+
   int step() {
+    //getDisassembled(0,0,0,0);
       int result = 0;
-    //__android_log_print(ANDROID_LOG_DEBUG, "Hello", "Hello");
+    __android_log_print(ANDROID_LOG_DEBUG, "Hello", "Hello Toets toets");
       process_interrupts();
       opcode = memory_read(pc);
       currentCycles = instructionCycles[opcode];
