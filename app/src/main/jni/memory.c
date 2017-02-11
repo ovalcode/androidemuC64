@@ -201,6 +201,12 @@ static inline int IOEnabled() {
   return (bank_visibility[bankBits] & IO_VISIBLE) ? 1 : 0;
 }
 
+static inline int charROMEnabled() {
+  int bankBits = mainMem[1] & 7;
+  return (bank_visibility[bankBits] & CHAR_ROM_VISIBLE) ? 1 : 0;
+}
+
+
 jchar memory_unclaimed_io_read(int address) {
   address = address & 0xfff;
   return IOUnclaimed[address];
@@ -227,8 +233,9 @@ jchar memory_read(int address) {
       return read_vic_int_reg();
     else
       return IOUnclaimed[address & 0xfff];
-  }
-  else
+  } else if ((address >=0xd000) && (address < 0xe000) && charROMEnabled()) {
+    return charRom[address & 0xfff];
+  } else
     return mainMem[address];
 }
 
@@ -436,10 +443,11 @@ void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject 
 }
 
 void Java_com_johan_emulator_engine_Emu6502_clearDisplayBuffer(JNIEnv* env, jobject pObj) {
-  int i;
-  for (i = 0; i < 427200; i++) {
-    g_buffer[i] = 0;
-  }
+  memset(g_buffer, 0, 427200*4);
+//  int i;
+  //for (i = 0; i < 427200; i++) {
+//    g_buffer[i] = 0;
+//  }
 }
 
 void Java_com_johan_emulator_engine_Emu6502_setMainActivityObject(JNIEnv* env, jobject pObj, jobject activity) {
