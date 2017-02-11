@@ -406,13 +406,13 @@ void video_line_expired(struct timer_struct *tdev) {
     startOfLineTxtBuffer = 0;
   }
 
-    if ((targetRasterLine == line_count) && raster_int_enabled())
+    if ((targetRasterLine == line_count) /*&& raster_int_enabled()*/)
       vic_interrupt = vic_interrupt | 1 | 128;
 
 }
 
 int vic_raster_int_occured() {
-  return (vic_interrupt > 128) ? 1 : 0;
+  return (vic_interrupt > 128) && raster_int_enabled() ? 1 : 0;
 }
 
 int read_vic_int_reg () {
