@@ -7,14 +7,11 @@
 
 #endif //MY_APPLICATION_ALARM_H
 
-struct timer_struct {
+typedef struct timer_struct {
   int remainingCycles;
   int started;
   void (*expiredevent) (struct timer_struct*);
   void (*interrupt) ();
-  int stateParam1; //continuios
-  int stateParam2; //latch
-  int stateParam3;
-};
+} timer_struct;
 
-void add_timer_to_list(struct timer_struct * timer);
+void add_timer_to_list(timer_struct * timer);

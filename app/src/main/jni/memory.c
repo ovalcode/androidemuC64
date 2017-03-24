@@ -55,8 +55,8 @@ extern int line_count;
 void WriteRegister(uint16_t adr, uint8_t byte);
 void init_sound();
 
-struct timer_struct timerA;
-struct timer_struct timerB;
+struct cia_timer_struct timerA;
+struct cia_timer_struct timerB;
 struct timer_struct tape_timer;
 struct timer_struct video_timer;
 

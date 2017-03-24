@@ -5,73 +5,134 @@
 #include <alarm.h>
 #include <interrupts.h>
 #include <android/log.h>
+#include <stdint.h>
+#include "timer.h"
 
-void expired(struct timer_struct *tdev) {
+void expired(cia_timer_struct *tdev) {
   //__android_log_print(ANDROID_LOG_DEBUG, "expired", "expired");
-  tdev->remainingCycles = tdev->stateParam2;
-  if (tdev->stateParam1 == 0) //if not continuios
-    tdev->started=0;
-  tdev->interrupt();
+  tdev->timer.remainingCycles = tdev->latch_value;
+  if (tdev->continious == 0) //if not continuios
+    tdev->timer.started=0;
+  tdev->timer.interrupt();
 }
 
-void set_timer_low(struct timer_struct *tdev , int lowValue) {
+void set_timer_low(cia_timer_struct *tdev , int lowValue) {
   //__android_log_print(ANDROID_LOG_DEBUG, "set timer low", "set timer low");
-  tdev->stateParam2 = tdev->stateParam2 & (0xff << 8);
-  tdev->stateParam2 = tdev->stateParam2 | lowValue;
+  tdev->latch_value = tdev->latch_value & (0xff << 8);
+  tdev->latch_value = tdev->latch_value | lowValue;
 }
 
-void set_timer_high(struct timer_struct *tdev , int highValue) {
+void set_timer_high(cia_timer_struct *tdev , int highValue) {
   //__android_log_print(ANDROID_LOG_DEBUG, "set timer high", "set timer high");
-  tdev->stateParam2 = tdev->stateParam2 & 0xff;
-  tdev->stateParam2 = tdev->stateParam2 | (highValue << 8);
+  tdev->latch_value = tdev->latch_value & 0xff;
+  tdev->latch_value = tdev->latch_value | (highValue << 8);
 }
 
-int get_time_low(struct timer_struct *tdev) {
-  int low = tdev->remainingCycles & 0xff;
+int get_time_low(cia_timer_struct *tdev) {
+  int low = tdev->timer.remainingCycles & 0xff;
   return low;
 }
 
-int get_control_reg(struct timer_struct *tdev) {
+int get_control_reg_02(cia_timer_struct *tdev) {
   int value = 0;
 
-  if(tdev->started==1)
+  if(tdev->timer.started==1)
     value = value | 1;
 
-  if(tdev->stateParam1==0)
+  if(tdev->continious==0)
     value = value | 8;
 
   return value;
+
 }
 
-void set_control_reg(struct timer_struct *tdev, int value) {
-  tdev->started = value & 1;
-  tdev->stateParam1 = ((value & 8) == 8) ? 0 : 1;
+int get_control_reg_underflow(cia_timer_struct *tdev) {
+  int value = 0;
+
+  if(tdev->underflow_counting_started==1)
+    value = value | 1;
+
+  if(tdev->continious==0)
+    value = value | 8;
+
+  return value;
+
+}
+
+int get_control_reg(cia_timer_struct *tdev) {
+  if (tdev->count_mode == 0) {
+    return get_control_reg_02(tdev);
+  } else {
+    return get_control_reg_underflow(tdev);
+  }
+
+}
+
+void set_control_reg_02(cia_timer_struct *tdev, int value) {
+  tdev->timer.started = value & 1;
+  tdev->continious = ((value & 8) == 8) ? 0 : 1;
 
   if ((value & 16) != 0)
-    tdev->remainingCycles = tdev->stateParam2;
+    tdev->timer.remainingCycles = tdev->latch_value;
+}
+
+void set_control_reg_Underflow(cia_timer_struct *tdev, int value) {
+  tdev->underflow_counting_started = value & 1;
+  tdev->continious = ((value & 8) == 8) ? 0 : 1;
+
+  if ((value & 16) != 0)
+    tdev->timer.remainingCycles = tdev->latch_value;
+}
+
+void set_control_reg(cia_timer_struct *tdev, int value) {
+  if (tdev->timer_type == 0) {
+    set_control_reg_02(tdev, value);
+  } else {
+    if (value & 0x40) {
+      tdev->count_mode = 1;
+      set_control_reg_Underflow(tdev, value);
+    }  else {
+      tdev->count_mode = 0;
+      set_control_reg_02(tdev, value);
+    }
+  }
+
+  tdev->timer.started = value & 1;
+  tdev->continious = ((value & 8) == 8) ? 0 : 1;
+
+  if ((value & 16) != 0)
+    tdev->timer.remainingCycles = tdev->latch_value;
 }
 
 
-int get_time_high(struct timer_struct *tdev) {
-  int high = tdev->remainingCycles & (0xff<<8);
+int get_time_high(cia_timer_struct *tdev) {
+  int high = tdev->timer.remainingCycles & (0xff<<8);
   high = high >> 8;
   return high;
 }
 
-struct timer_struct getTimerInstanceA() {
-  struct timer_struct mytimer;
-  mytimer.expiredevent = &expired;
-  mytimer.remainingCycles = 0xffff;
-  mytimer.started = 0;
-  mytimer.interrupt = &interrupt_timer_A;
+cia_timer_struct getTimerInstanceA() {
+  cia_timer_struct mytimer;
+  mytimer.timer.expiredevent = &expired;
+  mytimer.timer.remainingCycles = 0xffff;
+  mytimer.timer.started = 0;
+  mytimer.timer.interrupt = &interrupt_timer_A;
+  mytimer.timer_type = 0;
+  mytimer.linked_timer = NULL;
+  mytimer.count_mode = 0;
+  mytimer.underflow_counting_started = 0;
   return mytimer;
 }
 
-struct timer_struct getTimerInstanceB() {
-  struct timer_struct mytimer;
-  mytimer.expiredevent = &expired;
-  mytimer.remainingCycles = 0xffff;
-  mytimer.started = 0;
-  mytimer.interrupt = &interrupt_timer_B;
+cia_timer_struct getTimerInstanceB() {
+  cia_timer_struct mytimer;
+  mytimer.timer.expiredevent = &expired;
+  mytimer.timer.remainingCycles = 0xffff;
+  mytimer.timer.started = 0;
+  mytimer.timer.interrupt = &interrupt_timer_B;
+  mytimer.timer_type = 1;
+  mytimer.linked_timer = NULL;
+  mytimer.count_mode = 0;
+  mytimer.underflow_counting_started = 0;
   return mytimer;
 }

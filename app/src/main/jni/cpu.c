@@ -79,7 +79,7 @@
   2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0};
 
   struct timer_node {
-    struct timer_struct * timer;
+    timer_struct * timer;
     struct timer_node * next;
   };
 
