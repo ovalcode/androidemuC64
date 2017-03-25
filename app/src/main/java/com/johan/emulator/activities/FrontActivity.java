@@ -260,7 +260,7 @@ public class FrontActivity extends AppCompatActivity {
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_stop) {
-            switchToDebug = true;
+            emuInstance.setRunning(false);
             return true;
         } else if (id == R.id.action_attach) {
             Intent i = new Intent(this, FileDialogueActivity.class);

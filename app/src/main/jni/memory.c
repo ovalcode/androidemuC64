@@ -55,8 +55,11 @@ extern int line_count;
 void WriteRegister(uint16_t adr, uint8_t byte);
 void init_sound();
 
-struct cia_timer_struct timerA;
-struct cia_timer_struct timerB;
+struct cia_timer_struct cia1TimerA;
+struct cia_timer_struct cia1TimerB;
+struct cia_timer_struct cia2TimerA;
+struct cia_timer_struct cia2TimerB;
+
 struct timer_struct tape_timer;
 struct timer_struct video_timer;
 
@@ -92,19 +95,19 @@ jchar cia1_read(int address) {
     break;
 
     case 0xdc04: //timer A low
-      result = get_time_low(&timerA);
+      result = get_time_low(&cia1TimerA);
     break;
 
     case 0xdc05: //timer A high
-      result = get_time_high(&timerA);
+      result = get_time_high(&cia1TimerA);
     break;
 
     case 0xdc06: //timer B low
-      result = get_time_low(&timerB);
+      result = get_time_low(&cia1TimerB);
     break;
 
     case 0xdc07: //timer B high
-      result = get_time_high(&timerB);
+      result = get_time_high(&cia1TimerB);
     break;
 
     case 0xdc0d: // interrupt control
@@ -112,11 +115,11 @@ jchar cia1_read(int address) {
     break;
 
     case 0xdc0e: // control reg a
-      result = get_control_reg(&timerA);
+      result = get_control_reg(&cia1TimerA);
     break;
 
     case 0xdc0f: // control reg b
-      result = get_control_reg(&timerB);
+      result = get_control_reg(&cia1TimerB);
     break;
 
   }
@@ -141,19 +144,19 @@ void cia1_write(int address, int value) {
     break;
 
     case 0xdc04: //timer A low
-      set_timer_low(&timerA, value);
+      set_timer_low(&cia1TimerA, value);
     break;
 
     case 0xdc05: //timer A high
-      set_timer_high(&timerA, value);
+      set_timer_high(&cia1TimerA, value);
     break;
 
     case 0xdc06: //timer B low
-      set_timer_low(&timerB, value);
+      set_timer_low(&cia1TimerB, value);
     break;
 
     case 0xdc07: //timer B high
-      set_timer_high(&timerB, value);
+      set_timer_high(&cia1TimerB, value);
     break;
 
     case 0xdc0d: // interrupt control
@@ -161,12 +164,110 @@ void cia1_write(int address, int value) {
     break;
 
     case 0xdc0e: // control reg a
-      set_control_reg(&timerA, value);
+      set_control_reg(&cia1TimerA, value);
     break;
 
     case 0xdc0f: // control reg b
-      set_control_reg(&timerB,value);
+      set_control_reg(&cia1TimerB,value);
     break;
+
+  }
+
+}
+
+jchar cia2_read(int address) {
+  jchar result = 0;
+  switch (address) {
+    case 0xdd00:
+      result =  IOUnclaimed[address & 0xfff];
+          break;
+
+    case 0xdd01:
+      result =  IOUnclaimed[address & 0xfff];
+          break;
+
+    case 0xdd02:
+      break;
+
+    case 0xdd03:
+      break;
+
+    case 0xdd04: //timer A low
+      result = get_time_low(&cia2TimerA);
+          break;
+
+    case 0xdd05: //timer A high
+      result = get_time_high(&cia2TimerA);
+          break;
+
+    case 0xdd06: //timer B low
+      result = get_time_low(&cia2TimerB);
+          break;
+
+    case 0xdd07: //timer B high
+      result = get_time_high(&cia2TimerB);
+          break;
+
+    case 0xdd0d: // interrupt control
+      result = IOUnclaimed[address & 0xfff];
+          break;
+
+    case 0xdd0e: // control reg a
+      result = get_control_reg(&cia2TimerA);
+          break;
+
+    case 0xdd0f: // control reg b
+      result = get_control_reg(&cia2TimerB);
+          break;
+
+  }
+  return result;
+}
+
+void cia2_write(int address, int value) {
+
+  switch (address) {
+    case 0xdd00:
+      IOUnclaimed[address & 0xfff] = value;
+          break;
+
+    case 0xdd01:
+      IOUnclaimed[address & 0xfff] = value;
+          break;
+
+    case 0xdd02:
+      break;
+
+    case 0xdd03:
+      break;
+
+    case 0xdd04: //timer A low
+      set_timer_low(&cia2TimerA, value);
+          break;
+
+    case 0xdd05: //timer A high
+      set_timer_high(&cia2TimerA, value);
+          break;
+
+    case 0xdd06: //timer B low
+      set_timer_low(&cia2TimerB, value);
+          break;
+
+    case 0xdd07: //timer B high
+      set_timer_high(&cia2TimerB, value);
+          break;
+
+    case 0xdd0d: // interrupt control
+      IOUnclaimed[address & 0xfff] = value;
+          break;
+
+    case 0xdd0e: // control reg a
+      set_control_reg(&cia2TimerA, value);
+          break;
+
+    case 0xdd0f: // control reg b
+      set_control_reg(&cia2TimerB,value);
+          break;
 
   }
 
@@ -279,6 +380,8 @@ void memory_write(int address, jchar value) {
   else if ((address >=0xd000) && (address < 0xe000) && IOEnabled()) {
     if((address >=0xdc00) & (address < 0xdc10))
       cia1_write(address, value);
+    else if((address >=0xdd00) & (address < 0xdd10))
+      cia2_write(address, value);
     else if (address == 0xd019)
       write_vic_int_reg(value);
     else if ((address >=0xd400) & (address < 0xd800)) {
@@ -295,10 +398,18 @@ void memory_write(int address, jchar value) {
 void
 Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
 {
-  timerA = getTimerInstanceA();
-  add_timer_to_list(&timerA);
-  timerB = getTimerInstanceB();
-  add_timer_to_list(&timerB);
+  cia1TimerA = getTimerInstanceA();
+  add_timer_to_list(&cia1TimerA);
+  cia1TimerB = getTimerInstanceB();
+  add_timer_to_list(&cia1TimerB);
+  cia1TimerA.linked_timer = &cia1TimerB;
+
+  cia2TimerA = getTimerInstanceA();
+  add_timer_to_list(&cia2TimerA);
+  cia2TimerB = getTimerInstanceB();
+  add_timer_to_list(&cia2TimerB);
+  cia2TimerA.linked_timer = &cia2TimerB;
+
   tape_timer = getTapeInstance();
   add_timer_to_list(&tape_timer);
   video_timer = getVideoInstance();

@@ -1,10 +1,13 @@
 package com.johan.emulator.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.support.v7.app.AppCompatActivity;
 
+import com.johan.emulator.R;
 import com.johan.emulator.engine.Emu6502;
 
 import java.nio.ByteBuffer;
@@ -109,6 +112,15 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer
         emuInstance.runBatch(0);
 //        System.out.println("after batch");
         sprite.Draw(mMVPMatrix, byteBuffer);
+        if (!emuInstance.getRunning()) {
+            AppCompatActivity myActivity = (AppCompatActivity)mActivityContext;
+           // mActivityContext.
+            GLSurfaceView mGLSurfaceView = (GLSurfaceView) myActivity.findViewById(R.id.Video);
+            mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+            Intent i = new Intent(myActivity, DebugActivity.class);
+            myActivity.startActivity(i);
+
+        }
         //GLES20.glFinish();
 //        try {
 //            Thread.sleep(1000);

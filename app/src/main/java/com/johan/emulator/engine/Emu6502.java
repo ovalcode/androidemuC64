@@ -25,6 +25,7 @@ public class Emu6502 {
     private static final int ADDRESS_MODE_ZERO_PAGE_X_INDEXED = 11;
     private static final int ADDRESS_MODE_ZERO_PAGE_Y_INDEXED = 12;
 
+    private boolean running = true;
     private static Emu6502 emu6502Instance = null;
 
     public static final int[] ADDRESS_MODES = {
@@ -95,6 +96,13 @@ public class Emu6502 {
         return numStr;
     }
 
+    public boolean getRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 
     public String getDisassembled() {
         char[] memContents = dump();

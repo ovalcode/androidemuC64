@@ -8,13 +8,28 @@
 #include <stdint.h>
 #include "timer.h"
 
+void decrement_underflow_count (cia_timer_struct *tdev) {
+  if (tdev->count_mode == 0)
+    return;
+  tdev->timer.remainingCycles = tdev->timer.remainingCycles -1;
+  if (tdev->timer.remainingCycles < 0) {
+    tdev->timer.remainingCycles = tdev->latch_value;
+    if (tdev->continious == 0) //if not continuios
+      tdev->underflow_counting_started=0;
+  }
+}
+
 void expired(cia_timer_struct *tdev) {
   //__android_log_print(ANDROID_LOG_DEBUG, "expired", "expired");
   tdev->timer.remainingCycles = tdev->latch_value;
   if (tdev->continious == 0) //if not continuios
     tdev->timer.started=0;
+  if (tdev->linked_timer != NULL) {
+    decrement_underflow_count(tdev->linked_timer);
+  }
   tdev->timer.interrupt();
 }
+
 
 void set_timer_low(cia_timer_struct *tdev , int lowValue) {
   //__android_log_print(ANDROID_LOG_DEBUG, "set timer low", "set timer low");
@@ -78,6 +93,7 @@ void set_control_reg_02(cia_timer_struct *tdev, int value) {
 
 void set_control_reg_Underflow(cia_timer_struct *tdev, int value) {
   tdev->underflow_counting_started = value & 1;
+  tdev->timer.started = 0;
   tdev->continious = ((value & 8) == 8) ? 0 : 1;
 
   if ((value & 16) != 0)
@@ -97,11 +113,7 @@ void set_control_reg(cia_timer_struct *tdev, int value) {
     }
   }
 
-  tdev->timer.started = value & 1;
-  tdev->continious = ((value & 8) == 8) ? 0 : 1;
 
-  if ((value & 16) != 0)
-    tdev->timer.remainingCycles = tdev->latch_value;
 }
 
 
