@@ -33,7 +33,7 @@
 
  extern JNIEnv* global_env;
  extern JavaVM* gJavaVM;
- extern jobject currentActivity;
+ extern jobject currentEmuInstance;
  extern jmethodID initAudio;
  extern jmethodID sendAudio;
 
@@ -85,7 +85,8 @@ void EmulateLine()
 	if (!ready)
 		return;
 
-  if (global_env == NULL) {
+	int env_Stat = (*gJavaVM)->GetEnv(gJavaVM, (void **)&global_env, JNI_VERSION_1_6);
+  if (env_Stat == JNI_EDETACHED) {
        (*gJavaVM)->AttachCurrentThread (gJavaVM, &global_env, NULL);
   }
 
@@ -118,7 +119,7 @@ void EmulateLine()
 		loop_c++;
 		if (loop_c == loop_n)
 		{
-			(*global_env)->CallVoidMethod(global_env, currentActivity, sendAudio, audioarray);
+			(*global_env)->CallVoidMethod(global_env, currentEmuInstance, sendAudio, audioarray);
 			loop_c = 0;
 		}
 		

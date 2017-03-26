@@ -2,6 +2,10 @@ package com.johan.emulator.engine;
 
 import android.content.res.AssetManager;
 import java.nio.ByteBuffer;
+
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.widget.EditText;
 
 import com.johan.emulator.R;
@@ -84,6 +88,28 @@ public class Emu6502 {
                     "CPX", "SBC", "", "", "CPX", "SBC", "INC", "", "INX", "SBC", "NOP", "", "CPX", "SBC", "INC", "",
                     "BEQ", "SBC", "", "", "", "SBC", "INC", "", "SED", "SBC", "", "", "", "SBC", "INC", ""};
 
+    private AudioTrack audio;
+
+    public void initAudio(int freq, int bits, int sound_packet_length) {
+        if (audio == null) {
+            audio = new AudioTrack(AudioManager.STREAM_MUSIC, freq, AudioFormat.CHANNEL_CONFIGURATION_MONO, bits == 8?AudioFormat.ENCODING_PCM_8BIT: AudioFormat.ENCODING_PCM_16BIT, 2048, AudioTrack.MODE_STREAM);
+            //soundThread = new SoundThread(freq);
+            //sound_copy = new byte [sound_packet_length*((bits==8)?1:2)];
+            audio.play();
+        }
+    }
+
+    public void sendAudio(short data []) {
+        if (audio != null) {
+            //Log.i("frodoc64", ">>>");
+            long startTime = System.currentTimeMillis();
+            audio.write(data, 0, data.length);
+            long endTime = System.currentTimeMillis();
+//            System.out.println(endTime - startTime);
+
+        }
+    }
+
     private String getAsTwoDigit(int number) {
         String numStr = "00"+Integer.toHexString(number);
         numStr = numStr.substring(numStr.length() - 2);
@@ -105,7 +131,7 @@ public class Emu6502 {
     }
 
     public String getDisassembled() {
-        char[] memContents = dump();
+        char[] memContents = assembleDump();
         int opCode = memContents[getPc()];
         int mode = ADDRESS_MODES[opCode];
         int numArgs = INSTRUCTION_LEN[opCode] - 1;
@@ -223,8 +249,17 @@ public class Emu6502 {
 
     }
 
+    char[] assembleDump() {
+        char[] memoryDump = new char[64*1024];
+        for (int i = 0; i < memoryDump.length; i++) {
+            memoryDump[i] = memoryReadLocation(i);
+        }
+
+        return  memoryDump;
+    }
+
     public String getMemDumpAsString(int address) {
-        char[] memContents = dump();
+        char[] memContents = assembleDump();//dump();
 
         String result = "";
         byte[] temp = new byte[48];
@@ -246,13 +281,14 @@ public class Emu6502 {
     }
 
     private native char[] dump();
+    private native char memoryReadLocation(int address);
     public native void step();
     public native int runBatch(int address);
     public static native void memoryInit();
     private static native void loadROMS (AssetManager pAssetManager);
     public native void attachNewTape(int len, ByteBuffer buf);
     public native void togglePlay();
-    public native void setMainActivityObject(FrontActivity activity);
+    public native void setEmuInstance(Emu6502 emuInstance);
 
     private native char getAcc();
     private native char getXreg();
@@ -286,6 +322,8 @@ public class Emu6502 {
         resetCpu();
         memoryInit();
         emu6502Instance = new Emu6502();
+        emu6502Instance.setEmuInstance(emu6502Instance);
+        emu6502Instance.initAudio(44100, 16, 512);
        return emu6502Instance;
 
     }

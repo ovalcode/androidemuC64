@@ -45,7 +45,7 @@ jchar kernalROM[8192];
 jchar IOUnclaimed[4096];
 jint* g_buffer;
 jbyte* keyboardMatrix;
-jobject currentActivity;
+jobject currentEmuInstance;
 jmethodID initAudio;
 jmethodID sendAudio;
 JNIEnv* global_env = NULL;
@@ -548,6 +548,10 @@ void Java_com_johan_emulator_engine_Emu6502_loadROMS(JNIEnv* env, jobject pObj, 
 
 }
 
+jchar Java_com_johan_emulator_engine_Emu6502_memoryReadLocation(JNIEnv* pEnv, jobject pObj, jint location) {
+  return memory_read(location);
+}
+
 void Java_com_johan_emulator_engine_Emu6502_attachNewTape(JNIEnv* pEnv, jobject pObj, jint len, jobject oBuf) {
   jbyte * tape_image = (jbyte *) (*pEnv)->GetDirectBufferAddress(pEnv, oBuf);
   attachNewTape(tape_image, len, &tape_timer);
@@ -561,11 +565,11 @@ void Java_com_johan_emulator_engine_Emu6502_clearDisplayBuffer(JNIEnv* env, jobj
 //  }
 }
 
-void Java_com_johan_emulator_engine_Emu6502_setMainActivityObject(JNIEnv* env, jobject pObj, jobject activity) {
+void Java_com_johan_emulator_engine_Emu6502_setEmuInstance(JNIEnv* env, jobject pObj, jobject emuInstance) {
 
-  currentActivity = (*env)->NewGlobalRef(env,activity);
+  currentEmuInstance = (*env)->NewGlobalRef(env,emuInstance);
 
-  jclass thisClass = (*env)->GetObjectClass(env,currentActivity);
+  jclass thisClass = (*env)->GetObjectClass(env,currentEmuInstance);
 
   initAudio = (*env)->GetMethodID(env, thisClass, "initAudio", "(III)V");
   sendAudio = (*env)->GetMethodID(env, thisClass, "sendAudio", "([S)V");
