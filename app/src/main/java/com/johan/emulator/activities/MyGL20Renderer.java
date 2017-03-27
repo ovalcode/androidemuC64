@@ -109,10 +109,10 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer
 //        long timeEnd = System.currentTimeMillis();
 //        long duration = timeEnd - timeStart;
 //        System.out.println("Duration: " + duration);
-        emuInstance.runBatch(0);
+        int res = emuInstance.runBatch(emuInstance.getBreakAddress());
 //        System.out.println("after batch");
         sprite.Draw(mMVPMatrix, byteBuffer);
-        if (!emuInstance.getRunning()) {
+        if (!emuInstance.getRunning() || res == -1) {
             AppCompatActivity myActivity = (AppCompatActivity)mActivityContext;
            // mActivityContext.
             GLSurfaceView mGLSurfaceView = (GLSurfaceView) myActivity.findViewById(R.id.Video);

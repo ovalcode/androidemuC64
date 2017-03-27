@@ -87,6 +87,7 @@ public class DebugActivity extends AppCompatActivity {
     }
 
     public void onRunClick(View v) {
+        emuInstance.setBreakAddress(getBreakAddress());
         emuInstance.setRunning(true);
         Intent i = new Intent(this, FrontActivity.class);
         startActivity(i);

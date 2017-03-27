@@ -90,6 +90,16 @@ public class Emu6502 {
 
     private AudioTrack audio;
 
+    private int breakAddress;
+
+    public void setBreakAddress(int address) {
+        this.breakAddress = address;
+    }
+
+    public int getBreakAddress() {
+        return this.breakAddress;
+    }
+
     public void initAudio(int freq, int bits, int sound_packet_length) {
         if (audio == null) {
             audio = new AudioTrack(AudioManager.STREAM_MUSIC, freq, AudioFormat.CHANNEL_CONFIGURATION_MONO, bits == 8?AudioFormat.ENCODING_PCM_8BIT: AudioFormat.ENCODING_PCM_16BIT, 2048, AudioTrack.MODE_STREAM);
