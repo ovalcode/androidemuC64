@@ -48,6 +48,7 @@ jbyte* keyboardMatrix;
 jobject currentEmuInstance;
 jmethodID initAudio;
 jmethodID sendAudio;
+jmethodID logCpuState;
 JNIEnv* global_env = NULL;
 JavaVM* gJavaVM = NULL;
 extern int line_count;
@@ -573,7 +574,7 @@ void Java_com_johan_emulator_engine_Emu6502_setEmuInstance(JNIEnv* env, jobject 
 
   initAudio = (*env)->GetMethodID(env, thisClass, "initAudio", "(III)V");
   sendAudio = (*env)->GetMethodID(env, thisClass, "sendAudio", "([S)V");
-
+  logCpuState = (*env)->GetMethodID(env, thisClass, "logCpuState", "()V");
 
 }
 

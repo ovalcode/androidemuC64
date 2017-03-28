@@ -256,6 +256,7 @@ memory change currentacitivity to emuInstance
 
             return true;
         } else if(id == R.id.action_play) {
+            //item.isChecked()
             emuInstance.togglePlay();
         } else if(id == R.id.action_test) {
             KeyboardView mKeyboardView= (KeyboardView)findViewById(R.id.keyboardview);
@@ -269,6 +270,9 @@ memory change currentacitivity to emuInstance
 
             }
             //mKeyboardView.setVisibility(View.GONE);
+        } else if(id == R.id.action_enable_logging) {
+            item.setChecked(!item.isChecked());
+            emuInstance.setLoggingEnabled(item.isChecked() ? 1 : 0);
         }
 
         return super.onOptionsItemSelected(item);

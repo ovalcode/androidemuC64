@@ -15,6 +15,8 @@ import java.nio.ByteBuffer;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * Created by johan on 2016/12/20.
  */
@@ -30,6 +32,8 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer
     private float[] mRotationMatrix = new float[16];
     private Emu6502 emuInstance;
     private ByteBuffer byteBuffer;
+
+    private Logger log = LoggerFactory.getLogger(MyGL20Renderer.class);
 
     //Declare as volatile because we are updating it from another thread
     public volatile float mAngle;
@@ -110,6 +114,7 @@ public class MyGL20Renderer implements GLSurfaceView.Renderer
 //        long duration = timeEnd - timeStart;
 //        System.out.println("Duration: " + duration);
         int res = emuInstance.runBatch(emuInstance.getBreakAddress());
+        //log.info("Hello daar!!!!");
 //        System.out.println("after batch");
         sprite.Draw(mMVPMatrix, byteBuffer);
         if (!emuInstance.getRunning() || res == -1) {

@@ -10,6 +10,11 @@ import android.widget.EditText;
 
 import com.johan.emulator.R;
 import com.johan.emulator.activities.FrontActivity;
+import com.johan.emulator.activities.MyGL20Renderer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Created by johan on 2016/10/15.
@@ -28,6 +33,8 @@ public class Emu6502 {
     private static final int ADDRESS_MODE_ZERO_PAGE = 10;
     private static final int ADDRESS_MODE_ZERO_PAGE_X_INDEXED = 11;
     private static final int ADDRESS_MODE_ZERO_PAGE_Y_INDEXED = 12;
+
+    private Logger log = LoggerFactory.getLogger(MyGL20Renderer.class);
 
     private boolean running = true;
     private static Emu6502 emu6502Instance = null;
@@ -141,18 +148,18 @@ public class Emu6502 {
     }
 
     public String getDisassembled() {
-        char[] memContents = assembleDump();
-        int opCode = memContents[getPc()];
+        //char[] memContents = assembleDump();
+        int opCode = memoryReadLocation(getPc());//memContents[getPc()];
         int mode = ADDRESS_MODES[opCode];
         int numArgs = INSTRUCTION_LEN[opCode] - 1;
         int argbyte1 = 0;
         int argbyte2 = 0;
         if (numArgs > 0) {
-            argbyte1 = memContents[getPc() + 1];
+            argbyte1 = memoryReadLocation(getPc() + 1);
         }
 
         if (numArgs > 1) {
-            argbyte2 = memContents[getPc() + 2];
+            argbyte2 = memoryReadLocation(getPc() + 2);
         }
 
         String addrStr = "";
@@ -228,6 +235,11 @@ public class Emu6502 {
         return result;
     }
 
+    public void logCpuState() {
+        String dd = getDisassembled();
+        log.info(dd);
+    }
+
     public String getFlagDump() {
         String result ="";
         result = result + ((getNegativeFlag() == 1) ? "N" : "-");
@@ -299,6 +311,8 @@ public class Emu6502 {
     public native void attachNewTape(int len, ByteBuffer buf);
     public native void togglePlay();
     public native void setEmuInstance(Emu6502 emuInstance);
+
+    public native void setLoggingEnabled(int option);
 
     private native char getAcc();
     private native char getXreg();

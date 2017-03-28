@@ -22,5 +22,12 @@
         android:orderInCategory="100"
         android:title="KeyBoard/Joy"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_enable_logging"
+        android:orderInCategory="100"
+        android:title="Enable Logging"
+        android:checkable="true"
+        app:showAsAction="never" />
+
 
 </menu>

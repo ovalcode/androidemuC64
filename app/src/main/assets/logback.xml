@@ -1,0 +1,12 @@
+<configuration>
+    <appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>/data/data/com.johan.myapplication/files/log/foo.log</file>
+        <param name="Append" value="false" />
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="DEBUG">
+        <appender-ref ref="file" />
+    </root>
+</configuration>

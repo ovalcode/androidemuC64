@@ -12,6 +12,10 @@
 #include <android/log.h>
 #include <stdio.h>
 
+extern JNIEnv* global_env;
+extern jmethodID logCpuState;
+extern jobject currentEmuInstance;
+extern JavaVM* gJavaVM;
 
   #define ADDRESS_MODE_ACCUMULATOR 0
   #define ADDRESS_MODE_ABSOLUTE 1
@@ -84,6 +88,8 @@
   };
 
   int frameFinished = 0;
+
+  int loggingEnabled = 0;
 
   struct timer_node * timer_list_head;
 
@@ -438,6 +444,15 @@ strcat(str, "concatenated.");
   int step() {
     //getDisassembled(0,0,0,0);
       int result = 0;
+      if (loggingEnabled) {
+        int env_Stat = (*gJavaVM)->GetEnv(gJavaVM, (void **)&global_env, JNI_VERSION_1_6);
+        if (env_Stat == JNI_EDETACHED) {
+          (*gJavaVM)->AttachCurrentThread (gJavaVM, &global_env, NULL);
+        }
+
+        (*global_env)->CallVoidMethod(global_env, currentEmuInstance, logCpuState);
+
+      }
     //__android_log_print(ANDROID_LOG_DEBUG, "Hello", "Hello Toets toets");
       process_interrupts();
       opcode = memory_read(pc);
@@ -1504,6 +1519,7 @@ void
 Java_com_johan_emulator_engine_Emu6502_step(JNIEnv* pEnv, jobject pObj)
 {
   step();
+  processAlarms();
 }
 
 jchar Java_com_johan_emulator_engine_Emu6502_getAcc(JNIEnv* pEnv, jobject pObj)
@@ -1582,6 +1598,11 @@ jchar Java_com_johan_emulator_engine_Emu6502_getDecimalFlag(JNIEnv* pEnv, jobjec
 {
   return decimalFlag;
 }
+
+jchar Java_com_johan_emulator_engine_Emu6502_setLoggingEnabled(JNIEnv* pEnv, jobject pObj, jint option) {
+  loggingEnabled = option;
+}
+
 
 jchar Java_com_johan_emulator_engine_Emu6502_getOverflowFlag(JNIEnv* pEnv, jobject pObj)
 {
