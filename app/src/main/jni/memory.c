@@ -324,6 +324,9 @@ jchar memory_read(int address) {
   else if ((address >=0xd000) && (address < 0xe000) && IOEnabled()) {
     if ((address >=0xdc00) && (address < 0xdc10))
       return cia1_read(address);
+    else if ((address >=0xdd00) && (address < 0xdd10))
+      return cia2_read(address);
+
     else if (address == 0xd011) {
       int tempValue = IOUnclaimed[address & 0xfff] & 0x7f;
       tempValue = tempValue | ((line_count & 0x100) >> 1);

@@ -236,8 +236,14 @@ public class Emu6502 {
     }
 
     public void logCpuState() {
-        String dd = getDisassembled();
-        log.info(dd);
+        String dd = getDisassembled().toUpperCase();
+        StringBuilder sb = new StringBuilder(dd);
+        sb.insert(0, '.');
+        int totalCycleCount = getTotalCycleCount();
+        sb.insert(6, totalCycleCount+" ");
+        sb.append(" "+getRegisterDump());
+
+        log.info(sb.toString());
     }
 
     public String getFlagDump() {
@@ -334,6 +340,7 @@ public class Emu6502 {
     public native void interruptCpu();
     public native void setKeyboardMatrix(ByteBuffer keyBoardMatrix);
     public native void clearDisplayBuffer();
+    public native int getTotalCycleCount();
 
     protected Emu6502() {
 

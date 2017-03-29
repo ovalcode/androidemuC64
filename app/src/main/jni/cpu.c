@@ -109,6 +109,7 @@ extern JavaVM* gJavaVM;
     int interruptFlag = 0;
     int decimalFlag = 0;
     int remainingCycles;
+    int totalCycles = 0;
     int currentCycles;
 
 void updateFlags(jchar value) {
@@ -457,7 +458,8 @@ strcat(str, "concatenated.");
       process_interrupts();
       opcode = memory_read(pc);
       currentCycles = instructionCycles[opcode];
-      remainingCycles -= currentCycles;
+      totalCycles = totalCycles + currentCycles;
+      //remainingCycles -= currentCycles;
       pc = pc + 1;
       int iLen = instructionLengths[opcode];
       arg1 = 0;
@@ -1607,6 +1609,11 @@ jchar Java_com_johan_emulator_engine_Emu6502_setLoggingEnabled(JNIEnv* pEnv, job
 jchar Java_com_johan_emulator_engine_Emu6502_getOverflowFlag(JNIEnv* pEnv, jobject pObj)
 {
   return overflowFlag;
+}
+
+jint Java_com_johan_emulator_engine_Emu6502_getTotalCycleCount(JNIEnv* pEnv, jobject pObj)
+{
+  return totalCycles;
 }
 
 void Java_com_johan_emulator_engine_Emu6502_interruptCpu(JNIEnv* pEnv, jobject pObj)
