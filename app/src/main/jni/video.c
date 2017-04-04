@@ -393,8 +393,9 @@ int raster_int_enabled() {
 }
 
 
-void video_line_expired(struct timer_struct *tdev) {
-  tdev->remainingCycles = 63;
+void video_line_expired(struct timer_struct *tdev, int rclock) {
+  int remainingCycles = tdev->targetClock - rclock;
+  tdev->targetClock = 63 + rclock + remainingCycles;
   processLine();
   line_count++;
   jchar RST_0_7 = memory_unclaimed_io_read(0xd012);
@@ -429,7 +430,7 @@ void write_vic_int_reg(jchar value) {
 struct timer_struct getVideoInstance() {
   struct timer_struct myVideo;
   myVideo.expiredevent = &video_line_expired;
-  myVideo.remainingCycles = 63;
+  myVideo.targetClock = 63;
   myVideo.started = 1;
   //myVideo.interrupt = &interrupt_timer_A;
   return myVideo;
