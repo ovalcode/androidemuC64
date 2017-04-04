@@ -1497,7 +1497,7 @@ void processAlarms() {
         if (current->timer->started == 1) {
           //__android_log_print(ANDROID_LOG_DEBUG, "timer started", "timer started");
           //current->timer->remainingCycles = current->timer->remainingCycles - currentCycles;
-          if (current->timer->targetClock >= totalCycles) {
+          if (current->timer->targetClock <= totalCycles) {
             //__android_log_print(ANDROID_LOG_DEBUG, "timer ran out", "timer ran out");
             //current->timer->remainingCycles = 0;
             current->timer->expiredevent(current->timer, totalCycles);
