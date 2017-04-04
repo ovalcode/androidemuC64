@@ -8,9 +8,9 @@
 #endif //MY_APPLICATION_ALARM_H
 
 typedef struct timer_struct {
-  int remainingCycles;
+  int targetClock;
   int started;
-  void (*expiredevent) (struct timer_struct*);
+  void (*expiredevent) (struct timer_struct*, int clock);
   void (*interrupt) ();
 } timer_struct;
 

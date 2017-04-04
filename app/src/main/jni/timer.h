@@ -15,6 +15,7 @@ typedef struct cia_timer_struct {
     int timer_type;//0 -> timer A, 1 -> timer B
     int count_mode;//0 -> count 02, 1 -> count underflows
     int underflow_counting_started;
+    int kickOffCount;
 } cia_timer_struct;
 
 void set_timer_low(cia_timer_struct *tdev , int lowValue);

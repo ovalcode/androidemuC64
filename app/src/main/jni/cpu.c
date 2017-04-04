@@ -17,6 +17,8 @@ extern jmethodID logCpuState;
 extern jobject currentEmuInstance;
 extern JavaVM* gJavaVM;
 
+void processAlarms();
+
   #define ADDRESS_MODE_ACCUMULATOR 0
   #define ADDRESS_MODE_ABSOLUTE 1
   #define ADDRESS_MODE_ABSOLUTE_X_INDEXED 2
@@ -112,6 +114,13 @@ extern JavaVM* gJavaVM;
     int totalCycles = 0;
     int currentCycles;
 
+int getTotalCycleCount () {
+  return totalCycles;
+}
+
+int getCurrentCycles() {
+  return currentCycles;
+}
 void updateFlags(jchar value) {
     zeroFlag = (value == 0) ? 1 : 0;
     negativeFlag = ((value & 0x80) != 0) ? 1 : 0;
@@ -247,12 +256,16 @@ static inline void BranchClear(int flag) {
   if (flag == 1)
     return;
   int effectiveAdrress = calculateEffevtiveAdd(ADDRESS_MODE_RELATIVE, arg1, arg2);
+  currentCycles++;
+  totalCycles++;
   pc = effectiveAdrress;
 }
 
 static inline void BranchSet(int flag) {
   if (flag == 0)
     return;
+  currentCycles++;
+  totalCycles++;
   int effectiveAdrress = calculateEffevtiveAdd(ADDRESS_MODE_RELATIVE, arg1, arg2);
   pc = effectiveAdrress;
 }
@@ -459,6 +472,7 @@ strcat(str, "concatenated.");
       opcode = memory_read(pc);
       currentCycles = instructionCycles[opcode];
       totalCycles = totalCycles + currentCycles;
+      processAlarms();
       //remainingCycles -= currentCycles;
       pc = pc + 1;
       int iLen = instructionLengths[opcode];
@@ -1482,11 +1496,11 @@ void processAlarms() {
        //__android_log_print(ANDROID_LOG_DEBUG, "entered alarm loop", "alarm loop");
         if (current->timer->started == 1) {
           //__android_log_print(ANDROID_LOG_DEBUG, "timer started", "timer started");
-          current->timer->remainingCycles = current->timer->remainingCycles - currentCycles;
-          if (current->timer->remainingCycles < 0) {
+          //current->timer->remainingCycles = current->timer->remainingCycles - currentCycles;
+          if (current->timer->targetClock >= totalCycles) {
             //__android_log_print(ANDROID_LOG_DEBUG, "timer ran out", "timer ran out");
-            current->timer->remainingCycles = 0;
-            current->timer->expiredevent(current->timer);
+            //current->timer->remainingCycles = 0;
+            current->timer->expiredevent(current->timer, totalCycles);
           }
         }
         current = current->next;
@@ -1506,7 +1520,7 @@ int runBatch(int address) {
       lastResult = -1;
       break;
     }
-    processAlarms();
+    //processAlarms();
     //memory_write(0xd012, (remainingCycles < 50) ? 0 : 1);
   }
 
@@ -1521,7 +1535,7 @@ void
 Java_com_johan_emulator_engine_Emu6502_step(JNIEnv* pEnv, jobject pObj)
 {
   step();
-  processAlarms();
+  //processAlarms();
 }
 
 jchar Java_com_johan_emulator_engine_Emu6502_getAcc(JNIEnv* pEnv, jobject pObj)
