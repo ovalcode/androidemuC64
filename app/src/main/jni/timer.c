@@ -37,7 +37,7 @@ void expired(cia_timer_struct *tdev, int rclock) {
   tdev->timer.interrupt();
 
   if (rescheduleAlarm)
-    tdev->timer.targetClock = rclock + tdev->kickOffCount + remaininfgCycles + 2;
+    tdev->timer.targetClock = rclock + tdev->kickOffCount + remaininfgCycles + 1;
 }
 
 
@@ -135,7 +135,7 @@ void set_control_reg_02(cia_timer_struct *tdev, int value) {
   }
 
   if (rescheduleAlarm) {
-    tdev->timer.targetClock = getTotalCycleCount() + tdev->kickOffCount + 2;
+    tdev->timer.targetClock = getTotalCycleCount() + tdev->kickOffCount + 2 + 2;
   }
 
   tdev->continious = ((value & 8) == 8) ? 0 : 1;
