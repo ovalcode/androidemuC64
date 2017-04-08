@@ -165,20 +165,29 @@ public class Emu6502 {
         String addrStr = "";
         String result = getAsFourDigit(getPc());
         result = result + " " + opCodeDesc[opCode] + " ";
+        int effectiveAddress = 0;
         switch (mode) {
             case ADDRESS_MODE_ACCUMULATOR: result = result + " A";
                 break;
 
-            case ADDRESS_MODE_ABSOLUTE: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+            case ADDRESS_MODE_ABSOLUTE:
+                effectiveAddress = argbyte2 * 256 + argbyte1;
+                addrStr = getAsFourDigit(effectiveAddress);
                 result = result + "$" + addrStr;
                 break;
 
-            case ADDRESS_MODE_ABSOLUTE_X_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+            case ADDRESS_MODE_ABSOLUTE_X_INDEXED:
+                effectiveAddress = argbyte2 * 256 + argbyte1;
+                addrStr = getAsFourDigit(effectiveAddress);
+                effectiveAddress = effectiveAddress + getXreg();
                 result = result + "$" + addrStr + ",X";
 
                 break;
 
-            case ADDRESS_MODE_ABSOLUTE_Y_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+            case ADDRESS_MODE_ABSOLUTE_Y_INDEXED:
+                effectiveAddress = argbyte2 * 256 + argbyte1;
+                addrStr = getAsFourDigit(effectiveAddress);
+                effectiveAddress = effectiveAddress + getYreg();
                 result = result + "$" + addrStr + ",Y";
 
                 break;
@@ -198,12 +207,17 @@ public class Emu6502 {
             //break;
 
             case ADDRESS_MODE_X_INDEXED_INDIRECT:
-                addrStr = getAsTwoDigit(argbyte2 * 256 + argbyte1);
+                effectiveAddress = argbyte2 * 256 + argbyte1;
+                addrStr = getAsTwoDigit(effectiveAddress);
+                effectiveAddress = effectiveAddress + getXreg();
+                effectiveAddress = memoryReadLocation(effectiveAddress+1) * 256 + memoryReadLocation(effectiveAddress);
                 result = result + "($" + addrStr + ",X)";
                 break;
 
             case ADDRESS_MODE_INDIRECT_Y_INDEXED:
+                effectiveAddress = argbyte1;
                 addrStr = getAsTwoDigit(argbyte1);
+                effectiveAddress = memoryReadLocation(effectiveAddress+1) * 256 + memoryReadLocation(effectiveAddress) + getYreg();
                 result = result + "($" + addrStr + "),Y";
 
                 break;
@@ -220,19 +234,23 @@ public class Emu6502 {
                 break;
 
             case ADDRESS_MODE_ZERO_PAGE_X_INDEXED:
+                effectiveAddress = argbyte1;
                 addrStr = getAsTwoDigit(argbyte1);
+                effectiveAddress = effectiveAddress + getXreg();
                 result = result + "$" + addrStr + ",X";
                 //return result;
                 break;
 
             case ADDRESS_MODE_ZERO_PAGE_Y_INDEXED:
+                effectiveAddress = argbyte1;
                 addrStr = getAsTwoDigit(argbyte1);
+                effectiveAddress = effectiveAddress + getYreg();
                 result = result + "$" + addrStr + ",Y";
                 // return result;
                 break;
 
         }
-        return result;
+        return result + " " + getAsFourDigit(effectiveAddress) + " ";
     }
 
     public void logCpuState() {

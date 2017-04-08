@@ -82,18 +82,18 @@ jchar cia1_read(int address) {
   jchar result = 0;
   switch (address) {
     case 0xdc00:
-      result =  ~joystickStatus & 0xff & mainMem[0xdc00];
+      result =  ~joystickStatus & 0xff & IOUnclaimed[0xdc00 & 0xfff];
     break;
 
     case 0xdc01:
-      result = getKeyPortByte(mainMem[0xdc00]);
+      result = getKeyPortByte(IOUnclaimed[0xdc00 & 0xfff]);
     break;
 
-    case 0xdc02:      
-    break;
+//    case 0xdc02:
+//    break;
 
-    case 0xdc03:
-    break;
+//    case 0xdc03:
+//    break;
 
     case 0xdc04: //timer A low
       result = get_time_low(&cia1TimerA);
@@ -123,6 +123,10 @@ jchar cia1_read(int address) {
       result = get_control_reg(&cia1TimerB);
     break;
 
+    default:
+      result = IOUnclaimed[address & 0xfff];
+    break;
+
   }
   return result;
 }
@@ -131,18 +135,18 @@ void cia1_write(int address, int value) {
 
   switch (address) {
     case 0xdc00:
-      mainMem[address] = value;
+      IOUnclaimed[address & 0xfff] = value;
     break;
 
     case 0xdc01:
-      mainMem[address] = value;
+      IOUnclaimed[address & 0xfff] = value;
     break;
 
-    case 0xdc02:
-    break;
+//    case 0xdc02:
+//    break;
 
-    case 0xdc03:
-    break;
+//    case 0xdc03:
+//    break;
 
     case 0xdc04: //timer A low
       set_timer_low(&cia1TimerA, value);
@@ -172,6 +176,10 @@ void cia1_write(int address, int value) {
       set_control_reg(&cia1TimerB,value);
     break;
 
+    default:
+      IOUnclaimed[address & 0xfff] = value;
+    break;
+
   }
 
 }
@@ -187,11 +195,11 @@ jchar cia2_read(int address) {
       result =  IOUnclaimed[address & 0xfff];
           break;
 
-    case 0xdd02:
-      break;
+//    case 0xdd02:
+//      break;
 
-    case 0xdd03:
-      break;
+//    case 0xdd03:
+//      break;
 
     case 0xdd04: //timer A low
       result = get_time_low(&cia2TimerA);
@@ -221,6 +229,9 @@ jchar cia2_read(int address) {
       result = get_control_reg(&cia2TimerB);
           break;
 
+    default:
+      result = IOUnclaimed[address & 0xfff];
+    break;
   }
   return result;
 }
@@ -236,11 +247,11 @@ void cia2_write(int address, int value) {
       IOUnclaimed[address & 0xfff] = value;
           break;
 
-    case 0xdd02:
-      break;
+//    case 0xdd02:
+//      break;
 
-    case 0xdd03:
-      break;
+//    case 0xdd03:
+//      break;
 
     case 0xdd04: //timer A low
       set_timer_low(&cia2TimerA, value);
@@ -269,6 +280,10 @@ void cia2_write(int address, int value) {
     case 0xdd0f: // control reg b
       set_control_reg(&cia2TimerB,value);
           break;
+
+    default:
+      IOUnclaimed[address & 0xfff] = value;
+      break;
 
   }
 
@@ -419,6 +434,9 @@ Java_com_johan_emulator_engine_Emu6502_memoryInit(JNIEnv* pEnv, jobject pObj)
   video_timer = getVideoInstance();
   add_timer_to_list(&video_timer);
   initialise_video();
+  for (int i = 0; i< 65536; i++) {
+    mainMem[i] = (i & 0x40) ? 0xff : 0;
+  }
   mainMem[1] = 7;
   init_sid();
   Reset();

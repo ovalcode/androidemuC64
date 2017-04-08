@@ -113,6 +113,7 @@ void processAlarms();
     int remainingCycles;
     int totalCycles = 0;
     int currentCycles;
+    int crossBoundary = 0;
 
 int getTotalCycleCount () {
   return totalCycles;
@@ -135,6 +136,8 @@ void updateFlags(jchar value) {
   int calculateEffevtiveAdd(unsigned char mode, int argbyte1, int argbyte2) {
 
     int tempAddress = 0;
+    int preAddress = 0;
+    crossBoundary = 0;
     switch (mode)
     {
       //case ADDRESS_MODE_ACCUMULATOR: return 0;
@@ -143,8 +146,10 @@ void updateFlags(jchar value) {
       case ADDRESS_MODE_ABSOLUTE: return ((argbyte2 << 8) + argbyte1);
       break;
 
-      case ADDRESS_MODE_ABSOLUTE_X_INDEXED: tempAddress = ((argbyte2 << 8) + argbyte1);
-        tempAddress = tempAddress + xReg;
+      case ADDRESS_MODE_ABSOLUTE_X_INDEXED:
+        preAddress = ((argbyte2 << 8) + argbyte1);
+        tempAddress = preAddress + xReg;
+        crossBoundary = (preAddress ^ tempAddress) & 0xff00;
         return tempAddress;
       break;
 
@@ -170,7 +175,9 @@ void updateFlags(jchar value) {
       break;
 
       case ADDRESS_MODE_INDIRECT_Y_INDEXED:
-        tempAddress = (memory_read(argbyte1 + 1) << 8) + memory_read(argbyte1) + yReg;
+        preAddress = (memory_read(argbyte1 + 1) << 8) + memory_read(argbyte1);
+        tempAddress = preAddress + yReg;
+        crossBoundary = (preAddress ^ tempAddress) & 0xff00;
         return tempAddress;
       break;
 
@@ -517,6 +524,8 @@ strcat(str, "concatenated.");
         case 0xA1:
         case 0xB1:
           acc = setNZ(resolveRead());
+              if (((opcode == 0xbd) | (opcode == 0xb1)) && crossBoundary)
+                totalCycles++;
         break;
 
 /*LDX  Load Index X with Memory
