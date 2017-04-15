@@ -54,6 +54,10 @@
 
     <Row>
         <Key android:codes="60"    android:keyLabel="SP" />
+        <Key android:codes="4"    android:keyLabel="F1" />
+        <Key android:codes="5"    android:keyLabel="F3" />
+        <Key android:codes="6"    android:keyLabel="F5" />
+        <Key android:codes="3"    android:keyLabel="F7" />
      </Row>
 
 
